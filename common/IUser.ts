@@ -15,10 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { init as initDb } from './db';
-
-export function run() {
-  initDb((err) => {
-    console.log('Running');
-  });
+export interface IUser {
+  userId: string;
+  userName: string;
+  timezone: string;
 }

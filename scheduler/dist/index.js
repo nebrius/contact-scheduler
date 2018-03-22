@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,11 +15,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { init as initDb } from './db';
-
-export function run() {
-  initDb((err) => {
+Object.defineProperty(exports, "__esModule", { value: true });
+function run() {
     console.log('Running');
-  });
 }
+exports.run = run;
+//# sourceMappingURL=index.js.map

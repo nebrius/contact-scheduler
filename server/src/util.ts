@@ -15,10 +15,18 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { init as initDb } from './db';
+export function getEnvironmentVariable(variable: string): string {
+  const value = process.env[variable];
+  if (typeof value !== 'string') {
+    throw new Error(`Environment variable ${variable} is not defined`);
+  }
+  return value;
+}
 
-export function run() {
-  initDb((err) => {
-    console.log('Running');
-  });
+export function toStringWithPadding(value: number, digits: number): string {
+  let convertedString = value.toString();
+  while (convertedString.length < digits) {
+    convertedString = '0' + convertedString;
+  }
+  return convertedString;
 }

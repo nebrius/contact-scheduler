@@ -15,10 +15,20 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { init as initDb } from './db';
+import { COLLECTIONS } from './common/db_info';
+import { IUser } from './common/IUser';
+import { getEnvironmentVariable } from './util';
+import { MongoClient, Db } from 'mongodb';
 
-export function run() {
-  initDb((err) => {
-    console.log('Running');
+let db: Db;
+
+export function init(cb: (err?: Error) => void): void {
+  MongoClient.connect(getEnvironmentVariable('COSMOS_CONNECTION_STRING'), (connectErr, client) => {
+    if (connectErr) {
+      cb(connectErr);
+      return;
+    }
+    db = client.db(getEnvironmentVariable('COSMOS_DB_NAME'));
+
   });
 }

@@ -1,12 +1,11 @@
 {
-  "name": "contact-scheduler-server",
+  "name": "contact-scheduler-scheduler",
   "version": "1.0.0",
-  "description": "The server for Contact Scheduler",
+  "description": "The scheduler function for Contact Scheduler",
   "main": "bin/cli.js",
   "scripts": {
     "prebuild": "tslint 'src/**/*.ts'",
     "build": "tsc",
-    "postbuild": "echo done",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node bin/cli.js"
   },
@@ -21,11 +20,7 @@
   },
   "homepage": "https://github.com/nebrius/contact-scheduler#readme",
   "devDependencies": {
-    "@types/mongodb": "^3.0.8",
     "tslint": "^5.9.1",
-    "typescript": "^2.7.2"
-  },
-  "dependencies": {
-    "mongodb": "^3.0.4"
+    "typescript": "^2.6.2"
   }
 }
