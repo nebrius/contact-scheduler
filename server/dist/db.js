@@ -20,6 +20,7 @@ var db_info_1 = require("./common/db_info");
 var util_1 = require("./util");
 var mongodb_1 = require("mongodb");
 var db;
+var userInfoCache = {};
 function init(cb) {
     mongodb_1.MongoClient.connect(util_1.getEnvironmentVariable('COSMOS_CONNECTION_STRING'), function (connectErr, client) {
         if (connectErr) {
@@ -27,21 +28,27 @@ function init(cb) {
             return;
         }
         db = client.db(util_1.getEnvironmentVariable('COSMOS_DB_NAME'));
-        db.createCollection(db_info_1.COLLECTIONS.USERS, function (createErr, results) {
-            if (createErr) {
-                cb(createErr);
-                return;
-            }
-            var newUser = {
-                userId: '10105919443774188',
-                userName: 'Bryan Hughes',
-                timezone: 'America/Los_Angeles'
+        db.collection(db_info_1.COLLECTIONS.USERS).find({}).forEach(function (doc) {
+            userInfoCache[doc.id] = {
+                id: doc.id,
+                name: doc.name,
+                timezone: doc.timezone,
+                contacts: doc.contacts
             };
-            db.collection(db_info_1.COLLECTIONS.USERS).insertOne(newUser, function (insertErr, res) {
-                console.error(insertErr, res);
-            });
-        });
+        }, cb);
     });
 }
 exports.init = init;
+function getContacts(userId) {
+    return userInfoCache[userId].contacts;
+}
+exports.getContacts = getContacts;
+function setContacts(userId, contacts, cb) {
+    if (!userInfoCache[userId]) {
+        throw new Error("Unknown user ID " + userId);
+    }
+    // Save to MongoDB here
+    userInfoCache[userId].contacts = contacts;
+}
+exports.setContacts = setContacts;
 //# sourceMappingURL=db.js.map

@@ -15,20 +15,5 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export enum Frequency {
-  Weekly,
-  Monthly,
-  Quarterly
-}
-
-export interface IContact {
-  name: string;
-  frequency: Frequency;
-}
-
-export interface IUser {
-  id: string;
-  name: string;
-  timezone: string;
-  contacts: IContact[];
-}
+export type CB = (err: Error | undefined) => void;
+export type CBWithValue<T> = (err: Error | undefined, value: T | undefined) => void;

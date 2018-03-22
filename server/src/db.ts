@@ -16,19 +16,40 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { COLLECTIONS } from './common/db_info';
-import { IUser } from './common/IUser';
+import { CB } from './common/cb';
+import { IUser, IContact } from './common/IUser';
 import { getEnvironmentVariable } from './util';
 import { MongoClient, Db } from 'mongodb';
 
 let db: Db;
+const userInfoCache: { [ userId: string ]: IUser } = {};
 
-export function init(cb: (err?: Error) => void): void {
+export function init(cb: CB): void {
   MongoClient.connect(getEnvironmentVariable('COSMOS_CONNECTION_STRING'), (connectErr, client) => {
     if (connectErr) {
       cb(connectErr);
       return;
     }
     db = client.db(getEnvironmentVariable('COSMOS_DB_NAME'));
-
+    db.collection(COLLECTIONS.USERS).find({}).forEach((doc: IUser) => {
+      userInfoCache[doc.id] = {
+        id: doc.id,
+        name: doc.name,
+        timezone: doc.timezone,
+        contacts: doc.contacts
+      };
+    }, cb);
   });
+}
+
+export function getContacts(userId: string): IContact[] {
+  return userInfoCache[userId].contacts;
+}
+
+export function setContacts(userId: string, contacts: IContact[], cb: CB): void {
+  if (!userInfoCache[userId]) {
+    throw new Error(`Unknown user ID ${userId}`);
+  }
+  // Save to MongoDB here
+  userInfoCache[userId].contacts = contacts;
 }

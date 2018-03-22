@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,21 +15,5 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-export enum Frequency {
-  Weekly,
-  Monthly,
-  Quarterly
-}
-
-export interface IContact {
-  name: string;
-  frequency: Frequency;
-}
-
-export interface IUser {
-  id: string;
-  name: string;
-  timezone: string;
-  contacts: IContact[];
-}
+Object.defineProperty(exports, "__esModule", { value: true });
+//# sourceMappingURL=cb.js.map

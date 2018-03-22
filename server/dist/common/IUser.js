@@ -16,4 +16,10 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
+var Frequency;
+(function (Frequency) {
+    Frequency[Frequency["Weekly"] = 0] = "Weekly";
+    Frequency[Frequency["Monthly"] = 1] = "Monthly";
+    Frequency[Frequency["Quarterly"] = 2] = "Quarterly";
+})(Frequency = exports.Frequency || (exports.Frequency = {}));
 //# sourceMappingURL=IUser.js.map
