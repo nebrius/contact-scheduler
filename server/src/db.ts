@@ -22,15 +22,38 @@ import { getEnvironmentVariable } from './util';
 import { MongoClient, Db } from 'mongodb';
 
 let db: Db;
-const userInfoCache: { [ userId: string ]: IUser } = {};
+const userInfoCache: { [ id: string ]: IUser } = {};
+
+function connect(cb?: CB) {
+  MongoClient.connect(getEnvironmentVariable('COSMOS_CONNECTION_STRING'), (connectErr, client) => {
+    if (connectErr) {
+      if (cb) {
+        cb(connectErr);
+      }
+      return;
+    }
+    db = client.db(getEnvironmentVariable('COSMOS_DB_NAME'));
+    db.on('close', (closeErr) => {
+      if (closeErr) {
+        console.error(`MongoDB connection was closed and will be reconnected. Close error: ${closeErr}`);
+      } else {
+        console.warn('MongoDB connection was closed and will be reconnected');
+      }
+      // TODO: need to buffer requests between connects...or just switch to mongoose?
+      connect();
+    });
+    if (cb) {
+      cb(undefined);
+    }
+  });
+}
 
 export function init(cb: CB): void {
-  MongoClient.connect(getEnvironmentVariable('COSMOS_CONNECTION_STRING'), (connectErr, client) => {
+  connect((connectErr) => {
     if (connectErr) {
       cb(connectErr);
       return;
     }
-    db = client.db(getEnvironmentVariable('COSMOS_DB_NAME'));
     db.collection(COLLECTIONS.USERS).find({}).forEach((doc: IUser) => {
       userInfoCache[doc.id] = {
         id: doc.id,
@@ -42,14 +65,22 @@ export function init(cb: CB): void {
   });
 }
 
-export function getContacts(userId: string): IContact[] {
-  return userInfoCache[userId].contacts;
+export function isUserRegistered(id: string): boolean {
+  return userInfoCache.hasOwnProperty(id);
 }
 
-export function setContacts(userId: string, contacts: IContact[], cb: CB): void {
-  if (!userInfoCache[userId]) {
-    throw new Error(`Unknown user ID ${userId}`);
+export function getContacts(id: string): IContact[] {
+  if (!userInfoCache[id]) {
+    throw new Error(`Unknown user ID ${id}`);
   }
-  // Save to MongoDB here
-  userInfoCache[userId].contacts = contacts;
+  return userInfoCache[id].contacts;
+}
+
+export function setContacts(id: string, contacts: IContact[], cb: CB): void {
+  if (!userInfoCache[id]) {
+    throw new Error(`Unknown user ID ${id}`);
+  }
+  db.collection(COLLECTIONS.USERS).updateOne({ id }, { $set: { contacts } }, (err, result) => {
+    userInfoCache[id].contacts = contacts;
+  });
 }

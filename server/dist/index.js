@@ -17,8 +17,17 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 var db_1 = require("./db");
+var endpoints_1 = require("./endpoints");
+var async_1 = require("async");
 function run() {
-    db_1.init(function (err) {
+    async_1.parallel([
+        db_1.init,
+        endpoints_1.init
+    ], function (err) {
+        if (err) {
+            console.error(err);
+            process.exit(-1);
+        }
         console.log('Running');
     });
 }

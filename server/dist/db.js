@@ -21,13 +21,36 @@ var util_1 = require("./util");
 var mongodb_1 = require("mongodb");
 var db;
 var userInfoCache = {};
-function init(cb) {
+function connect(cb) {
     mongodb_1.MongoClient.connect(util_1.getEnvironmentVariable('COSMOS_CONNECTION_STRING'), function (connectErr, client) {
+        if (connectErr) {
+            if (cb) {
+                cb(connectErr);
+            }
+            return;
+        }
+        db = client.db(util_1.getEnvironmentVariable('COSMOS_DB_NAME'));
+        db.on('close', function (closeErr) {
+            if (closeErr) {
+                console.error("MongoDB connection was closed and will be reconnected. Close error: " + closeErr);
+            }
+            else {
+                console.warn('MongoDB connection was closed and will be reconnected');
+            }
+            // TODO: need to buffer requests between connects...or just switch to mongoose?
+            connect();
+        });
+        if (cb) {
+            cb(undefined);
+        }
+    });
+}
+function init(cb) {
+    connect(function (connectErr) {
         if (connectErr) {
             cb(connectErr);
             return;
         }
-        db = client.db(util_1.getEnvironmentVariable('COSMOS_DB_NAME'));
         db.collection(db_info_1.COLLECTIONS.USERS).find({}).forEach(function (doc) {
             userInfoCache[doc.id] = {
                 id: doc.id,
@@ -39,16 +62,24 @@ function init(cb) {
     });
 }
 exports.init = init;
-function getContacts(userId) {
-    return userInfoCache[userId].contacts;
+function isUserRegistered(id) {
+    return userInfoCache.hasOwnProperty(id);
+}
+exports.isUserRegistered = isUserRegistered;
+function getContacts(id) {
+    if (!userInfoCache[id]) {
+        throw new Error("Unknown user ID " + id);
+    }
+    return userInfoCache[id].contacts;
 }
 exports.getContacts = getContacts;
-function setContacts(userId, contacts, cb) {
-    if (!userInfoCache[userId]) {
-        throw new Error("Unknown user ID " + userId);
+function setContacts(id, contacts, cb) {
+    if (!userInfoCache[id]) {
+        throw new Error("Unknown user ID " + id);
     }
-    // Save to MongoDB here
-    userInfoCache[userId].contacts = contacts;
+    db.collection(db_info_1.COLLECTIONS.USERS).updateOne({ id: id }, { $set: { contacts: contacts } }, function (err, result) {
+        userInfoCache[id].contacts = contacts;
+    });
 }
 exports.setContacts = setContacts;
 //# sourceMappingURL=db.js.map

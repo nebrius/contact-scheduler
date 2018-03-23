@@ -16,9 +16,19 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { init as initDb } from './db';
+import { init as initEndpoints } from './endpoints';
+import { parallel } from 'async';
 
 export function run() {
-  initDb((err) => {
+
+  parallel([
+    initDb,
+    initEndpoints
+  ], (err) => {
+    if (err) {
+      console.error(err);
+      process.exit(-1);
+    }
     console.log('Running');
   });
 }
