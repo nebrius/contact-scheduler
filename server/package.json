@@ -32,7 +32,7 @@
     "async": "^2.6.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
-    "express-facebook-auth": "^1.0.0",
+    "express-facebook-auth": "^1.0.1",
     "mongodb": "^3.0.4",
     "pug": "^2.0.3"
   }
