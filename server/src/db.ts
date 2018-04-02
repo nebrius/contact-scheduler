@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { COLLECTIONS } from './common/db_info';
 import { CB } from './common/cb';
 import { IUser, IContact } from './common/IUser';
-import { getEnvironmentVariable } from './util';
+import { getEnvironmentVariable } from './common/util';
 import { MongoClient, Db } from 'mongodb';
 
 let db: Db;
