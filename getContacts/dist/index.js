@@ -18,8 +18,9 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 var util_1 = require("./common/util");
 var mongodb_1 = require("mongodb");
-// import { COLLECTIONS } from './common/db_info';
-// import { CB } from './common/cb';
+var db_info_1 = require("./common/db_info");
+// import { IUser } from './common/IUser';
+var db;
 function run(context, req) {
     context.log('Connecting to MongoDB');
     mongodb_1.MongoClient.connect(util_1.getEnvironmentVariable('COSMOS_CONNECTION_STRING'), function (connectErr, client) {
@@ -32,7 +33,8 @@ function run(context, req) {
             return;
         }
         context.log('Connected to MongoDB');
-        // const db = client.db(getEnvironmentVariable('COSMOS_DB_NAME'));
+        db = client.db(util_1.getEnvironmentVariable('COSMOS_DB_NAME'));
+        db.collection(db_info_1.COLLECTIONS.USERS).find({});
         context.done();
     });
 }
