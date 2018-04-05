@@ -15,9 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { COLLECTIONS } from './common/db_info';
-import { CB } from './common/cb';
-import { IUser, IContact } from './common/IUser';
+import { DB_COLLECTIONS } from './common/constants';
+import { CB, IUser, IContact } from './common/types';
 import { getEnvironmentVariable } from './common/util';
 import { MongoClient, Db } from 'mongodb';
 
@@ -54,7 +53,7 @@ export function init(cb: CB): void {
       cb(connectErr);
       return;
     }
-    db.collection(COLLECTIONS.USERS).find({}).forEach((doc: IUser) => {
+    db.collection(DB_COLLECTIONS.USERS).find({}).forEach((doc: IUser) => {
       userInfoCache[doc.id] = {
         id: doc.id,
         name: doc.name,
@@ -80,7 +79,7 @@ export function setContacts(id: string, contacts: IContact[], cb: CB): void {
   if (!userInfoCache[id]) {
     throw new Error(`Unknown user ID ${id}`);
   }
-  db.collection(COLLECTIONS.USERS).updateOne({ id }, { $set: { contacts } }, (err, result) => {
+  db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, { $set: { contacts } }, (err, result) => {
     userInfoCache[id].contacts = contacts;
   });
 }

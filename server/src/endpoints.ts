@@ -20,8 +20,8 @@ import * as express from 'express';
 import { json } from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import { Authenticator } from 'express-facebook-auth';
-import { CB } from './common/cb';
-import { getEnvironmentVariable } from './util';
+import { CB } from './common/types';
+import { getEnvironmentVariable } from './common/util';
 import { isUserRegistered, getContacts } from './db';
 
 interface IRequest extends express.Request {
@@ -82,6 +82,13 @@ export function init(cb: CB): void {
   });
 
   app.post('/api/contacts', auth.createMiddleware(false), (req, res) => {
+    const { userId, body } = req as IRequest;
+    console.log(userId, body);
+    res.send('ok');
+    // TODO
+  });
+
+  app.post('/api/update', (req, res) => {
     // TODO
   });
 

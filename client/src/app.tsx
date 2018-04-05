@@ -15,20 +15,12 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export enum Frequency {
-  Weekly,
-  Monthly,
-  Quarterly
-}
+import * as React from 'react';
+import { render } from 'react-dom';
 
-export interface IContact {
-  name: string;
-  frequency: Frequency;
-}
-
-export interface IUser {
-  id: string;
-  name: string;
-  timezone: string;
-  contacts: IContact[];
-}
+render(
+  (
+    <div>Hi</div>
+  ),
+  document.getElementById('root')
+);

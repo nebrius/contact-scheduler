@@ -15,5 +15,6 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export type CB = (err: Error | undefined) => void;
-export type CBWithValue<T> = (err: Error | undefined, value: T | undefined) => void;
+export const DB_COLLECTIONS = {
+  USERS: 'users'
+};

@@ -21,7 +21,7 @@ var express = require("express");
 var body_parser_1 = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express_facebook_auth_1 = require("express-facebook-auth");
-var util_1 = require("./util");
+var util_1 = require("./common/util");
 var db_1 = require("./db");
 var DEFAULT_PORT = 3000;
 function init(cb) {
@@ -65,6 +65,12 @@ function init(cb) {
         res.send(db_1.getContacts(req.userId));
     });
     app.post('/api/contacts', auth.createMiddleware(false), function (req, res) {
+        var _a = req, userId = _a.userId, body = _a.body;
+        console.log(userId, body);
+        res.send('ok');
+        // TODO
+    });
+    app.post('/api/update', function (req, res) {
         // TODO
     });
     app.listen(port, function () {

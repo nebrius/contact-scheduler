@@ -20,6 +20,15 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "build-getContacts",
+      "type": "shell",
+      "command": "cd ${workspaceRoot}/getContacts && npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }

@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,7 +15,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-export const COLLECTIONS = {
-  USERS: 'users'
-};
+Object.defineProperty(exports, "__esModule", { value: true });
+function getEnvironmentVariable(variable) {
+    var value = process.env[variable];
+    if (typeof value !== 'string') {
+        throw new Error("Environment variable " + variable + " is not defined");
+    }
+    return value;
+}
+exports.getEnvironmentVariable = getEnvironmentVariable;
+function toStringWithPadding(value, digits) {
+    var convertedString = value.toString();
+    while (convertedString.length < digits) {
+        convertedString = '0' + convertedString;
+    }
+    return convertedString;
+}
+exports.toStringWithPadding = toStringWithPadding;
+//# sourceMappingURL=util.js.map

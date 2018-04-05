@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-var db_info_1 = require("./common/db_info");
-var util_1 = require("./util");
+var constants_1 = require("./common/constants");
+var util_1 = require("./common/util");
 var mongodb_1 = require("mongodb");
 var db;
 var userInfoCache = {};
@@ -51,7 +51,7 @@ function init(cb) {
             cb(connectErr);
             return;
         }
-        db.collection(db_info_1.COLLECTIONS.USERS).find({}).forEach(function (doc) {
+        db.collection(constants_1.DB_COLLECTIONS.USERS).find({}).forEach(function (doc) {
             userInfoCache[doc.id] = {
                 id: doc.id,
                 name: doc.name,
@@ -77,7 +77,7 @@ function setContacts(id, contacts, cb) {
     if (!userInfoCache[id]) {
         throw new Error("Unknown user ID " + id);
     }
-    db.collection(db_info_1.COLLECTIONS.USERS).updateOne({ id: id }, { $set: { contacts: contacts } }, function (err, result) {
+    db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, { $set: { contacts: contacts } }, function (err, result) {
         userInfoCache[id].contacts = contacts;
     });
 }
