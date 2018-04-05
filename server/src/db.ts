@@ -80,6 +80,11 @@ export function setContacts(id: string, contacts: IContact[], cb: CB): void {
     throw new Error(`Unknown user ID ${id}`);
   }
   db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, { $set: { contacts } }, (err, result) => {
+    if (err) {
+      cb(err);
+      return;
+    }
     userInfoCache[id].contacts = contacts;
+    cb(undefined);
   });
 }

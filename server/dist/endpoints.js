@@ -65,10 +65,16 @@ function init(cb) {
         res.send(db_1.getContacts(req.userId));
     });
     app.post('/api/contacts', auth.createMiddleware(false), function (req, res) {
-        var _a = req, userId = _a.userId, body = _a.body;
-        console.log(userId, body);
-        res.send('ok');
-        // TODO
+        var _a = req, userId = _a.userId, contacts = _a.body.contacts;
+        console.log(userId, contacts);
+        db_1.setContacts(userId, contacts, function (err) {
+            if (err) {
+                res.sendStatus(500);
+            }
+            else {
+                res.send('ok');
+            }
+        });
     });
     app.post('/api/update', function (req, res) {
         // TODO

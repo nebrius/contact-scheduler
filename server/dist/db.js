@@ -78,7 +78,12 @@ function setContacts(id, contacts, cb) {
         throw new Error("Unknown user ID " + id);
     }
     db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, { $set: { contacts: contacts } }, function (err, result) {
+        if (err) {
+            cb(err);
+            return;
+        }
         userInfoCache[id].contacts = contacts;
+        cb(undefined);
     });
 }
 exports.setContacts = setContacts;

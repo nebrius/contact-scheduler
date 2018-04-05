@@ -17,6 +17,22 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import * as React from 'react';
 import { render } from 'react-dom';
+import { request } from './util/api';
+import { IContact, Frequency } from './common/types';
+
+const contacts: IContact[] = [{
+  name: 'Jenn Turner',
+  frequency: Frequency.Monthly,
+}];
+request({
+  endpoint: 'contacts',
+  method: 'POST',
+  body: {
+    contacts
+  }
+}, (err, result) => {
+  console.log(err, result);
+});
 
 render(
   (
