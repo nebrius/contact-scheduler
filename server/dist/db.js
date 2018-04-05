@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 var constants_1 = require("./common/constants");
-var util_1 = require("./common/util");
+var util_1 = require("./util");
 var mongodb_1 = require("mongodb");
 var db;
 var userInfoCache = {};

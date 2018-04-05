@@ -13,18 +13,18 @@
       }
     },
     {
-      "label": "build-server",
+      "label": "build-serviceWorker",
       "type": "shell",
-      "command": "cd ${workspaceRoot}/server && npm run build",
+      "command": "cd ${workspaceRoot}/serviceWorker && npm run build",
       "group": {
         "kind": "build",
         "isDefault": true
       }
     },
     {
-      "label": "build-getContacts",
+      "label": "build-server",
       "type": "shell",
-      "command": "cd ${workspaceRoot}/getContacts && npm run build",
+      "command": "cd ${workspaceRoot}/server && npm run build",
       "group": {
         "kind": "build",
         "isDefault": true

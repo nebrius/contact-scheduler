@@ -21,7 +21,7 @@ var express = require("express");
 var body_parser_1 = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express_facebook_auth_1 = require("express-facebook-auth");
-var util_1 = require("./common/util");
+var util_1 = require("./util");
 var db_1 = require("./db");
 var DEFAULT_PORT = 3000;
 function init(cb) {
@@ -59,7 +59,9 @@ function init(cb) {
     });
     auth.createLoginSuccessEndpoint(app);
     app.get('/', auth.createMiddleware(true), function (req, res) {
-        res.render('index');
+        res.render('index', {
+            pushPublicKey: util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY')
+        });
     });
     app.get('/api/contacts', auth.createMiddleware(false), function (req, res) {
         res.send(db_1.getContacts(req.userId));
@@ -72,9 +74,14 @@ function init(cb) {
                 res.sendStatus(500);
             }
             else {
-                res.send('ok');
+                res.send({ status: 'ok' });
             }
         });
+    });
+    app.post('/api/pushSubscription', function (req, res) {
+        var pushSubscription = req.body;
+        console.log(pushSubscription);
+        res.send({ status: 'ok' });
     });
     app.post('/api/update', function (req, res) {
         // TODO

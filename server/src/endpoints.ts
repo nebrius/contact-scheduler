@@ -21,7 +21,7 @@ import { json } from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import { Authenticator } from 'express-facebook-auth';
 import { CB } from './common/types';
-import { getEnvironmentVariable } from './common/util';
+import { getEnvironmentVariable } from './util';
 import { isUserRegistered, getContacts, setContacts } from './db';
 
 interface IRequest extends express.Request {
@@ -74,7 +74,9 @@ export function init(cb: CB): void {
   auth.createLoginSuccessEndpoint(app);
 
   app.get('/', auth.createMiddleware(true), (req, res) => {
-    res.render('index');
+    res.render('index', {
+      pushPublicKey: getEnvironmentVariable('PUSH_PUBLIC_KEY')
+    });
   });
 
   app.get('/api/contacts', auth.createMiddleware(false), (req, res) => {
@@ -88,9 +90,15 @@ export function init(cb: CB): void {
       if (err) {
         res.sendStatus(500);
       } else {
-        res.send('ok');
+        res.send({ status: 'ok' });
       }
     });
+  });
+
+  app.post('/api/pushSubscription', (req, res) => {
+    const pushSubscription = req.body;
+    console.log(pushSubscription);
+    res.send({ status: 'ok' });
   });
 
   app.post('/api/update', (req, res) => {
