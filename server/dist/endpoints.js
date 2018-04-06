@@ -67,6 +67,9 @@ function init(cb) {
             pushPublicKey: util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY')
         });
     });
+    app.get('/notificationClicked', auth.createMiddleware(true), function (req, res) {
+        res.send('You clicked a notification!');
+    });
     app.get('/api/contacts', auth.createMiddleware(false), function (req, res) {
         console.log('endpoints: Serving GET:/api/contacts');
         res.send(db_1.getContacts(req.userId));

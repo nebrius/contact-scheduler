@@ -20,7 +20,7 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
 
-  entry: './src/app.ts',
+  entry: './src/serviceWorker.ts',
   output: {
     filename: 'service-worker.js',
     path: `${__dirname}/dist`

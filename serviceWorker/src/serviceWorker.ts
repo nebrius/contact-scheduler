@@ -16,25 +16,29 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing.');
+  console.log('Service Worker installing');
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating.');
+  console.log('Service Worker activating');
 });
 
 self.addEventListener('push', (event) => {
   const { data } = event as any;
-  const promiseChain = ((self as any).registration as ServiceWorkerRegistration).showNotification(data.text());
+  const promiseChain = ((self as any).registration as ServiceWorkerRegistration).showNotification(data.text(), {
+    actions: [{
+      action: 'snooze',
+      title: 'Snooze',
+    }, {
+      action: 'reschedule',
+      title: 'Reschedule',
+    }]
+  } as any);
   (event as any).waitUntil(promiseChain);
 });
 
 self.addEventListener('notificationclick', (event: any) => {
-  console.log('On notification click: ', event.notification.tag);
   event.notification.close();
-
-  // This looks to see if the current is already open and
-  // focuses if it is
   event.waitUntil((self as any).clients.matchAll({
     type: 'window'
   }).then((clientList: any) => {
@@ -44,7 +48,7 @@ self.addEventListener('notificationclick', (event: any) => {
       }
     }
     if ((self as any).clients.openWindow) {
-      return (self as any).clients.openWindow('/');
+      return (self as any).clients.openWindow('/notificationClicked');
     }
   }));
 });

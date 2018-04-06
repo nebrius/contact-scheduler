@@ -88,6 +88,10 @@ export function init(cb: CB): void {
     });
   });
 
+  app.get('/notificationClicked', auth.createMiddleware(true), (req, res) => {
+    res.send('You clicked a notification!');
+  });
+
   app.get('/api/contacts', auth.createMiddleware(false), (req, res) => {
     console.log('endpoints: Serving GET:/api/contacts');
     res.send(getContacts((req as IRequest).userId));
