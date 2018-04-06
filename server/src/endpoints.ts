@@ -20,9 +20,10 @@ import * as express from 'express';
 import { json } from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import { Authenticator } from 'express-facebook-auth';
+import { setVapidDetails, sendNotification } from 'web-push';
 import { CB } from './common/types';
 import { getEnvironmentVariable } from './util';
-import { isUserRegistered, getContacts, setContacts } from './db';
+import { isUserRegistered, setPushSubscription, getContacts, setContacts } from './db';
 
 interface IRequest extends express.Request {
   userId: string;
@@ -39,6 +40,12 @@ export function init(cb: CB): void {
       ? `${getEnvironmentVariable('SERVER_HOST')}/login-success/`
       : `http://localhost:${port}/login-success/`;
   }
+
+  setVapidDetails(
+    'mailto:bryan@nebri.us',
+    getEnvironmentVariable('PUSH_PUBLIC_KEY'),
+    getEnvironmentVariable('PUSH_PRIVATE_KEY')
+  );
 
   const app = express();
 
@@ -65,6 +72,7 @@ export function init(cb: CB): void {
   });
 
   app.get('/login', (req, res) => {
+    console.log('endpoints: Serving GET:/login');
     res.render('login', {
       facebookAppId: getEnvironmentVariable('FACEBOOK_APP_ID'),
       redirectUri: getRedirectUri()
@@ -74,16 +82,19 @@ export function init(cb: CB): void {
   auth.createLoginSuccessEndpoint(app);
 
   app.get('/', auth.createMiddleware(true), (req, res) => {
+    console.log('endpoints: Serving GET:/');
     res.render('index', {
       pushPublicKey: getEnvironmentVariable('PUSH_PUBLIC_KEY')
     });
   });
 
   app.get('/api/contacts', auth.createMiddleware(false), (req, res) => {
+    console.log('endpoints: Serving GET:/api/contacts');
     res.send(getContacts((req as IRequest).userId));
   });
 
   app.post('/api/contacts', auth.createMiddleware(false), (req, res) => {
+    console.log('endpoints: Serving POST:/api/contacts');
     const { userId, body: { contacts } } = req as IRequest;
     console.log(userId, contacts);
     setContacts(userId, contacts, (err) => {
@@ -95,14 +106,21 @@ export function init(cb: CB): void {
     });
   });
 
-  app.post('/api/pushSubscription', (req, res) => {
-    const pushSubscription = req.body;
-    console.log(pushSubscription);
-    res.send({ status: 'ok' });
-  });
-
-  app.post('/api/update', (req, res) => {
-    // TODO
+  app.post('/api/pushSubscription', auth.createMiddleware(false), (req, res) => {
+    console.log('endpoints: Serving POST:/api/pushSubscription');
+    const { userId, body: pushSubscription } = req as IRequest;
+    setPushSubscription(userId, pushSubscription, (err) => {
+      if (err) {
+        res.sendStatus(500);
+      } else {
+        res.send({ status: 'ok' });
+      }
+      setTimeout(() => {
+        sendNotification(pushSubscription, 'I\'m a push notification!')
+          .then(() => console.log('sent!'))
+          .catch((sendErr) => console.log(sendErr));
+      }, 2000);
+    });
   });
 
   app.listen(port, () => {

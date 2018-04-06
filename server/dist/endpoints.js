@@ -21,6 +21,7 @@ var express = require("express");
 var body_parser_1 = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express_facebook_auth_1 = require("express-facebook-auth");
+var web_push_1 = require("web-push");
 var util_1 = require("./util");
 var db_1 = require("./db");
 var DEFAULT_PORT = 3000;
@@ -31,6 +32,7 @@ function init(cb) {
             ? util_1.getEnvironmentVariable('SERVER_HOST') + "/login-success/"
             : "http://localhost:" + port + "/login-success/";
     }
+    web_push_1.setVapidDetails('mailto:bryan@nebri.us', util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY'), util_1.getEnvironmentVariable('PUSH_PRIVATE_KEY'));
     var app = express();
     app.use(body_parser_1.json());
     app.use(cookieParser());
@@ -52,6 +54,7 @@ function init(cb) {
         redirectUri: getRedirectUri()
     });
     app.get('/login', function (req, res) {
+        console.log('endpoints: Serving GET:/login');
         res.render('login', {
             facebookAppId: util_1.getEnvironmentVariable('FACEBOOK_APP_ID'),
             redirectUri: getRedirectUri()
@@ -59,14 +62,17 @@ function init(cb) {
     });
     auth.createLoginSuccessEndpoint(app);
     app.get('/', auth.createMiddleware(true), function (req, res) {
+        console.log('endpoints: Serving GET:/');
         res.render('index', {
             pushPublicKey: util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY')
         });
     });
     app.get('/api/contacts', auth.createMiddleware(false), function (req, res) {
+        console.log('endpoints: Serving GET:/api/contacts');
         res.send(db_1.getContacts(req.userId));
     });
     app.post('/api/contacts', auth.createMiddleware(false), function (req, res) {
+        console.log('endpoints: Serving POST:/api/contacts');
         var _a = req, userId = _a.userId, contacts = _a.body.contacts;
         console.log(userId, contacts);
         db_1.setContacts(userId, contacts, function (err) {
@@ -78,13 +84,22 @@ function init(cb) {
             }
         });
     });
-    app.post('/api/pushSubscription', function (req, res) {
-        var pushSubscription = req.body;
-        console.log(pushSubscription);
-        res.send({ status: 'ok' });
-    });
-    app.post('/api/update', function (req, res) {
-        // TODO
+    app.post('/api/pushSubscription', auth.createMiddleware(false), function (req, res) {
+        console.log('endpoints: Serving POST:/api/pushSubscription');
+        var _a = req, userId = _a.userId, pushSubscription = _a.body;
+        db_1.setPushSubscription(userId, pushSubscription, function (err) {
+            if (err) {
+                res.sendStatus(500);
+            }
+            else {
+                res.send({ status: 'ok' });
+            }
+            setTimeout(function () {
+                web_push_1.sendNotification(pushSubscription, 'I\'m a push notification!')
+                    .then(function () { return console.log('sent!'); })
+                    .catch(function (sendErr) { return console.log(sendErr); });
+            }, 2000);
+        });
     });
     app.listen(port, function () {
         console.log("API server listening on port " + port + ".");

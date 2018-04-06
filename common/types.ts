@@ -29,9 +29,19 @@ export interface IContact {
   frequency: Frequency;
 }
 
+export interface IPushSubscription {
+  endpoint: string;
+  expirationTime: number | null;
+  keys: {
+    auth: string;
+    p256dh: string;
+  };
+}
+
 export interface IUser {
   id: string;
   name: string;
   timezone: string;
   contacts: IContact[];
+  subscription?: IPushSubscription;
 }

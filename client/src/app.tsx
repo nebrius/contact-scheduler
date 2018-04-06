@@ -30,49 +30,62 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-function registerServiceWorker() {
-  if ('serviceWorker' in navigator && 'PushManager' in window) {
-    console.log('Registering service worker');
-    Notification.requestPermission().then((permissionResult) => {
-      if (permissionResult !== 'granted') {
-        console.error('User did not grant permission for notifications');
-        return;
-      }
-      const pushPublicKeyMetaTag = document.getElementsByName('pushPublicKey')[0];
-      if (!pushPublicKeyMetaTag) {
-        throw new Error('Internal Error: public key missing in meta tag');
-      }
-      navigator.serviceWorker.register('/service-worker.js')
-        .then((registration) => registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array((pushPublicKeyMetaTag.attributes as any).value.value)
-        }))
-        .then((pushSubscription) => {
-          request({
-            endpoint: 'pushSubscription',
-            method: 'POST',
-            body: pushSubscription
-          }, (err, result) => {
-            if (err) {
-              console.error(`Could not send subscription to the server: ${err}`);
-            } else {
-              console.log('Push notification registration complete');
-            }
-          });
-        })
-        .catch((error) => {
-          console.log(`Registration failed: ${error}`);
-        });
+let serviceWorkerRegistered = false;
+let registration: ServiceWorkerRegistration;
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  console.log('Registering service worker');
+  navigator.serviceWorker.register('/service-worker.js')
+    .then((r) => {
+      serviceWorkerRegistered = true;
+      registration = r;
+      console.log('Service worker registered');
     });
-  } else {
-    console.error('This browser does not support service workers and/or push notifications');
+}
+
+function registerNotifications() {
+  if (!('PushManager' in window)) {
+    console.error('This browser does not support push notifications');
+    return;
   }
+  if (!serviceWorkerRegistered) {
+    setTimeout(registerNotifications, 100);
+    return;
+  }
+  console.log('Registering for push notifications');
+  Notification.requestPermission().then((permissionResult) => {
+    if (permissionResult !== 'granted') {
+      console.error('User did not grant permission for notifications');
+      return;
+    }
+    const pushPublicKeyMetaTag = document.getElementsByName('pushPublicKey')[0];
+    if (!pushPublicKeyMetaTag) {
+      throw new Error('Internal Error: public key missing in meta tag');
+    }
+    registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array((pushPublicKeyMetaTag.attributes as any).value.value)
+    }).then((pushSubscription) => {
+      request({
+        endpoint: 'pushSubscription',
+        method: 'POST',
+        body: pushSubscription
+      }, (err, result) => {
+        if (err) {
+          console.error(`Could not send subscription to the server: ${err}`);
+        } else {
+          console.log('Push notification registration complete');
+        }
+      });
+    }).catch((error) => {
+      console.log(`Registration failed: ${error}`);
+    });
+  });
 }
 
 render(
   (
     <div>
-      <button onClick={registerServiceWorker}>Register Service Worker</button>
+      <button onClick={registerNotifications}>Register Service Worker</button>
     </div>
   ),
   document.getElementById('root')

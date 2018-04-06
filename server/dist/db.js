@@ -66,16 +66,30 @@ function isUserRegistered(id) {
     return userInfoCache.hasOwnProperty(id);
 }
 exports.isUserRegistered = isUserRegistered;
+function setPushSubscription(id, subscription, cb) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, { $set: { subscription: subscription } }, function (err, result) {
+        if (err) {
+            cb(err);
+            return;
+        }
+        userInfoCache[id].subscription = subscription;
+        cb(undefined);
+    });
+}
+exports.setPushSubscription = setPushSubscription;
 function getContacts(id) {
     if (!userInfoCache[id]) {
-        throw new Error("Unknown user ID " + id);
+        throw new Error("Internal Error: Unknown user ID " + id);
     }
     return userInfoCache[id].contacts;
 }
 exports.getContacts = getContacts;
 function setContacts(id, contacts, cb) {
     if (!userInfoCache[id]) {
-        throw new Error("Unknown user ID " + id);
+        throw new Error("Internal Error: Unknown user ID " + id);
     }
     db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, { $set: { contacts: contacts } }, function (err, result) {
         if (err) {

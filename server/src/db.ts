@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { DB_COLLECTIONS } from './common/constants';
-import { CB, IUser, IContact } from './common/types';
+import { CB, IUser, IContact, IPushSubscription } from './common/types';
 import { getEnvironmentVariable } from './util';
 import { MongoClient, Db } from 'mongodb';
 
@@ -68,16 +68,30 @@ export function isUserRegistered(id: string): boolean {
   return userInfoCache.hasOwnProperty(id);
 }
 
+export function setPushSubscription(id: string, subscription: IPushSubscription, cb: CB): void {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, { $set: { subscription } }, (err, result) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    userInfoCache[id].subscription = subscription;
+    cb(undefined);
+  });
+}
+
 export function getContacts(id: string): IContact[] {
   if (!userInfoCache[id]) {
-    throw new Error(`Unknown user ID ${id}`);
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
   }
   return userInfoCache[id].contacts;
 }
 
 export function setContacts(id: string, contacts: IContact[], cb: CB): void {
   if (!userInfoCache[id]) {
-    throw new Error(`Unknown user ID ${id}`);
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
   }
   db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, { $set: { contacts } }, (err, result) => {
     if (err) {

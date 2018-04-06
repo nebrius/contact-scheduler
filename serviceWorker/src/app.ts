@@ -22,3 +22,12 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating.');
 });
+
+self.addEventListener('push', (event) => {
+  const { data } = event as any;
+  if (data) {
+    console.log('This push event has data: ', data.text());
+  } else {
+    console.log('This push event has no data.');
+  }
+});
