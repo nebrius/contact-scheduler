@@ -30,13 +30,11 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-let serviceWorkerRegistered = false;
-let registration: ServiceWorkerRegistration;
+let registration: ServiceWorkerRegistration | undefined;
 if ('serviceWorker' in navigator && 'PushManager' in window) {
   console.log('Registering service worker');
   navigator.serviceWorker.register('/service-worker.js')
     .then((r) => {
-      serviceWorkerRegistered = true;
       registration = r;
       console.log('Service worker registered');
     });
@@ -47,7 +45,7 @@ function registerNotifications() {
     console.error('This browser does not support push notifications');
     return;
   }
-  if (!serviceWorkerRegistered) {
+  if (!registration) {
     setTimeout(registerNotifications, 100);
     return;
   }
@@ -60,6 +58,9 @@ function registerNotifications() {
     const pushPublicKeyMetaTag = document.getElementsByName('pushPublicKey')[0];
     if (!pushPublicKeyMetaTag) {
       throw new Error('Internal Error: public key missing in meta tag');
+    }
+    if (!registration) {
+      throw new Error('Internal Error: registration became undefined');
     }
     registration.pushManager.subscribe({
       userVisibleOnly: true,

@@ -25,9 +25,26 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('push', (event) => {
   const { data } = event as any;
-  if (data) {
-    console.log('This push event has data: ', data.text());
-  } else {
-    console.log('This push event has no data.');
-  }
+  const promiseChain = ((self as any).registration as ServiceWorkerRegistration).showNotification(data.text());
+  (event as any).waitUntil(promiseChain);
+});
+
+self.addEventListener('notificationclick', (event: any) => {
+  console.log('On notification click: ', event.notification.tag);
+  event.notification.close();
+
+  // This looks to see if the current is already open and
+  // focuses if it is
+  event.waitUntil((self as any).clients.matchAll({
+    type: 'window'
+  }).then((clientList: any) => {
+    for (const client of clientList) {
+      if (client.url === '/' && 'focus' in client) {
+        return client.focus();
+      }
+    }
+    if ((self as any).clients.openWindow) {
+      return (self as any).clients.openWindow('/');
+    }
+  }));
 });
