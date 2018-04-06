@@ -58,7 +58,8 @@ export function init(cb: CB): void {
         id: doc.id,
         name: doc.name,
         timezone: doc.timezone,
-        contacts: doc.contacts
+        contacts: doc.contacts,
+        subscription: doc.subscription
       };
     }, cb);
   });
@@ -66,6 +67,17 @@ export function init(cb: CB): void {
 
 export function isUserRegistered(id: string): boolean {
   return userInfoCache.hasOwnProperty(id);
+}
+
+export function getPushSubscription(id: string): IPushSubscription {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  const subscription = userInfoCache[id].subscription;
+  if (!subscription) {
+    throw new Error(`Internal Error: No subscription info for user ${id}`);
+  }
+  return subscription;
 }
 
 export function setPushSubscription(id: string, subscription: IPushSubscription, cb: CB): void {

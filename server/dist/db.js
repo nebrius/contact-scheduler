@@ -56,7 +56,8 @@ function init(cb) {
                 id: doc.id,
                 name: doc.name,
                 timezone: doc.timezone,
-                contacts: doc.contacts
+                contacts: doc.contacts,
+                subscription: doc.subscription
             };
         }, cb);
     });
@@ -66,6 +67,17 @@ function isUserRegistered(id) {
     return userInfoCache.hasOwnProperty(id);
 }
 exports.isUserRegistered = isUserRegistered;
+function getPushSubscription(id) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    var subscription = userInfoCache[id].subscription;
+    if (!subscription) {
+        throw new Error("Internal Error: No subscription info for user " + id);
+    }
+    return subscription;
+}
+exports.getPushSubscription = getPushSubscription;
 function setPushSubscription(id, subscription, cb) {
     if (!userInfoCache[id]) {
         throw new Error("Internal Error: Unknown user ID " + id);

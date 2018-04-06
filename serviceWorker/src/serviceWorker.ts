@@ -24,11 +24,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  const { data } = event as any;
-  const promiseChain = ((self as any).registration as ServiceWorkerRegistration).showNotification(data.text(), {
+  const data = (event as any).data.json();
+  const registration: ServiceWorkerRegistration = (self as any).registration;
+  const promiseChain = registration.showNotification(`Reach out to ${data.name}`, {
+    data,
     actions: [{
-      action: 'snooze',
-      title: 'Snooze',
+      action: 'respond',
+      title: 'Respond'
     }, {
       action: 'reschedule',
       title: 'Reschedule',
@@ -37,8 +39,15 @@ self.addEventListener('push', (event) => {
   (event as any).waitUntil(promiseChain);
 });
 
-self.addEventListener('notificationclick', (event: any) => {
-  event.notification.close();
+function snooze() {
+  console.log('snoozing');
+}
+
+function reschedule() {
+  console.log('rescheduling');
+}
+
+function respond(event: any) {
   event.waitUntil((self as any).clients.matchAll({
     type: 'window'
   }).then((clientList: any) => {
@@ -48,7 +57,28 @@ self.addEventListener('notificationclick', (event: any) => {
       }
     }
     if ((self as any).clients.openWindow) {
-      return (self as any).clients.openWindow('/notificationClicked');
+      return (self as any).clients.openWindow(event.notification.data.url);
     }
   }));
+}
+
+self.addEventListener('notificationclose', (event: any) => {
+  snooze();
+});
+
+self.addEventListener('notificationclick', (event: any) => {
+  event.notification.close();
+  switch (event.action) {
+    case 'respond':
+      respond(event);
+      break;
+
+    case 'reschedule':
+      reschedule();
+      break;
+
+    default:
+      snooze();
+      break;
+  }
 });

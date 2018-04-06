@@ -23,7 +23,7 @@ import { Authenticator } from 'express-facebook-auth';
 import { setVapidDetails, sendNotification } from 'web-push';
 import { CB } from './common/types';
 import { getEnvironmentVariable } from './util';
-import { isUserRegistered, setPushSubscription, getContacts, setContacts } from './db';
+import { isUserRegistered, getPushSubscription, setPushSubscription, getContacts, setContacts } from './db';
 
 interface IRequest extends express.Request {
   userId: string;
@@ -119,11 +119,20 @@ export function init(cb: CB): void {
       } else {
         res.send({ status: 'ok' });
       }
-      setTimeout(() => {
-        sendNotification(pushSubscription, 'I\'m a push notification!')
-          .then(() => console.log('sent!'))
-          .catch((sendErr) => console.log(sendErr));
-      }, 2000);
+    });
+  });
+
+  app.post('/api/createNotification', auth.createMiddleware(false), (req, res) => {
+    const pushSubscription = getPushSubscription((req as IRequest).userId);
+    sendNotification(pushSubscription, JSON.stringify({
+      name: 'Faruk Ates',
+      url: 'https://www.messenger.com/t/farukates'
+    })).then(() => {
+      console.log('sent!');
+      res.send({ status: 'ok' });
+    }).catch((sendErr) => {
+      console.log(sendErr);
+      res.sendStatus(500);
     });
   });
 

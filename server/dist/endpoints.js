@@ -97,11 +97,19 @@ function init(cb) {
             else {
                 res.send({ status: 'ok' });
             }
-            setTimeout(function () {
-                web_push_1.sendNotification(pushSubscription, 'I\'m a push notification!')
-                    .then(function () { return console.log('sent!'); })
-                    .catch(function (sendErr) { return console.log(sendErr); });
-            }, 2000);
+        });
+    });
+    app.post('/api/createNotification', auth.createMiddleware(false), function (req, res) {
+        var pushSubscription = db_1.getPushSubscription(req.userId);
+        web_push_1.sendNotification(pushSubscription, JSON.stringify({
+            name: 'Faruk Ates',
+            url: 'https://www.messenger.com/t/farukates'
+        })).then(function () {
+            console.log('sent!');
+            res.send({ status: 'ok' });
+        }).catch(function (sendErr) {
+            console.log(sendErr);
+            res.sendStatus(500);
         });
     });
     app.listen(port, function () {
