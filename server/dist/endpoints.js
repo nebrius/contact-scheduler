@@ -21,6 +21,7 @@ var express = require("express");
 var body_parser_1 = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express_facebook_auth_1 = require("express-facebook-auth");
+var async_1 = require("async");
 var web_push_1 = require("web-push");
 var util_1 = require("./util");
 var db_1 = require("./db");
@@ -98,6 +99,57 @@ function init(cb) {
                 res.send({ status: 'ok' });
             }
         });
+    });
+    app.post('/api/processNotifications', function (req, res) {
+        var users = db_1.getUsers();
+        async_1.parallel(users.map(function (user) { return function (next) {
+            var midnight = util_1.getStartOfToday(user.timezone);
+            var dayOfWeek = (new Date(midnight)).getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                console.log('skipping due to the weekend');
+                next(undefined);
+                return;
+            }
+            async_1.series([
+                function (bucketsNext) {
+                    if (user.lastUpdated >= midnight) {
+                        bucketsNext();
+                        return;
+                    }
+                    var startOfToday = midnight + user.startOfDay * 60 * 60 * 1000;
+                    var endOfToday = midnight + user.endOfDay * 60 * 60 * 1000;
+                    var buckets = [];
+                    for (var timestamp = startOfToday; timestamp < endOfToday; timestamp += 15 * 60 * 1000) {
+                        buckets.push({
+                            timestamp: timestamp,
+                            available: true,
+                            contact: null
+                        });
+                    }
+                    db_1.setDailyBuckets(user.id, buckets, bucketsNext);
+                },
+                function (processNext) {
+                    console.log('setup day');
+                    processNext();
+                }
+            ], next);
+        }; }), function (err) {
+            if (err) {
+                res.sendStatus(500);
+            }
+            else {
+                res.send({ status: 'ok' });
+            }
+        });
+    });
+    app.post('/api/snoozeNotification', auth.createMiddleware(false), function (req, res) {
+        // TODO
+    });
+    app.post('/api/rescheduleNotification', auth.createMiddleware(false), function (req, res) {
+        // TODO
+    });
+    app.post('/api/respondToNotification', auth.createMiddleware(false), function (req, res) {
+        // TODO
     });
     app.post('/api/createNotification', auth.createMiddleware(false), function (req, res) {
         var pushSubscription = db_1.getPushSubscription(req.userId);

@@ -20,10 +20,19 @@ import * as express from 'express';
 import { json } from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import { Authenticator } from 'express-facebook-auth';
+import { parallel, series } from 'async';
 import { setVapidDetails, sendNotification } from 'web-push';
-import { CB } from './common/types';
-import { getEnvironmentVariable } from './util';
-import { isUserRegistered, getPushSubscription, setPushSubscription, getContacts, setContacts } from './db';
+import { CB, IDailyBucket } from './common/types';
+import { getEnvironmentVariable, getStartOfToday } from './util';
+import {
+  isUserRegistered,
+  getUsers,
+  getPushSubscription,
+  setPushSubscription,
+  getContacts,
+  setContacts,
+  setDailyBuckets
+} from './db';
 
 interface IRequest extends express.Request {
   userId: string;
@@ -120,6 +129,60 @@ export function init(cb: CB): void {
         res.send({ status: 'ok' });
       }
     });
+  });
+
+  app.post('/api/processNotifications', (req, res) => {
+    const users = getUsers();
+    parallel(users.map((user) => (next: CB) => {
+      const midnight = getStartOfToday(user.timezone);
+      const dayOfWeek = (new Date(midnight)).getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        console.log('skipping due to the weekend');
+        next(undefined);
+        return;
+      }
+      series([
+        (bucketsNext) => {
+          if (user.lastUpdated >= midnight) {
+            bucketsNext();
+            return;
+          }
+          const startOfToday = midnight + user.startOfDay * 60 * 60 * 1000;
+          const endOfToday = midnight + user.endOfDay * 60 * 60 * 1000;
+          const buckets: IDailyBucket[] = [];
+          for (let timestamp = startOfToday; timestamp < endOfToday; timestamp += 15 * 60 * 1000) {
+            buckets.push({
+              timestamp,
+              available: true, // TODO: hook in calendar information
+              contact: null
+            });
+          }
+          setDailyBuckets(user.id, buckets, bucketsNext);
+        },
+        (processNext) => {
+          console.log('setup day');
+          processNext();
+        }
+      ], next);
+    }), (err) => {
+      if (err) {
+        res.sendStatus(500);
+      } else {
+        res.send({ status: 'ok' });
+      }
+    });
+  });
+
+  app.post('/api/snoozeNotification', auth.createMiddleware(false), (req, res) => {
+    // TODO
+  });
+
+  app.post('/api/rescheduleNotification', auth.createMiddleware(false), (req, res) => {
+    // TODO
+  });
+
+  app.post('/api/respondToNotification', auth.createMiddleware(false), (req, res) => {
+    // TODO
   });
 
   app.post('/api/createNotification', auth.createMiddleware(false), (req, res) => {

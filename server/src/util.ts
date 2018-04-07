@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import * as moment from 'moment-timezone';
+
 export function getEnvironmentVariable(variable: string): string {
   const value = process.env[variable];
   if (typeof value !== 'string') {
@@ -29,4 +31,13 @@ export function toStringWithPadding(value: number, digits: number): string {
     convertedString = '0' + convertedString;
   }
   return convertedString;
+}
+
+export function getStartOfToday(timezone: string): number {
+  const now = moment().tz(timezone);
+  const startOfDay = moment.tz(
+    `${toStringWithPadding(now.year(), 4)
+    }-${toStringWithPadding(now.month() + 1, 2)
+    }-${toStringWithPadding(now.date(), 2)}`, timezone);
+  return startOfDay.unix() * 1000;
 }

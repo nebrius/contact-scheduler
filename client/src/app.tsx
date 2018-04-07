@@ -89,7 +89,7 @@ function enableNotifications() {
 
 function createNotification() {
   request({
-    endpoint: 'createNotification',
+    endpoint: 'processNotifications',
     method: 'POST'
   }, (err, result) => {
     if (err) {

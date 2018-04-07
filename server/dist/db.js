@@ -52,13 +52,7 @@ function init(cb) {
             return;
         }
         db.collection(constants_1.DB_COLLECTIONS.USERS).find({}).forEach(function (doc) {
-            userInfoCache[doc.id] = {
-                id: doc.id,
-                name: doc.name,
-                timezone: doc.timezone,
-                contacts: doc.contacts,
-                subscription: doc.subscription
-            };
+            userInfoCache[doc.id] = doc;
         }, cb);
     });
 }
@@ -67,6 +61,17 @@ function isUserRegistered(id) {
     return userInfoCache.hasOwnProperty(id);
 }
 exports.isUserRegistered = isUserRegistered;
+function getUsers() {
+    var users = [];
+    for (var userId in userInfoCache) {
+        if (!userInfoCache.hasOwnProperty(userId)) {
+            continue;
+        }
+        users.push(userInfoCache[userId]);
+    }
+    return users;
+}
+exports.getUsers = getUsers;
 function getPushSubscription(id) {
     if (!userInfoCache[id]) {
         throw new Error("Internal Error: Unknown user ID " + id);
@@ -113,4 +118,25 @@ function setContacts(id, contacts, cb) {
     });
 }
 exports.setContacts = setContacts;
+function getDailyBuckets(id) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    return userInfoCache[id].dailyBuckets;
+}
+exports.getDailyBuckets = getDailyBuckets;
+function setDailyBuckets(id, dailyBuckets, cb) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, { $set: { dailyBuckets: dailyBuckets } }, function (err, result) {
+        if (err) {
+            cb(err);
+            return;
+        }
+        userInfoCache[id].dailyBuckets = dailyBuckets;
+        cb(undefined);
+    });
+}
+exports.setDailyBuckets = setDailyBuckets;
 //# sourceMappingURL=db.js.map

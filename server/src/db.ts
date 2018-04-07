@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { DB_COLLECTIONS } from './common/constants';
-import { CB, IUser, IContact, IPushSubscription } from './common/types';
+import { CB, IUser, IContact, IPushSubscription, IDailyBucket } from './common/types';
 import { getEnvironmentVariable } from './util';
 import { MongoClient, Db } from 'mongodb';
 
@@ -54,19 +54,24 @@ export function init(cb: CB): void {
       return;
     }
     db.collection(DB_COLLECTIONS.USERS).find({}).forEach((doc: IUser) => {
-      userInfoCache[doc.id] = {
-        id: doc.id,
-        name: doc.name,
-        timezone: doc.timezone,
-        contacts: doc.contacts,
-        subscription: doc.subscription
-      };
+      userInfoCache[doc.id] = doc;
     }, cb);
   });
 }
 
 export function isUserRegistered(id: string): boolean {
   return userInfoCache.hasOwnProperty(id);
+}
+
+export function getUsers(): IUser[] {
+  const users: IUser[] = [];
+  for (const userId in userInfoCache) {
+    if (!userInfoCache.hasOwnProperty(userId)) {
+      continue;
+    }
+    users.push(userInfoCache[userId]);
+  }
+  return users;
 }
 
 export function getPushSubscription(id: string): IPushSubscription {
@@ -111,6 +116,27 @@ export function setContacts(id: string, contacts: IContact[], cb: CB): void {
       return;
     }
     userInfoCache[id].contacts = contacts;
+    cb(undefined);
+  });
+}
+
+export function getDailyBuckets(id: string): IDailyBucket[] {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  return userInfoCache[id].dailyBuckets;
+}
+
+export function setDailyBuckets(id: string, dailyBuckets: IDailyBucket[], cb: CB): void {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, { $set: { dailyBuckets } }, (err, result) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    userInfoCache[id].dailyBuckets = dailyBuckets;
     cb(undefined);
   });
 }
