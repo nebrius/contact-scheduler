@@ -15,22 +15,21 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { init as initDb } from './db';
-import { init as initEndpoints } from './endpoints';
-import { init as initNotifications } from './notifications';
-import { parallel } from 'async';
+import { createStore } from 'redux';
+import { IAppState } from './types';
+import { reducers } from '../reducers/reducers';
 
-export function run() {
-
-  parallel([
-    initDb,
-    initEndpoints,
-    initNotifications
-  ], (err) => {
-    if (err) {
-      console.error(err);
-      process.exit(-1);
-    }
-    console.log('Running');
-  });
+const userTag = document.getElementsByName('user')[0];
+if (!userTag) {
+  throw new Error('Internal Error: user missing in meta tag');
 }
+const user = JSON.parse((userTag.attributes as any).value.value);
+
+const preloadedState: IAppState = {
+  user,
+  state: {
+    notificationsEnabled: false
+  }
+};
+
+export const store = createStore(reducers, preloadedState);

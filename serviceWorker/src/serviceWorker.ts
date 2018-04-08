@@ -26,6 +26,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('push', (event) => {
   const data = (event as any).data.json();
   const registration: ServiceWorkerRegistration = (self as any).registration;
+  console.log(`Showing notification to reach out to ${data.name}`);
   const promiseChain = registration.showNotification(`Reach out to ${data.name}`, {
     data,
     actions: [{
@@ -36,6 +37,7 @@ self.addEventListener('push', (event) => {
       title: 'Reschedule',
     }]
   } as any);
+  promiseChain.catch((err) => console.log(`Error showing notification: ${err}`));
   (event as any).waitUntil(promiseChain);
 });
 

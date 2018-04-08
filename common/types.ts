@@ -29,6 +29,7 @@ export interface IContact {
   url: string | null;
   frequency: Frequency;
   lastContacted: number;
+  nextContact: number;
 }
 
 export interface IPushSubscription {

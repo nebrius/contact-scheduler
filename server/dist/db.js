@@ -70,6 +70,13 @@ function isUserRegistered(id) {
     return userInfoCache.hasOwnProperty(id);
 }
 exports.isUserRegistered = isUserRegistered;
+function getUser(id) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    return userInfoCache[id];
+}
+exports.getUser = getUser;
 function getUsers() {
     var users = [];
     for (var userId in userInfoCache) {

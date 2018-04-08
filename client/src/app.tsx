@@ -17,18 +17,11 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import * as React from 'react';
 import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { Root } from './components/Root';
+import { store } from './util/store';
 import { request } from './util/api';
-
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = ('=' as any).repeat((4 - base64String.length % 4) % 4);
-  const rawData = window.atob((base64String + padding).replace(/\-/g, '+').replace(/_/g, '/'));
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
+import { urlBase64ToUint8Array } from './util/util';
 
 let registration: ServiceWorkerRegistration | undefined;
 if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -68,7 +61,6 @@ function registerNotifications() {
         console.error(`Could not send subscription to the server: ${err}`);
       } else {
         console.log('Push notification registration complete');
-        updateUI();
       }
     });
   }).catch((error) => {
@@ -76,43 +68,37 @@ function registerNotifications() {
   });
 }
 
-function enableNotifications() {
-  console.log('Registering for push notifications');
-  Notification.requestPermission().then((permissionResult) => {
-    if (permissionResult !== 'granted') {
-      console.error('User did not grant permission for notifications');
-      return;
-    }
-    registerNotifications();
-  });
-}
+// function enableNotifications() {
+//   console.log('Registering for push notifications');
+//   Notification.requestPermission().then((permissionResult) => {
+//     if (permissionResult !== 'granted') {
+//       console.error('User did not grant permission for notifications');
+//       return;
+//     }
+//     registerNotifications();
+//   });
+// }
 
-function createNotification() {
-  request({
-    endpoint: 'processNotifications',
-    method: 'POST'
-  }, (err, result) => {
-    if (err) {
-      console.error(`Could not create subscription one the server: ${err}`);
-    } else {
-      console.log('Notification created');
-    }
-  });
-}
+// function pingNotification() {
+//   const n = new Notification('Testing testing');
+//   setTimeout(() => n.close(), 10000);
+//   request({
+//     endpoint: 'processNotifications',
+//     method: 'POST'
+//   }, (err, result) => {
+//     if (err) {
+//       console.error(`Could not create subscription one the server: ${err}`);
+//     } else {
+//       console.log('Notification created');
+//     }
+//   });
+// }
 
-function updateUI() {
-  let button = (<button onClick={enableNotifications}>Enable Notifications</button>);
-  if ((Notification as any).permission === 'granted') {
-    button = (<button onClick={createNotification}>Create notification</button>);
-  }
-
-  render(
-    (
-      <div>
-        {button}
-      </div>
-    ),
-    document.getElementById('root')
-  );
-}
-updateUI();
+render(
+  (
+    <Provider store={store}>
+      <Root />
+    </Provider>
+  ),
+  document.getElementById('root')
+);

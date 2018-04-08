@@ -18,11 +18,13 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 var db_1 = require("./db");
 var endpoints_1 = require("./endpoints");
+var notifications_1 = require("./notifications");
 var async_1 = require("async");
 function run() {
     async_1.parallel([
         db_1.init,
-        endpoints_1.init
+        endpoints_1.init,
+        notifications_1.init
     ], function (err) {
         if (err) {
             console.error(err);

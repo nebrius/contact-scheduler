@@ -21,16 +21,10 @@ var express = require("express");
 var body_parser_1 = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express_facebook_auth_1 = require("express-facebook-auth");
-var async_1 = require("async");
-var web_push_1 = require("web-push");
-var types_1 = require("./common/types");
 var util_1 = require("./util");
 var db_1 = require("./db");
+var notifications_1 = require("./notifications");
 var DEFAULT_PORT = 3000;
-var HOUR_IN_MS = 60 * 60 * 1000;
-var BUCKET_DURATION = HOUR_IN_MS;
-var MONTHLY_THRESHOLD = HOUR_IN_MS * 24 * 25;
-var QUARTERLY_THRESHOLD = HOUR_IN_MS * 24 * 80;
 function init(cb) {
     var port = process.env.PORT || DEFAULT_PORT;
     function getRedirectUri() {
@@ -38,7 +32,6 @@ function init(cb) {
             ? util_1.getEnvironmentVariable('SERVER_HOST') + "/login-success/"
             : "http://localhost:" + port + "/login-success/";
     }
-    web_push_1.setVapidDetails('mailto:bryan@nebri.us', util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY'), util_1.getEnvironmentVariable('PUSH_PRIVATE_KEY'));
     var app = express();
     app.use(body_parser_1.json());
     app.use(cookieParser());
@@ -70,7 +63,8 @@ function init(cb) {
     app.get('/', auth.createMiddleware(true), function (req, res) {
         console.log('endpoints: Serving GET:/');
         res.render('index', {
-            pushPublicKey: util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY')
+            pushPublicKey: util_1.getEnvironmentVariable('PUSH_PUBLIC_KEY'),
+            user: JSON.stringify(db_1.getUser(req.userId))
         });
     });
     app.get('/notificationClicked', auth.createMiddleware(true), function (req, res) {
@@ -106,72 +100,9 @@ function init(cb) {
         });
     });
     app.post('/api/processNotifications', function (req, res) {
-        var users = db_1.getUsers();
-        async_1.parallel(users.map(function (user) { return function (next) {
-            var midnight = util_1.getStartOfToday(user.settings.timezone);
-            // const dayOfWeek = (new Date(midnight)).getDay();
-            // if (dayOfWeek === 0 || dayOfWeek === 6) {
-            //   console.log('skipping due to the weekend');
-            //   next(undefined);
-            //   return;
-            // }
-            async_1.series([
-                function (weeklyContactListNext) {
-                    if (user.state.weeklyContactListUpdated > util_1.getStartOfWeek(user.settings.timezone)) {
-                        weeklyContactListNext();
-                        return;
-                    }
-                    console.log('Creating the list of people to contact');
-                    var peopleToContact = [];
-                    for (var _i = 0, _a = user.contacts; _i < _a.length; _i++) {
-                        var contact = _a[_i];
-                        switch (contact.frequency) {
-                            case types_1.Frequency.Weekly:
-                                peopleToContact.push(contact);
-                                break;
-                            case types_1.Frequency.Monthly:
-                                if (contact.lastContacted + MONTHLY_THRESHOLD < midnight) {
-                                    peopleToContact.push(contact);
-                                }
-                                break;
-                            case types_1.Frequency.Quarterly:
-                                if (contact.lastContacted + QUARTERLY_THRESHOLD < midnight) {
-                                    peopleToContact.push(contact);
-                                }
-                                break;
-                        }
-                    }
-                    var shuffledPeopleToContact = [];
-                    while (peopleToContact.length) {
-                        var i = Math.round(Math.random() * (peopleToContact.length - 1));
-                        shuffledPeopleToContact.push(peopleToContact.splice(i, 1)[0]);
-                    }
-                    db_1.setWeeklyContactList(user.id, shuffledPeopleToContact, weeklyContactListNext);
-                },
-                function (bucketsNext) {
-                    if (user.state.dailyBucketsUpdated >= midnight) {
-                        bucketsNext();
-                        return;
-                    }
-                    console.log('Creating the daily buckets');
-                    var startOfToday = midnight + user.settings.startOfDay * HOUR_IN_MS;
-                    var endOfToday = midnight + user.settings.endOfDay * HOUR_IN_MS;
-                    var buckets = [];
-                    for (var timestamp = startOfToday; timestamp < endOfToday; timestamp += BUCKET_DURATION) {
-                        buckets.push({
-                            timestamp: timestamp,
-                            available: true // TODO: hook in calendar information
-                        });
-                    }
-                    db_1.setDailyBuckets(user.id, buckets, bucketsNext);
-                },
-                function (processNext) {
-                    console.log('Processing next bucket');
-                    processNext();
-                }
-            ], next);
-        }; }), function (err) {
+        notifications_1.processNotifications(function (err) {
             if (err) {
+                console.error(err);
                 res.sendStatus(500);
             }
             else {
@@ -179,26 +110,26 @@ function init(cb) {
             }
         });
     });
-    app.post('/api/snoozeNotification', auth.createMiddleware(false), function (req, res) {
-        // TODO
-    });
     app.post('/api/rescheduleNotification', auth.createMiddleware(false), function (req, res) {
-        // TODO
+        notifications_1.rescheduleCurrentNotification(req.userId, function (err) {
+            if (err) {
+                console.error(err);
+                res.sendStatus(500);
+            }
+            else {
+                res.send({ status: 'ok' });
+            }
+        });
     });
     app.post('/api/respondToNotification', auth.createMiddleware(false), function (req, res) {
-        // TODO
-    });
-    app.post('/api/createNotification', auth.createMiddleware(false), function (req, res) {
-        var pushSubscription = db_1.getPushSubscription(req.userId);
-        web_push_1.sendNotification(pushSubscription, JSON.stringify({
-            name: 'Faruk Ates',
-            url: 'https://www.messenger.com/t/farukates'
-        })).then(function () {
-            console.log('sent!');
-            res.send({ status: 'ok' });
-        }).catch(function (sendErr) {
-            console.log(sendErr);
-            res.sendStatus(500);
+        notifications_1.respondToCurrentNotification(req.userId, function (err) {
+            if (err) {
+                console.error(err);
+                res.sendStatus(500);
+            }
+            else {
+                res.send({ status: 'ok' });
+            }
         });
     });
     app.listen(port, function () {

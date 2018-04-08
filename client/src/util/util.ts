@@ -15,22 +15,13 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { init as initDb } from './db';
-import { init as initEndpoints } from './endpoints';
-import { init as initNotifications } from './notifications';
-import { parallel } from 'async';
+export function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = ('=' as any).repeat((4 - base64String.length % 4) % 4);
+  const rawData = window.atob((base64String + padding).replace(/\-/g, '+').replace(/_/g, '/'));
+  const outputArray = new Uint8Array(rawData.length);
 
-export function run() {
-
-  parallel([
-    initDb,
-    initEndpoints,
-    initNotifications
-  ], (err) => {
-    if (err) {
-      console.error(err);
-      process.exit(-1);
-    }
-    console.log('Running');
-  });
+  for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }

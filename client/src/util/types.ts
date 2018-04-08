@@ -15,22 +15,11 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { init as initDb } from './db';
-import { init as initEndpoints } from './endpoints';
-import { init as initNotifications } from './notifications';
-import { parallel } from 'async';
+import { IUser } from '../common/types';
 
-export function run() {
-
-  parallel([
-    initDb,
-    initEndpoints,
-    initNotifications
-  ], (err) => {
-    if (err) {
-      console.error(err);
-      process.exit(-1);
-    }
-    console.log('Running');
-  });
+export interface IAppState {
+  user: IUser;
+  state: {
+    notificationsEnabled: boolean;
+  };
 }

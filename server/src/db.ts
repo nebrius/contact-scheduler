@@ -64,6 +64,13 @@ export function isUserRegistered(id: string): boolean {
   return userInfoCache.hasOwnProperty(id);
 }
 
+export function getUser(id: string): IUser {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  return userInfoCache[id];
+}
+
 export function getUsers(): IUser[] {
   const users: IUser[] = [];
   for (const userId in userInfoCache) {

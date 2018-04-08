@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint 'src/**/*.ts' 'src/**/*.tsx' && rimraf dist",
     "prebuild": "npm run lint",
-    "build": "webpack",
+    "build": "webpack --color=false",
     "postbuild": "cpy dist/* ../client/dist/ && echo done"
   },
   "author": "Bryan Hughes <bryan@nebri.us>",
