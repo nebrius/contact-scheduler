@@ -41,6 +41,7 @@ function connect(cb?: CB) {
       // TODO: need to buffer requests between connects...or just switch to mongoose?
       connect();
     });
+    console.log('Connected to MongoDB');
     if (cb) {
       cb(undefined);
     }
@@ -78,7 +79,7 @@ export function getPushSubscription(id: string): IPushSubscription {
   if (!userInfoCache[id]) {
     throw new Error(`Internal Error: Unknown user ID ${id}`);
   }
-  const subscription = userInfoCache[id].subscription;
+  const subscription = userInfoCache[id].state.subscription;
   if (!subscription) {
     throw new Error(`Internal Error: No subscription info for user ${id}`);
   }
@@ -94,7 +95,7 @@ export function setPushSubscription(id: string, subscription: IPushSubscription,
       cb(err);
       return;
     }
-    userInfoCache[id].subscription = subscription;
+    userInfoCache[id].state.subscription = subscription;
     cb(undefined);
   });
 }
@@ -124,19 +125,62 @@ export function getDailyBuckets(id: string): IDailyBucket[] {
   if (!userInfoCache[id]) {
     throw new Error(`Internal Error: Unknown user ID ${id}`);
   }
-  return userInfoCache[id].dailyBuckets;
+  return userInfoCache[id].state.dailyBuckets;
 }
 
 export function setDailyBuckets(id: string, dailyBuckets: IDailyBucket[], cb: CB): void {
   if (!userInfoCache[id]) {
     throw new Error(`Internal Error: Unknown user ID ${id}`);
   }
-  db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, { $set: { dailyBuckets } }, (err, result) => {
+  const dailyBucketsUpdated = Date.now();
+  const update = {
+    $set: {
+      state: {
+        ...userInfoCache[id].state,
+        dailyBuckets,
+        dailyBucketsUpdated,
+      }
+    }
+  };
+  db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, update, (err, result) => {
     if (err) {
       cb(err);
       return;
     }
-    userInfoCache[id].dailyBuckets = dailyBuckets;
+    userInfoCache[id].state.dailyBuckets = dailyBuckets;
+    userInfoCache[id].state.dailyBucketsUpdated = dailyBucketsUpdated;
+    cb(undefined);
+  });
+}
+
+export function getWeeklyContactList(id: string): IContact[] {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  return userInfoCache[id].state.weeklyContactList;
+}
+
+export function setWeeklyContactList(id: string, weeklyContactList: IContact[], cb: CB): void {
+  if (!userInfoCache[id]) {
+    throw new Error(`Internal Error: Unknown user ID ${id}`);
+  }
+  const weeklyContactListUpdated = Date.now();
+  const update = {
+    $set: {
+      state: {
+        ...userInfoCache[id].state,
+        weeklyContactList,
+        weeklyContactListUpdated,
+      }
+    }
+  };
+  db.collection(DB_COLLECTIONS.USERS).updateOne({ id }, update, (err, result) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    userInfoCache[id].state.weeklyContactList = weeklyContactList;
+    userInfoCache[id].state.weeklyContactListUpdated = weeklyContactListUpdated;
     cb(undefined);
   });
 }

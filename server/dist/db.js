@@ -15,6 +15,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var constants_1 = require("./common/constants");
 var util_1 = require("./util");
@@ -40,6 +48,7 @@ function connect(cb) {
             // TODO: need to buffer requests between connects...or just switch to mongoose?
             connect();
         });
+        console.log('Connected to MongoDB');
         if (cb) {
             cb(undefined);
         }
@@ -76,7 +85,7 @@ function getPushSubscription(id) {
     if (!userInfoCache[id]) {
         throw new Error("Internal Error: Unknown user ID " + id);
     }
-    var subscription = userInfoCache[id].subscription;
+    var subscription = userInfoCache[id].state.subscription;
     if (!subscription) {
         throw new Error("Internal Error: No subscription info for user " + id);
     }
@@ -92,7 +101,7 @@ function setPushSubscription(id, subscription, cb) {
             cb(err);
             return;
         }
-        userInfoCache[id].subscription = subscription;
+        userInfoCache[id].state.subscription = subscription;
         cb(undefined);
     });
 }
@@ -122,21 +131,58 @@ function getDailyBuckets(id) {
     if (!userInfoCache[id]) {
         throw new Error("Internal Error: Unknown user ID " + id);
     }
-    return userInfoCache[id].dailyBuckets;
+    return userInfoCache[id].state.dailyBuckets;
 }
 exports.getDailyBuckets = getDailyBuckets;
 function setDailyBuckets(id, dailyBuckets, cb) {
     if (!userInfoCache[id]) {
         throw new Error("Internal Error: Unknown user ID " + id);
     }
-    db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, { $set: { dailyBuckets: dailyBuckets } }, function (err, result) {
+    var dailyBucketsUpdated = Date.now();
+    var update = {
+        $set: {
+            state: __assign({}, userInfoCache[id].state, { dailyBuckets: dailyBuckets,
+                dailyBucketsUpdated: dailyBucketsUpdated })
+        }
+    };
+    db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, update, function (err, result) {
         if (err) {
             cb(err);
             return;
         }
-        userInfoCache[id].dailyBuckets = dailyBuckets;
+        userInfoCache[id].state.dailyBuckets = dailyBuckets;
+        userInfoCache[id].state.dailyBucketsUpdated = dailyBucketsUpdated;
         cb(undefined);
     });
 }
 exports.setDailyBuckets = setDailyBuckets;
+function getWeeklyContactList(id) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    return userInfoCache[id].state.weeklyContactList;
+}
+exports.getWeeklyContactList = getWeeklyContactList;
+function setWeeklyContactList(id, weeklyContactList, cb) {
+    if (!userInfoCache[id]) {
+        throw new Error("Internal Error: Unknown user ID " + id);
+    }
+    var weeklyContactListUpdated = Date.now();
+    var update = {
+        $set: {
+            state: __assign({}, userInfoCache[id].state, { weeklyContactList: weeklyContactList,
+                weeklyContactListUpdated: weeklyContactListUpdated })
+        }
+    };
+    db.collection(constants_1.DB_COLLECTIONS.USERS).updateOne({ id: id }, update, function (err, result) {
+        if (err) {
+            cb(err);
+            return;
+        }
+        userInfoCache[id].state.weeklyContactList = weeklyContactList;
+        userInfoCache[id].state.weeklyContactListUpdated = weeklyContactListUpdated;
+        cb(undefined);
+    });
+}
+exports.setWeeklyContactList = setWeeklyContactList;
 //# sourceMappingURL=db.js.map

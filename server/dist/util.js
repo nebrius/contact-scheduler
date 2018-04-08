@@ -39,4 +39,9 @@ function getStartOfToday(timezone) {
     return startOfDay.unix() * 1000;
 }
 exports.getStartOfToday = getStartOfToday;
+function getStartOfWeek(timezone) {
+    var start = new Date(getStartOfToday(timezone));
+    return start.getTime() - start.getDay() * 24 * 60 * 60 * 1000;
+}
+exports.getStartOfWeek = getStartOfWeek;
 //# sourceMappingURL=util.js.map

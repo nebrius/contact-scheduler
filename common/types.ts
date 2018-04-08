@@ -28,6 +28,7 @@ export interface IContact {
   name: string;
   url: string | null;
   frequency: Frequency;
+  lastContacted: number;
 }
 
 export interface IPushSubscription {
@@ -42,17 +43,22 @@ export interface IPushSubscription {
 export interface IDailyBucket {
   timestamp: number;
   available: boolean;
-  contact: IContact | null;
 }
 
 export interface IUser {
   id: string;
   name: string;
-  timezone: string;
-  lastUpdated: number;
-  startOfDay: number;
-  endOfDay: number;
   contacts: IContact[];
-  dailyBuckets: IDailyBucket[];
-  subscription?: IPushSubscription;
+  settings: {
+    timezone: string;
+    startOfDay: number;
+    endOfDay: number;
+  };
+  state: {
+    dailyBucketsUpdated: number;
+    dailyBuckets: IDailyBucket[];
+    weeklyContactListUpdated: number;
+    weeklyContactList: IContact[];
+    subscription?: IPushSubscription;
+  };
 }

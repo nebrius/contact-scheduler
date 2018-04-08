@@ -22,8 +22,8 @@ import * as cookieParser from 'cookie-parser';
 import { Authenticator } from 'express-facebook-auth';
 import { parallel, series } from 'async';
 import { setVapidDetails, sendNotification } from 'web-push';
-import { CB, IDailyBucket } from './common/types';
-import { getEnvironmentVariable, getStartOfToday } from './util';
+import { CB, IDailyBucket, IContact, Frequency } from './common/types';
+import { getEnvironmentVariable, getStartOfToday, getStartOfWeek } from './util';
 import {
   isUserRegistered,
   getUsers,
@@ -31,7 +31,8 @@ import {
   setPushSubscription,
   getContacts,
   setContacts,
-  setDailyBuckets
+  setDailyBuckets,
+  setWeeklyContactList
 } from './db';
 
 interface IRequest extends express.Request {
@@ -39,6 +40,10 @@ interface IRequest extends express.Request {
 }
 
 const DEFAULT_PORT = 3000;
+const HOUR_IN_MS = 60 * 60 * 1000;
+const BUCKET_DURATION = HOUR_IN_MS;
+const MONTHLY_THRESHOLD = HOUR_IN_MS * 24 * 25;
+const QUARTERLY_THRESHOLD = HOUR_IN_MS * 24 * 80;
 
 export function init(cb: CB): void {
 
@@ -134,33 +139,64 @@ export function init(cb: CB): void {
   app.post('/api/processNotifications', (req, res) => {
     const users = getUsers();
     parallel(users.map((user) => (next: CB) => {
-      const midnight = getStartOfToday(user.timezone);
-      const dayOfWeek = (new Date(midnight)).getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        console.log('skipping due to the weekend');
-        next(undefined);
-        return;
-      }
+      const midnight = getStartOfToday(user.settings.timezone);
+      // const dayOfWeek = (new Date(midnight)).getDay();
+      // if (dayOfWeek === 0 || dayOfWeek === 6) {
+      //   console.log('skipping due to the weekend');
+      //   next(undefined);
+      //   return;
+      // }
       series([
+        (weeklyContactListNext) => {
+          if (user.state.weeklyContactListUpdated > getStartOfWeek(user.settings.timezone)) {
+            weeklyContactListNext();
+            return;
+          }
+          console.log('Creating the list of people to contact');
+          const peopleToContact: IContact[] = [];
+          for (const contact of user.contacts) {
+            switch (contact.frequency) {
+              case Frequency.Weekly:
+                peopleToContact.push(contact);
+                break;
+              case Frequency.Monthly:
+                if (contact.lastContacted + MONTHLY_THRESHOLD < midnight) {
+                  peopleToContact.push(contact);
+                }
+                break;
+              case Frequency.Quarterly:
+                if (contact.lastContacted + QUARTERLY_THRESHOLD < midnight) {
+                  peopleToContact.push(contact);
+                }
+                break;
+            }
+          }
+          const shuffledPeopleToContact: IContact[] = [];
+          while (peopleToContact.length) {
+            const i = Math.round(Math.random() * (peopleToContact.length - 1));
+            shuffledPeopleToContact.push(peopleToContact.splice(i, 1)[0]);
+          }
+          setWeeklyContactList(user.id, shuffledPeopleToContact, weeklyContactListNext);
+        },
         (bucketsNext) => {
-          if (user.lastUpdated >= midnight) {
+          if (user.state.dailyBucketsUpdated >= midnight) {
             bucketsNext();
             return;
           }
-          const startOfToday = midnight + user.startOfDay * 60 * 60 * 1000;
-          const endOfToday = midnight + user.endOfDay * 60 * 60 * 1000;
+          console.log('Creating the daily buckets');
+          const startOfToday = midnight + user.settings.startOfDay * HOUR_IN_MS;
+          const endOfToday = midnight + user.settings.endOfDay * HOUR_IN_MS;
           const buckets: IDailyBucket[] = [];
-          for (let timestamp = startOfToday; timestamp < endOfToday; timestamp += 15 * 60 * 1000) {
+          for (let timestamp = startOfToday; timestamp < endOfToday; timestamp += BUCKET_DURATION) {
             buckets.push({
               timestamp,
-              available: true, // TODO: hook in calendar information
-              contact: null
+              available: true // TODO: hook in calendar information
             });
           }
           setDailyBuckets(user.id, buckets, bucketsNext);
         },
         (processNext) => {
-          console.log('setup day');
+          console.log('Processing next bucket');
           processNext();
         }
       ], next);

@@ -41,3 +41,8 @@ export function getStartOfToday(timezone: string): number {
     }-${toStringWithPadding(now.date(), 2)}`, timezone);
   return startOfDay.unix() * 1000;
 }
+
+export function getStartOfWeek(timezone: string): number {
+  const start = new Date(getStartOfToday(timezone));
+  return start.getTime() - start.getDay() * 24 * 60 * 60 * 1000;
+}
