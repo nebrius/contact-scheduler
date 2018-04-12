@@ -15,11 +15,18 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { combineReducers } from 'redux';
-import { userReducer } from './userReducer';
-import { stateReducer } from './stateReducer';
+import { Reducer } from 'redux';
+import { IAction } from '../actions/actions';
+import { IState } from '../util/types';
 
-export const reducers = combineReducers({
-  user: userReducer,
-  state: stateReducer
-});
+const DEFAULT_STATE = {
+  notificationsEnabled: (Notification as any).permission === 'granted',
+  serviceWorkerRegistered: false
+};
+
+export const stateReducer: Reducer<IState> = (state: IState, action: IAction) => {
+  if (!state) {
+    state = DEFAULT_STATE;
+  }
+  return state;
+};

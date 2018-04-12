@@ -15,11 +15,19 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { combineReducers } from 'redux';
-import { userReducer } from './userReducer';
-import { stateReducer } from './stateReducer';
+import { Reducer } from 'redux';
+import { IAction } from '../actions/actions';
+import { IUser } from '../common/types';
 
-export const reducers = combineReducers({
-  user: userReducer,
-  state: stateReducer
-});
+const userTag = document.getElementsByName('user')[0];
+if (!userTag) {
+  throw new Error('Internal Error: user missing in meta tag');
+}
+const DEFAULT_STATE = JSON.parse((userTag.attributes as any).value.value);
+
+export const userReducer: Reducer<IUser> = (state: IUser, action: IAction) => {
+  if (!state) {
+    state = DEFAULT_STATE;
+  }
+  return state;
+};

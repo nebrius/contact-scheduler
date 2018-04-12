@@ -20,9 +20,12 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
 
-  entry: './src/app.tsx',
+  entry: {
+    serviceWorker: './src/serviceWorker.ts',
+    app: './src/app.tsx'
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: `${__dirname}/dist`
   },
 

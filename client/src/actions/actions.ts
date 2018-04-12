@@ -15,28 +15,9 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = {
-
-  mode: 'development',
-  devtool: 'inline-source-map',
-
-  entry: './src/serviceWorker.ts',
-  output: {
-    filename: 'service-worker.js',
-    path: `${__dirname}/dist`
-  },
-
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
-  }
+export const ACTIONS = {
 };
+
+export interface IAction {
+  type: string;
+}

@@ -28,7 +28,8 @@ const user = JSON.parse((userTag.attributes as any).value.value);
 const preloadedState: IAppState = {
   user,
   state: {
-    notificationsEnabled: false
+    notificationsEnabled: (Notification as any).permission === 'granted',
+    serviceWorkerRegistered: false
   }
 };
 

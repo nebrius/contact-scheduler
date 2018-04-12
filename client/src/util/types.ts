@@ -17,9 +17,12 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { IUser } from '../common/types';
 
+export interface IState {
+  notificationsEnabled: boolean;
+  serviceWorkerRegistered: boolean;
+}
+
 export interface IAppState {
   user: IUser;
-  state: {
-    notificationsEnabled: boolean;
-  };
+  state: IState;
 }
