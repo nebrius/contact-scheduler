@@ -4,18 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build-client",
+      "label": "build",
       "type": "shell",
-      "command": "cd ${workspaceRoot}/client && npm run build",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "build-server",
-      "type": "shell",
-      "command": "cd ${workspaceRoot}/server && npm run build",
+      "command": "npm run build",
       "group": {
         "kind": "build",
         "isDefault": true
