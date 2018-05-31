@@ -15,14 +15,23 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { IUser } from '../common/types';
+export const ACTIONS = {
+  SERVICE_WORKER_REGISTERED: "SERVICE_WORKER_REGISTERED",
+  NOTIFICATIONS_REGISTERED: "NOTIFICATIONS_REGISTERED"
+};
 
-export interface IState {
-  notificationsEnabled: boolean;
-  serviceWorkerRegistered: boolean;
+export interface IAction {
+  type: string;
 }
 
-export interface IAppState {
-  user: IUser;
-  state: IState;
+export function serviceWorkerRegistered(): IAction {
+  return {
+    type: ACTIONS.SERVICE_WORKER_REGISTERED
+  };
+}
+
+export function notificationsRegistered(): IAction {
+  return {
+    type: ACTIONS.NOTIFICATIONS_REGISTERED
+  };
 }

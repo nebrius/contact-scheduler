@@ -15,9 +15,12 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export const ACTIONS = {
-};
+import * as React from 'react';
 
-export interface IAction {
-  type: string;
+export function Root(props: {}): JSX.Element {
+  return (
+    <div className="root-container">
+      Hi
+    </div>
+  );
 }

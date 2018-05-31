@@ -15,12 +15,14 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as React from 'react';
+import { IUser } from '../common/types';
 
-export function Root(props: {}): JSX.Element {
-  return (
-    <div className="root-container">
-      App time!
-    </div>
-  );
+export interface IState {
+  notificationsRegistered: boolean;
+  serviceWorkerRegistered: boolean;
+}
+
+export interface IAppState {
+  user: IUser;
+  state: IState;
 }

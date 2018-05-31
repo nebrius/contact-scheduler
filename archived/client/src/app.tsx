@@ -15,18 +15,19 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction } from '../actions/actions';
-import { IState } from '../util/types';
+import * as React from 'react';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { series } from 'async';
+import { Root } from './components/Root';
+import { store } from './util/store';
+import { registerServiceWorker } from './util/registration';
 
-const DEFAULT_STATE = {
-  notificationsEnabled: (Notification as any).permission === 'granted',
-  serviceWorkerRegistered: false
-};
-
-export const stateReducer: Reducer<IState> = (state: IState, action: IAction) => {
-  if (!state) {
-    state = DEFAULT_STATE;
-  }
-  return state;
-};
+render(
+  (
+    <Provider store={store}>
+      <Root />
+    </Provider>
+  ),
+  document.getElementById('root')
+);
