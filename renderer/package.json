@@ -1,0 +1,41 @@
+{
+  "name": "contact-scheduler",
+  "version": "1.0.0",
+  "description": "A system for scheduling times to reach out to folks regularly in a friendly way",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "tslint 'src/**/*.ts'",
+    "build": "rimraf ../dist/renderer && webpack && cpy 'assets/**/*' ../dist/renderer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nebrius/contact-scheduler.git"
+  },
+  "author": "Bryan Hughes <bryan@nebri.us>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/nebrius/contact-scheduler/issues"
+  },
+  "homepage": "https://github.com/nebrius/contact-scheduler#readme",
+  "devDependencies": {
+    "@types/node": "^10.3.0",
+    "@types/react": "^16.3.16",
+    "@types/react-dom": "^16.0.5",
+    "@types/react-redux": "^6.0.0",
+    "cpy-cli": "^2.0.0",
+    "electron": "^2.0.2",
+    "rimraf": "^2.6.2",
+    "ts-loader": "^4.3.0",
+    "tslint": "^5.10.0",
+    "typescript": "^2.8.4",
+    "webpack": "^4.10.2",
+    "webpack-cli": "^2.1.5"
+  },
+  "dependencies": {
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
+    "react-redux": "^5.0.7",
+    "redux": "^4.0.0"
+  }
+}

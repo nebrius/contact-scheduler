@@ -1,9 +1,4 @@
-# Contact Scheduler
-
-A system for scheduling times to reach out to folks regularly that takes into account my anxiety and other brain quirks.
-
-# License
-
+/*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
 Contact Schedular is free software: you can redistribute it and/or modify
@@ -18,3 +13,5 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
+*/
+

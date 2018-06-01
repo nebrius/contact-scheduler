@@ -2,12 +2,9 @@
   "name": "contact-scheduler",
   "version": "1.0.0",
   "description": "A system for scheduling times to reach out to folks regularly in a friendly way",
-  "main": "dist/index.js",
+  "main": "dist/main/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prebuild": "tslint 'src/**/*.ts'",
-    "build": "tsc",
-    "postbuild": "echo done",
+    "build": "cd main && npm run build & cd ../renderer && npm run build",
     "start": "electron ."
   },
   "repository": {
@@ -15,14 +12,9 @@
     "url": "git+https://github.com/nebrius/contact-scheduler.git"
   },
   "author": "Bryan Hughes <bryan@nebri.us>",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/nebrius/contact-scheduler/issues"
   },
-  "homepage": "https://github.com/nebrius/contact-scheduler#readme",
-  "devDependencies": {
-    "electron": "^2.0.2",
-    "tslint": "^5.10.0",
-    "typescript": "^2.8.4"
-  }
+  "homepage": "https://github.com/nebrius/contact-scheduler#readme"
 }
