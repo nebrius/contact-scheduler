@@ -18,9 +18,11 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var electron_1 = require("electron");
+var messages_1 = require("./common/messages");
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
+var dialogWindows = [];
 function createWindow() {
     // Create the browser window.
     mainWindow = new electron_1.BrowserWindow({
@@ -29,8 +31,6 @@ function createWindow() {
     });
     // and load the index.html of the app.
     mainWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'app.html'));
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
         // Dereference the window object, usually you would store windows
@@ -57,5 +57,28 @@ electron_1.app.on('activate', function () {
     if (mainWindow === null) {
         createWindow();
     }
+});
+function openDialogWindow(contentPath, title, args) {
+    var dialogWindow = new electron_1.BrowserWindow({
+        width: 640,
+        height: 480,
+        parent: mainWindow,
+        modal: true,
+        webPreferences: {
+            additionalArguments: [JSON.stringify(args)]
+        }
+    });
+    dialogWindow.loadFile(contentPath);
+    dialogWindow.setTitle(title);
+    dialogWindow.on('closed', function () {
+        dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
+    });
+    dialogWindows.push(dialogWindow);
+}
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (event, arg) {
+    var args = {
+        isNew: true
+    };
+    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });
 //# sourceMappingURL=index.js.map

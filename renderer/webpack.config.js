@@ -20,11 +20,14 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
 
+  target: 'electron-renderer',
+
   entry: {
     calendar: './src/calendar.tsx',
     contacts: './src/contact.tsx',
     app: './src/app.tsx'
   },
+
   output: {
     filename: '[name].js',
     path: `${__dirname}/../dist/renderer`

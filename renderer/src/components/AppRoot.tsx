@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as React from 'react';
-import { NoCalendarsCTA } from './NoCalendarsCTA';
+import { NoCalendarsCTAContainer } from '../containers/NoCalendarsCTAContainer';
 
 export interface IAppRootProps {
   hasCalendars: boolean;
@@ -25,7 +25,7 @@ export interface IAppRootProps {
 export function AppRoot(props: IAppRootProps): JSX.Element {
   if (!props.hasCalendars) {
     return (
-      <NoCalendarsCTA />
+      <NoCalendarsCTAContainer />
     );
   }
   return (

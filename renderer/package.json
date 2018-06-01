@@ -25,7 +25,6 @@
     "@types/react-dom": "^16.0.5",
     "@types/react-redux": "^6.0.0",
     "cpy-cli": "^2.0.0",
-    "electron": "^2.0.2",
     "rimraf": "^2.6.2",
     "ts-loader": "^4.3.0",
     "tslint": "^5.10.0",
@@ -34,6 +33,7 @@
     "webpack-cli": "^2.1.5"
   },
   "dependencies": {
+    "electron": "^2.0.2",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "react-redux": "^5.0.7",

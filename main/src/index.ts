@@ -16,11 +16,14 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, Event } from 'electron';
+import { MessageTypes } from './common/messages';
+import { ICalendarDialogArguments } from './common/arguments';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | null = null;
+const dialogWindows: BrowserWindow[] = [];
 
 function createWindow() {
   // Create the browser window.
@@ -31,9 +34,6 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile(join(__dirname, '..', 'renderer', 'app.html'));
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -64,4 +64,32 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+function openDialogWindow(contentPath: string, title: string, args: { [ key: string ]: any }): void {
+  const dialogWindow = new BrowserWindow({
+    width: 640,
+    height: 480,
+    parent: mainWindow,
+    modal: true,
+    webPreferences: {
+      additionalArguments: [ JSON.stringify(args) ]
+    }
+  } as any);
+
+  dialogWindow.loadFile(contentPath);
+  dialogWindow.setTitle(title);
+
+  dialogWindow.on('closed', () => {
+    dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
+  });
+
+  dialogWindows.push(dialogWindow);
+}
+
+ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {
+  const args: ICalendarDialogArguments = {
+    isNew: true
+  };
+  openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });

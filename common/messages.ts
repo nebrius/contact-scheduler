@@ -15,22 +15,6 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as React from 'react';
-
-export interface IDispatchProps {
-  requestAddCalendar: () => void;
-}
-
-export function NoCalendarsCTA(props: IDispatchProps): JSX.Element {
-  return (
-    <div className="no-calendars-cta">
-      <h4>
-        No calendars have been connected yet.
-        <br />
-        Please connect a calendar to continue.
-      </h4>
-      <br />
-      <button type="button" className="btn btn-primary" onClick={props.requestAddCalendar}>Add Calendar</button>
-    </div>
-  );
-}
+export const MessageTypes = {
+  RequestAddCalendar: 'RequestAddCalendar'
+};
