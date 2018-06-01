@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "tslint 'src/**/*.ts'",
-    "build": "rimraf ../dist/renderer && webpack && cpy 'assets/**/*' ../dist/renderer"
+    "build": "rimraf ../dist/renderer && webpack && cpy 'assets/**/*' ../dist/renderer",
+    "postbuild": "echo done"
   },
   "repository": {
     "type": "git",

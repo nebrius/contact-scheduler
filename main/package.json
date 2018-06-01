@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "tslint 'src/**/*.ts'",
     "build": "rimraf dist/main && tsc",
-    "postbuild": "cpy 'assets/**/*' dist"
+    "postbuild": "echo done"
   },
   "repository": {
     "type": "git",

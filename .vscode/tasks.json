@@ -4,13 +4,20 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build",
+      "label": "build main",
       "type": "shell",
-      "command": "npm run build",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
+      "command": "cd main && npm run build",
+      "group": "build"
+    },{
+      "label": "build renderer",
+      "type": "shell",
+      "command": "cd renderer && npm run build",
+      "group": "build"
+    },{
+      "label": "run",
+      "type": "shell",
+      "command": "npm start",
+      "group": "build"
     }
   ]
 }
