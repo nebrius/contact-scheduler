@@ -13,11 +13,6 @@
       "type": "shell",
       "command": "cd renderer && npm run build",
       "group": "build"
-    },{
-      "label": "run",
-      "type": "shell",
-      "command": "npm start",
-      "group": "build"
     }
   ]
 }

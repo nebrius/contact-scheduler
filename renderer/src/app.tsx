@@ -18,13 +18,13 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import { AppRoot } from './components/AppRoot';
+import { AppRootContainer } from './containers/AppRootContainer';
 import { store } from './util/store';
 
 render(
   (
     <Provider store={store}>
-      <AppRoot />
+      <AppRootContainer />
     </Provider>
   ),
   document.getElementById('root')

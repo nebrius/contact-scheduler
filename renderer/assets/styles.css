@@ -22,3 +22,12 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   right: 0;
   bottom: 0;
 }
+
+.no-calendars-cta {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

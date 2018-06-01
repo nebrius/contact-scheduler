@@ -15,19 +15,19 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#root {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
+import * as React from 'react';
+import { addCalendar } from '../actions/actions';
 
-.no-calendars-cta {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+export function NoCalendarsCTA(props: {}): JSX.Element {
+  return (
+    <div className="no-calendars-cta">
+      <h4>
+        No calendars have been connected yet.
+        <br />
+        Please connect a calendar to continue.
+      </h4>
+      <br />
+      <button type="button" className="btn btn-primary" onClick={addCalendar}>Add Calendar</button>
+    </div>
+  );
 }

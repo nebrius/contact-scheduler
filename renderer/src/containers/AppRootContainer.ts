@@ -15,19 +15,22 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#root {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+import { connect } from 'react-redux';
+import { IAppState } from '../util/types';
+import { IAction } from '../actions/actions';
+import { AppRoot, IAppRootProps } from '../components/AppRoot';
+
+function mapStateToProps(state: IAppState): IAppRootProps {
+  return {
+    hasCalendars: !!state.calendars.calendars.length
+  };
 }
 
-.no-calendars-cta {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+function mapDispatchToProps(dispatch: (action: IAction) => any) {
+  return {};
 }
+
+export const AppRootContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AppRoot);
