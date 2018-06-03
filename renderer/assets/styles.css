@@ -23,11 +23,18 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   bottom: 0;
 }
 
-.no-calendars-cta {
+.no-calendars-cta,
+.select-calendar-source-container {
   position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.no-calendars-cta > button,
+.select-calendar-source-container > button {
+  margin: 5px;
+  width: 200px;
 }

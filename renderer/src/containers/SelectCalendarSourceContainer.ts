@@ -15,31 +15,25 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { connect } from 'react-redux';
 import { CalendarSource } from '../common/types';
+import { ICalendarState } from '../util/types';
+import { ISelectCalendarAction, selectCalendarSource } from '../actions/actions';
+import { SelectCalendarSource, IDispatchProps } from '../components/SelectCalendarSource';
 
-export const ACTIONS = {
-  ADD_CALENDAR_REQUESTED: 'ADD_CALENDAR_REQUESTED',
-  SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
-  SAVE_CALENDAR: 'SAVE_CALENDAR',
-  DELETE_CALENDAR: 'DELETE_CALENDAR'
-};
-
-export interface IAction {
-  type: string;
+function mapStateToProps(state: ICalendarState): {} {
+  return {};
 }
 
-export function addCalendar(): IAction {
+function mapDispatchToProps(dispatch: (action: ISelectCalendarAction) => any): IDispatchProps {
   return {
-    type: ACTIONS.ADD_CALENDAR_REQUESTED
+    setCalendarSource: (calendarSource: CalendarSource) => {
+      dispatch(selectCalendarSource(calendarSource));
+    }
   };
 }
 
-export interface ISelectCalendarAction extends IAction {
-  source: CalendarSource;
-}
-export function selectCalendarSource(source: CalendarSource): ISelectCalendarAction {
-  return {
-    source,
-    type: ACTIONS.SELECT_CALENDAR_SOURCE
-  };
-}
+export const SelectCalendarSourceContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SelectCalendarSource);

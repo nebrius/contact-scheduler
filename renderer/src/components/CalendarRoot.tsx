@@ -16,17 +16,23 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as React from 'react';
-import { ICalendar } from '../util/types';
+import { SelectCalendarSourceContainer } from '../containers/SelectCalendarSourceContainer';
+import { EditCalendarContainer } from '../containers/EditCalendarContainer';
+import { ICalendar } from '../common/types';
 
 export interface ICalendarRootProps {
   calendar: ICalendar;
   isAdd: boolean;
+  sourceSelected: boolean;
 }
 
 export function CalendarRoot(props: ICalendarRootProps): JSX.Element {
+  if (props.isAdd && !props.sourceSelected) {
+    return (
+      <SelectCalendarSourceContainer />
+    )
+  }
   return (
-    <div className="calendar-root-container">
-      Calendar Root (is new: {props.isAdd ? 'yes' : 'no'}, {typeof props.isAdd})
-    </div>
+    <EditCalendarContainer />
   );
 }

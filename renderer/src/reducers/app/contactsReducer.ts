@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { Reducer } from 'redux';
 import { IAction } from '../../actions/actions';
-import { IContact } from '../../util/types';
+import { IContact } from '../../common/types';
 
 const DEFAULT_STATE: IContact[] = [];
 

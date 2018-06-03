@@ -15,15 +15,23 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction } from '../../actions/actions';
-import { ICalendar } from '../../common/types';
+import * as React from 'react';
+import { ICalendar } from '../common/types';
 
-const DEFAULT_STATE: ICalendar[] = [];
+export interface IProps {
+  calendar: ICalendar;
+}
 
-export const calendarsReducer: Reducer<ICalendar[]> = (state: ICalendar[] | undefined, action: IAction) => {
-  if (!state) {
-    state = DEFAULT_STATE;
-  }
-  return state;
-};
+export interface IDispatchProps {
+  saveCalendar: (calendar: ICalendar) => void;
+  deleteCalendar: (calendar: ICalendar) => void;
+  cancelEdit: (calendar: ICalendar) => void;
+}
+
+export function EditCalendar(props: IProps & IDispatchProps): JSX.Element {
+  return (
+    <div className="edit-calendar-container">
+      {JSON.stringify(props.calendar, null, '  ')}
+    </div>
+  );
+}

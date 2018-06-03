@@ -15,15 +15,16 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction } from '../../actions/actions';
-import { ICalendar } from '../../common/types';
+export type CalendarSource = 'office365' | 'google';
 
-const DEFAULT_STATE: ICalendar[] = [];
+export interface ICalendar {
+  id: string;
+  displayName: string;
+  source: CalendarSource;
+}
 
-export const calendarsReducer: Reducer<ICalendar[]> = (state: ICalendar[] | undefined, action: IAction) => {
-  if (!state) {
-    state = DEFAULT_STATE;
-  }
-  return state;
-};
+export interface IContact {
+  id: string;
+  name: string;
+  frequency: 'weekly' | 'monthly' | 'quarterly';
+}

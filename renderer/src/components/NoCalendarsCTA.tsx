@@ -30,7 +30,7 @@ export function NoCalendarsCTA(props: IDispatchProps): JSX.Element {
         Please connect a calendar to continue.
       </h4>
       <br />
-      <button type="button" className="btn btn-primary" onClick={props.requestAddCalendar}>Add Calendar</button>
+      <button type="button" className="btn btn-primary btn-lg" onClick={props.requestAddCalendar}>Add Calendar</button>
     </div>
   );
 }

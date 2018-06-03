@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as React from 'react';
-import { IContact } from '../util/types';
+import { IContact } from '../common/types';
 
 export interface IContactRootProps {
   contact: IContact;

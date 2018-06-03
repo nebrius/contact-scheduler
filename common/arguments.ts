@@ -15,6 +15,16 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { ICalendar } from './types';
+
 export interface ICalendarDialogArguments {
   isAdd: boolean;
+}
+
+export interface ISaveCalendarArguments {
+  calendar: ICalendar;
+}
+
+export interface IDeleteCalendarArguments {
+  calendar: ICalendar;
 }

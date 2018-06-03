@@ -15,15 +15,22 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction } from '../../actions/actions';
-import { ICalendar } from '../../common/types';
+import * as React from 'react';
+import { CalendarSource } from '../common/types';
 
-const DEFAULT_STATE: ICalendar[] = [];
+export interface IDispatchProps {
+  setCalendarSource: (calendarSource: CalendarSource) => void;
+}
 
-export const calendarsReducer: Reducer<ICalendar[]> = (state: ICalendar[] | undefined, action: IAction) => {
-  if (!state) {
-    state = DEFAULT_STATE;
-  }
-  return state;
-};
+export function SelectCalendarSource(props: IDispatchProps): JSX.Element {
+  return (
+    <div className="select-calendar-source-container">
+      <button type="button" className="btn btn-primary btn-lg" onClick={() => props.setCalendarSource('office365')}>
+        Office 365
+      </button>
+      <button type="button" className="btn btn-primary btn-lg" onClick={() => props.setCalendarSource('google')}>
+        Google
+      </button>
+    </div>
+  );
+}

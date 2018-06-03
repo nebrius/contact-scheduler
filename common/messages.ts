@@ -16,5 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 export const MessageTypes = {
-  RequestAddCalendar: 'RequestAddCalendar'
+  RequestAddCalendar: 'RequestAddCalendar',
+  RequestSaveCalendar: 'RequestSaveCalendar',
+  RequestDeleteCalendar: 'RequestDeleteCalendar'
 };

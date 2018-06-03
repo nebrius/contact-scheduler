@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { Reducer } from 'redux';
-import { IAction } from '../actions/actions';
+import { IAction, ISelectCalendarAction, ACTIONS } from '../actions/actions';
 import { ICalendarState } from '../util/types';
 import { ICalendarDialogArguments } from '../common/arguments';
 
@@ -25,14 +25,28 @@ const initArgs: ICalendarDialogArguments = JSON.parse(process.argv.pop() as stri
 const DEFAULT_STATE: ICalendarState = {
   calendar: {
     id: '',
-    displayName: ''
+    displayName: '',
+    source: 'office365'
   },
-  isAdd: initArgs.isAdd
+  isAdd: initArgs.isAdd,
+  sourceSelected: false
 };
 
 export const calendarReducers: Reducer<ICalendarState> = (state: ICalendarState | undefined, action: IAction) => {
   if (!state) {
     state = DEFAULT_STATE;
   }
-  return state;
+  switch (action.type) {
+    case ACTIONS.SELECT_CALENDAR_SOURCE:
+      return {
+        ...state,
+        calendar: {
+          ...state.calendar,
+          source: (action as ISelectCalendarAction).source
+        },
+        sourceSelected: true
+      };
+    default:
+      return state;
+  }
 };
