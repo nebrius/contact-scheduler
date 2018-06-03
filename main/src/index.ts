@@ -89,7 +89,7 @@ function openDialogWindow(contentPath: string, title: string, args: { [ key: str
 
 ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {
   const args: ICalendarDialogArguments = {
-    isNew: true
+    isAdd: true
   };
   openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });

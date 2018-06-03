@@ -16,14 +16,12 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { Reducer } from 'redux';
-import { IAction } from '../actions/actions';
-import { IContactsState } from '../util/types';
+import { IAction } from '../../actions/actions';
+import { IContact } from '../../util/types';
 
-const DEFAULT_STATE: IContactsState = {
-  contacts: []
-};
+const DEFAULT_STATE: IContact[] = [];
 
-export const contactsReducer: Reducer<IContactsState> = (state: IContactsState | undefined, action: IAction) => {
+export const contactsReducer: Reducer<IContact[]> = (state: IContact[] | undefined, action: IAction) => {
   if (!state) {
     state = DEFAULT_STATE;
   }

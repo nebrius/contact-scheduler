@@ -22,7 +22,7 @@ import { AppRoot, IAppRootProps } from '../components/AppRoot';
 
 function mapStateToProps(state: IAppState): IAppRootProps {
   return {
-    hasCalendars: !!state.calendars.calendars.length
+    hasCalendars: !!state.calendars.length
   };
 }
 

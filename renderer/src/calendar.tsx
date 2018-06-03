@@ -15,7 +15,17 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { ICalendarDialogArguments } from './common/arguments';
+import * as React from 'react';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { CalendarRootContainer } from './containers/CalendarRootContainer';
+import { calendarStore } from './stores/calendarStore';
 
-const initArgs: ICalendarDialogArguments = JSON.parse(process.argv.pop() as string);
-console.log(initArgs); // Use to pre-populate the store
+render(
+  (
+    <Provider store={calendarStore}>
+      <CalendarRootContainer />
+    </Provider>
+  ),
+  document.getElementById('root')
+);

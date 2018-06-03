@@ -19,11 +19,11 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { AppRootContainer } from './containers/AppRootContainer';
-import { store } from './util/store';
+import { appStore } from './stores/appStore';
 
 render(
   (
-    <Provider store={store}>
+    <Provider store={appStore}>
       <AppRootContainer />
     </Provider>
   ),

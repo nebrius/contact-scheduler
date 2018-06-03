@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export interface ICalendarDialogArguments {
-  isAdd: boolean;
-}
+import { createStore } from 'redux';
+import { contactReducers } from '../reducers/contactReducers';
+
+export const contactStore = createStore(contactReducers);

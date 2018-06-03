@@ -15,6 +15,23 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export interface ICalendarDialogArguments {
-  isAdd: boolean;
+import { connect } from 'react-redux';
+import { ICalendarState } from '../util/types';
+import { IAction } from '../actions/actions';
+import { CalendarRoot, ICalendarRootProps } from '../components/CalendarRoot';
+
+function mapStateToProps(state: ICalendarState): ICalendarRootProps {
+  return {
+    calendar: state.calendar,
+    isAdd: state.isAdd
+  };
 }
+
+function mapDispatchToProps(dispatch: (action: IAction) => any) {
+  return {};
+}
+
+export const CalendarRootContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CalendarRoot);

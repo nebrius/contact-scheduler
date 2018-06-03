@@ -77,7 +77,7 @@ function openDialogWindow(contentPath, title, args) {
 }
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (event, arg) {
     var args = {
-        isNew: true
+        isAdd: true
     };
     openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });

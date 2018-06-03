@@ -15,6 +15,18 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export interface ICalendarDialogArguments {
+import * as React from 'react';
+import { ICalendar } from '../util/types';
+
+export interface ICalendarRootProps {
+  calendar: ICalendar;
   isAdd: boolean;
+}
+
+export function CalendarRoot(props: ICalendarRootProps): JSX.Element {
+  return (
+    <div className="calendar-root-container">
+      Calendar Root (is new: {props.isAdd ? 'yes' : 'no'}, {typeof props.isAdd})
+    </div>
+  );
 }

@@ -15,7 +15,11 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { createStore } from 'redux';
-import { reducers } from '../reducers/reducers';
+import { combineReducers } from 'redux';
+import { contactsReducer } from './app/contactsReducer';
+import { calendarsReducer } from './app/calendarsReducer';
 
-export const store = createStore(reducers);
+export const appReducers = combineReducers({
+  contacts: contactsReducer,
+  calendars: calendarsReducer
+});

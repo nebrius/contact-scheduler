@@ -15,6 +15,24 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export interface ICalendarDialogArguments {
-  isAdd: boolean;
-}
+import { Reducer } from 'redux';
+import { IAction } from '../actions/actions';
+import { ICalendarState } from '../util/types';
+import { ICalendarDialogArguments } from '../common/arguments';
+
+const initArgs: ICalendarDialogArguments = JSON.parse(process.argv.pop() as string);
+
+const DEFAULT_STATE: ICalendarState = {
+  calendar: {
+    id: '',
+    displayName: ''
+  },
+  isAdd: initArgs.isAdd
+};
+
+export const calendarReducers: Reducer<ICalendarState> = (state: ICalendarState | undefined, action: IAction) => {
+  if (!state) {
+    state = DEFAULT_STATE;
+  }
+  return state;
+};

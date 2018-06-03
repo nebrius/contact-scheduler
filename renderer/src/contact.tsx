@@ -15,3 +15,17 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import * as React from 'react';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { ContactRootContainer } from './containers/ContactRootContainer';
+import { contactStore } from './stores/contactStore';
+
+render(
+  (
+    <Provider store={contactStore}>
+      <ContactRootContainer />
+    </Provider>
+  ),
+  document.getElementById('root')
+);

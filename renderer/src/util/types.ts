@@ -15,15 +15,28 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export interface ICalendarsState {
-  calendars: number[];
+export interface ICalendar {
+  id: string;
+  displayName: string;
 }
 
-export interface IContactsState {
-  contacts: number[];
+export interface IContact {
+  id: string;
+  name: string;
+  frequency: 'weekly' | 'monthly' | 'quarterly';
 }
 
 export interface IAppState {
-  calendars: ICalendarsState;
-  contacts: IContactsState;
+  calendars: ICalendar[];
+  contacts: IContact[];
+}
+
+export interface ICalendarState {
+  calendar: ICalendar;
+  isAdd: boolean;
+}
+
+export interface IContactState {
+  contact: IContact;
+  isAdd: boolean;
 }

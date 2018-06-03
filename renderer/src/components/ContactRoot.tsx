@@ -15,11 +15,18 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { combineReducers } from 'redux';
-import { contactsReducer } from './contactsReducer';
-import { calendarsReducer } from './calendarsReducer';
+import * as React from 'react';
+import { IContact } from '../util/types';
 
-export const reducers = combineReducers({
-  contacts: contactsReducer,
-  calendars: calendarsReducer
-});
+export interface IContactRootProps {
+  contact: IContact;
+  isAdd: boolean;
+}
+
+export function ContactRoot(props: IContactRootProps): JSX.Element {
+  return (
+    <div className="contact-root-container">
+      Contact Root
+    </div>
+  );
+}
