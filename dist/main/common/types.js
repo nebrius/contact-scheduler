@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,10 +15,5 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-export const MessageTypes = {
-  RequestAddCalendar: 'RequestAddCalendar',
-  RequestSaveCalendar: 'RequestSaveCalendar',
-  RequestDeleteCalendar: 'RequestDeleteCalendar',
-  CloseDialog: 'CloseDialog'
-};
+Object.defineProperty(exports, "__esModule", { value: true });
+//# sourceMappingURL=types.js.map

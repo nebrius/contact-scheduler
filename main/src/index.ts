@@ -18,6 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { join } from 'path';
 import { app, BrowserWindow, ipcMain, Event } from 'electron';
 import { MessageTypes } from './common/messages';
+import { ICalendar } from './common/types';
 import { ICalendarDialogArguments } from './common/arguments';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -70,12 +71,11 @@ function openDialogWindow(contentPath: string, title: string, args: { [ key: str
   const dialogWindow = new BrowserWindow({
     width: 640,
     height: 480,
-    parent: mainWindow,
-    modal: true,
     webPreferences: {
       additionalArguments: [ JSON.stringify(args) ]
     }
   } as any);
+  dialogWindow.setMenu(null);
 
   dialogWindow.loadFile(contentPath);
   dialogWindow.setTitle(title);
@@ -92,4 +92,18 @@ ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {
     isAdd: true
   };
   openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
+});
+
+ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
+  const calendar: ICalendar = JSON.parse(arg);
+  console.log(calendar);
+  // TODO: save calendar to db
+  (event.sender as any).getOwnerBrowserWindow().close();
+});
+
+ipcMain.on(MessageTypes.RequestDeleteCalendar, (event: Event, arg: string) => {
+  const calendar: ICalendar = JSON.parse(arg);
+  console.log(calendar);
+  // TODO: delete calendar from db
+  (event.sender as any).getOwnerBrowserWindow().close();
 });

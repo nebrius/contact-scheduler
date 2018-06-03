@@ -38,3 +38,34 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   margin: 5px;
   width: 200px;
 }
+
+.edit-calendar-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.edit-calendar-data {
+  flex-grow: 1;
+  flex-basis: 0;
+  display: grid;
+  grid-template-columns: 100px auto;
+  grid-template-rows: 40px 50px auto;
+  align-items: center;
+}
+
+.edit-calendar-data input {
+  width: 100%;
+}
+
+.edit-calendar-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-calendar-buttons > button {
+  margin: 0 5px;
+}

@@ -62,12 +62,11 @@ function openDialogWindow(contentPath, title, args) {
     var dialogWindow = new electron_1.BrowserWindow({
         width: 640,
         height: 480,
-        parent: mainWindow,
-        modal: true,
         webPreferences: {
             additionalArguments: [JSON.stringify(args)]
         }
     });
+    dialogWindow.setMenu(null);
     dialogWindow.loadFile(contentPath);
     dialogWindow.setTitle(title);
     dialogWindow.on('closed', function () {
@@ -80,5 +79,17 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (even
         isAdd: true
     };
     openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (event, arg) {
+    var calendar = JSON.parse(arg);
+    console.log(calendar);
+    // TODO: save calendar to db
+    event.sender.getOwnerBrowserWindow().close();
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, function (event, arg) {
+    var calendar = JSON.parse(arg);
+    console.log(calendar);
+    // TODO: delete calendar from db
+    event.sender.getOwnerBrowserWindow().close();
 });
 //# sourceMappingURL=index.js.map

@@ -16,27 +16,28 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
 import { ICalendar } from '../common/types';
 import { ICalendarState } from '../util/types';
 import { IAction } from '../actions/actions';
-import { EditCalendar, IProps, IDispatchProps } from '../components/EditCalendar';
+import { EditCalendar, IStateProps, IDispatchProps } from '../components/EditCalendar';
+import { MessageTypes } from '../common/messages';
 
-function mapStateToProps(state: ICalendarState): IProps {
+function mapStateToProps(state: ICalendarState): IStateProps {
   return {
-    calendar: state.calendar
+    calendar: state.calendar,
+    isAdd: state.isAdd
   };
 }
 
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
     saveCalendar: (calendar: ICalendar) => {
-      console.log('Saving calendar');
+      ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(calendar));
     },
     deleteCalendar: (calendar: ICalendar) => {
-      console.log('Deleting calendar');
-    },
-    cancelEdit: () => {
-      console.log('Cancelling calendar');
+      // TODO: add confirmation flow
+      // ipcRenderer.send(MessageTypes.RequestDeleteCalendar, JSON.stringify(calendar));
     }
   };
 }
