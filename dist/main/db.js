@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,27 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
-import { IAppState } from '../util/types';
-import { IAction } from '../actions/actions';
-import { NoCalendarsCTA, IDispatchProps } from '../components/NoCalendarsCTA';
-import { MessageTypes } from '../common/messages';
-
-function mapStateToProps(state: IAppState): {} {
-  return {};
-}
-
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {
-    requestAddCalendar: () => {
-      ipcRenderer.send(MessageTypes.RequestAddCalendar);
+Object.defineProperty(exports, "__esModule", { value: true });
+var appDataFolder = process.env.APPDATA;
+if (!appDataFolder) {
+    if (process.platform === 'darwin') {
+        appDataFolder = process.env.HOME + "Library/Application Support";
     }
-  };
+    else {
+        appDataFolder = process.env.HOME + ".contact-scheduler";
+    }
 }
-
-export const NoCalendarsCTAContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NoCalendarsCTA);
+console.log(appDataFolder);
+function init(cb) {
+    setImmediate(cb);
+}
+exports.init = init;
+//# sourceMappingURL=db.js.map

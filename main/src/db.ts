@@ -15,26 +15,20 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
-import { IAppState } from '../util/types';
-import { IAction } from '../actions/actions';
-import { NoCalendarsCTA, IDispatchProps } from '../components/NoCalendarsCTA';
-import { MessageTypes } from '../common/messages';
+import { join } from 'path';
 
-function mapStateToProps(state: IAppState): {} {
-  return {};
+let dbFilePath = process.env.APPDATA;
+if (!dbFilePath) {
+  if (process.platform === 'darwin') {
+    dbFilePath = `${process.env.HOME}Library/Application Support`;
+  } else {
+    dbFilePath = `${process.env.HOME}.contact-scheduler`;
+  }
 }
+dbFilePath = join(dbFilePath, 'contact-scheduler.sqlite3');
 
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {
-    requestAddCalendar: () => {
-      ipcRenderer.send(MessageTypes.RequestAddCalendar);
-    }
-  };
+console.log(dbFilePath);
+
+export function init(cb: (err?: Error) => void): void {
+  setImmediate(cb);
 }
-
-export const NoCalendarsCTAContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NoCalendarsCTA);

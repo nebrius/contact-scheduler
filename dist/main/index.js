@@ -19,6 +19,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var electron_1 = require("electron");
 var messages_1 = require("./common/messages");
+var db_1 = require("./db");
+db_1.init(function (err) {
+    if (err) {
+        console.error(err);
+        process.exit(-1);
+    }
+});
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;

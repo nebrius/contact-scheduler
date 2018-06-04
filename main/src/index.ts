@@ -20,6 +20,14 @@ import { app, BrowserWindow, ipcMain, Event } from 'electron';
 import { MessageTypes } from './common/messages';
 import { ICalendar } from './common/types';
 import { ICalendarDialogArguments } from './common/arguments';
+import { init } from './db';
+
+init((err) => {
+  if (err) {
+    console.error(err);
+    process.exit(-1);
+  }
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

@@ -18,7 +18,6 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { CalendarSource } from '../common/types';
 
 export const ACTIONS = {
-  ADD_CALENDAR_REQUESTED: 'ADD_CALENDAR_REQUESTED',
   SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
   SAVE_CALENDAR: 'SAVE_CALENDAR',
   DELETE_CALENDAR: 'DELETE_CALENDAR'
@@ -26,12 +25,6 @@ export const ACTIONS = {
 
 export interface IAction {
   type: string;
-}
-
-export function addCalendar(): IAction {
-  return {
-    type: ACTIONS.ADD_CALENDAR_REQUESTED
-  };
 }
 
 export interface ISelectCalendarAction extends IAction {
