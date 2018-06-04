@@ -35,15 +35,15 @@ const CALENDAR_SCHEMA =
 export function init(cb: CB): void {
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
-  db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-      cb(err);
+  db = new sqlite3.Database(dbPath, (connectErr) => {
+    if (connectErr) {
+      cb(connectErr);
       return;
     }
     if (isNewDB) {
       series([
         (next) => db.run(CALENDAR_SCHEMA, next)
-      ], cb);
+      ], (err?: Error) => cb(err)); // Need to slice off extra params so can't pass cb directly
     } else {
       cb(undefined);
     }

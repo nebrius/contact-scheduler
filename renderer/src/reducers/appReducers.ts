@@ -16,10 +16,13 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { combineReducers } from 'redux';
-import { contactsReducer } from './app/contactsReducer';
-import { calendarsReducer } from './app/calendarsReducer';
+import { createContactsReducer } from './app/contactsReducer';
+import { createCalendarsReducer } from './app/calendarsReducer';
+import { IAppArguments } from '../common/arguments';
+
+const initArgs: IAppArguments = JSON.parse(process.argv.pop() as string);
 
 export const appReducers = combineReducers({
-  contacts: contactsReducer,
-  calendars: calendarsReducer
+  contacts: createContactsReducer(initArgs.contacts),
+  calendars: createCalendarsReducer(initArgs.calendars)
 });

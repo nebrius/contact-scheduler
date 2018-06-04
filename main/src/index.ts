@@ -20,7 +20,7 @@ import { waterfall } from 'async';
 import { app, BrowserWindow, ipcMain, Event } from 'electron';
 import { MessageTypes } from './common/messages';
 import { ICalendar, CB } from './common/types';
-import { ICalendarDialogArguments } from './common/arguments';
+import { IAppArguments, ICalendarDialogArguments } from './common/arguments';
 import { init as initDB, getCalendars, createCalendar } from './db';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -28,7 +28,7 @@ import { init as initDB, getCalendars, createCalendar } from './db';
 let mainWindow: BrowserWindow | null = null;
 const dialogWindows: BrowserWindow[] = [];
 
-function createWindow(args: {}) {
+function createWindow(args: IAppArguments) {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -44,14 +44,16 @@ app.on('ready', () => {
   waterfall([
     (next: CB) => initDB(next),
     (next: CB) => getCalendars(next)
-  ], (err, calendars) => {
-    if (err) {
+  ], (err, calendars?: ICalendar[]) => {
+    if (err || !calendars) {
       console.error(err);
       process.exit(-1);
+    } else if (calendars) { // Always true in practice, just here to make TS happy
+      createWindow({
+        calendars,
+        contacts: [] // TODO
+      });
     }
-    createWindow({
-      calendars
-    });
     console.log('running');
   });
 });

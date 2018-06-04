@@ -19,11 +19,12 @@ import { Reducer } from 'redux';
 import { IAction } from '../../actions/actions';
 import { ICalendar } from '../../common/types';
 
-const DEFAULT_STATE: ICalendar[] = [];
-
-export const calendarsReducer: Reducer<ICalendar[]> = (state: ICalendar[] | undefined, action: IAction) => {
-  if (!state) {
-    state = DEFAULT_STATE;
-  }
-  return state;
-};
+export function createCalendarsReducer(calendars: ICalendar[]): Reducer<ICalendar[]> {
+  const DEFAULT_STATE: ICalendar[] = calendars;
+  return (state: ICalendar[] | undefined, action: IAction) => {
+    if (!state) {
+      state = DEFAULT_STATE;
+    }
+    return state;
+  };
+}

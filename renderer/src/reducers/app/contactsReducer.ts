@@ -19,11 +19,12 @@ import { Reducer } from 'redux';
 import { IAction } from '../../actions/actions';
 import { IContact } from '../../common/types';
 
-const DEFAULT_STATE: IContact[] = [];
-
-export const contactsReducer: Reducer<IContact[]> = (state: IContact[] | undefined, action: IAction) => {
-  if (!state) {
-    state = DEFAULT_STATE;
-  }
-  return state;
-};
+export function createContactsReducer(contacts: IContact[]): Reducer<IContact[]> {
+  const DEFAULT_STATE: IContact[] = contacts;
+  return (state: IContact[] | undefined, action: IAction) => {
+    if (!state) {
+      state = DEFAULT_STATE;
+    }
+    return state;
+  };
+}

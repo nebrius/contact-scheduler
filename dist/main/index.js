@@ -41,13 +41,16 @@ electron_1.app.on('ready', function () {
         function (next) { return db_1.init(next); },
         function (next) { return db_1.getCalendars(next); }
     ], function (err, calendars) {
-        if (err) {
+        if (err || !calendars) {
             console.error(err);
             process.exit(-1);
         }
-        createWindow({
-            calendars: calendars
-        });
+        else if (calendars) { // Always true in practice, just here to make TS happy
+            createWindow({
+                calendars: calendars,
+                contacts: [] // TODO
+            });
+        }
         console.log('running');
     });
 });

@@ -27,15 +27,15 @@ var CALENDAR_SCHEMA = "CREATE TABLE calendars(\n  id INTEGER PRIMARY KEY,\n  dis
 function init(cb) {
     var isNewDB = !fs_1.existsSync(dbPath);
     var sqlite3 = sqlite3_1.verbose();
-    db = new sqlite3.Database(dbPath, function (err) {
-        if (err) {
-            cb(err);
+    db = new sqlite3.Database(dbPath, function (connectErr) {
+        if (connectErr) {
+            cb(connectErr);
             return;
         }
         if (isNewDB) {
             async_1.series([
                 function (next) { return db.run(CALENDAR_SCHEMA, next); }
-            ], cb);
+            ], function (err) { return cb(err); }); // Need to slice off extra params so can't pass cb directly
         }
         else {
             cb(undefined);

@@ -30,7 +30,7 @@ export function AppRoot(props: IAppRootProps): JSX.Element {
   }
   return (
     <div className="app-root-container">
-      Hi. I {props.hasCalendars ? 'do' : 'do not'} have some calendars
+      Hi. I have some calendars
     </div>
   );
 }
