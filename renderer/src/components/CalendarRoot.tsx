@@ -20,13 +20,17 @@ import { SelectCalendarSourceContainer } from '../containers/SelectCalendarSourc
 import { EditCalendarContainer } from '../containers/EditCalendarContainer';
 import { ICalendar } from '../common/types';
 
-export interface ICalendarRootProps {
+export interface IStateProps {
   calendar: ICalendar;
   isAdd: boolean;
   sourceSelected: boolean;
 }
 
-export function CalendarRoot(props: ICalendarRootProps): JSX.Element {
+export type IDispatchProps = {} // No dispatch props (yet?)
+
+export type IProps = IStateProps & IDispatchProps;
+
+export function CalendarRoot(props: IProps): JSX.Element {
   if (props.isAdd && !props.sourceSelected) {
     return (
       <SelectCalendarSourceContainer />

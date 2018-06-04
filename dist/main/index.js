@@ -80,24 +80,44 @@ function openDialogWindow(contentPath, title, args) {
     dialogWindow.setMenu(null);
     dialogWindow.loadFile(contentPath);
     dialogWindow.setTitle(title);
+    dialogWindow.webContents.openDevTools();
     dialogWindow.on('closed', function () {
         dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
     });
     dialogWindows.push(dialogWindow);
 }
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddContact, function (event, arg) {
+    var args = {
+        isAdd: true
+    };
+    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestEditContact, function (event, arg) {
+    var args = {
+        isAdd: false
+    };
+    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
+});
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (event, arg) {
     var args = {
         isAdd: true
     };
     openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestEditCalendar, function (event, arg) {
+    var args = {
+        isAdd: false
+    };
+    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
+});
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (event, arg) {
-    var calendar = JSON.parse(arg);
+    var parsedArgs = JSON.parse(arg);
     function finalize() {
         event.sender.getOwnerBrowserWindow().close();
+        // TODO: Need to propogate changes to renderer
     }
-    if (typeof calendar.id !== 'number' || isNaN(calendar.id)) {
-        db_1.createCalendar(calendar, function (err) {
+    if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
+        db_1.createCalendar(parsedArgs.calendar, function (err) {
             if (err) {
                 console.error(err);
             }
@@ -110,8 +130,8 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (eve
     }
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, function (event, arg) {
-    var calendar = JSON.parse(arg);
-    console.log(calendar);
+    var args = JSON.parse(arg);
+    console.log(args.calendar);
     // TODO: delete calendar from db
     event.sender.getOwnerBrowserWindow().close();
 });

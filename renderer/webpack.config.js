@@ -24,7 +24,7 @@ module.exports = {
 
   entry: {
     calendar: './src/calendar.tsx',
-    contacts: './src/contact.tsx',
+    contact: './src/contact.tsx',
     app: './src/app.tsx'
   },
 

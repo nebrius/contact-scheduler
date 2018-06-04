@@ -26,10 +26,14 @@ export interface ICalendarDialogArguments {
   isAdd: boolean;
 }
 
-export interface ISaveCalendarArguments {
+export interface IContactDialogArguments {
+  isAdd: boolean;
+}
+
+export interface ISaveCalendarMessageArguments {
   calendar: ICalendar;
 }
 
-export interface IDeleteCalendarArguments {
+export interface IDeleteCalendarMessageArguments {
   calendar: ICalendar;
 }

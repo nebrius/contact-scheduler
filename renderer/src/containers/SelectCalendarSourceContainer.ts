@@ -19,9 +19,9 @@ import { connect } from 'react-redux';
 import { CalendarSource } from '../common/types';
 import { ICalendarState } from '../util/types';
 import { ISelectCalendarAction, selectCalendarSource } from '../actions/actions';
-import { SelectCalendarSource, IDispatchProps } from '../components/SelectCalendarSource';
+import { SelectCalendarSource, IStateProps, IDispatchProps } from '../components/SelectCalendarSource';
 
-function mapStateToProps(state: ICalendarState): {} {
+function mapStateToProps(state: ICalendarState): IStateProps {
   return {};
 }
 

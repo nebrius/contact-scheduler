@@ -18,9 +18,9 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { connect } from 'react-redux';
 import { ICalendarState } from '../util/types';
 import { IAction } from '../actions/actions';
-import { CalendarRoot, ICalendarRootProps } from '../components/CalendarRoot';
+import { CalendarRoot, IStateProps, IDispatchProps } from '../components/CalendarRoot';
 
-function mapStateToProps(state: ICalendarState): ICalendarRootProps {
+function mapStateToProps(state: ICalendarState): IStateProps {
   return {
     calendar: state.calendar,
     isAdd: state.isAdd,
@@ -28,7 +28,7 @@ function mapStateToProps(state: ICalendarState): ICalendarRootProps {
   };
 }
 
-function mapDispatchToProps(dispatch: (action: IAction) => any) {
+function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {};
 }
 

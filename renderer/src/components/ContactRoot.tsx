@@ -18,12 +18,16 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { IContact } from '../common/types';
 
-export interface IContactRootProps {
+export interface IStateProps {
   contact: IContact;
   isAdd: boolean;
 }
 
-export function ContactRoot(props: IContactRootProps): JSX.Element {
+export type IDispatchProps = {} // No dispatch props (yet?)
+
+export type IProps = IStateProps & IDispatchProps;
+
+export function ContactRoot(props: IProps): JSX.Element {
   return (
     <div className="contact-root-container">
       Contact Root

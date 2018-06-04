@@ -18,16 +18,16 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { connect } from 'react-redux';
 import { IContactState } from '../util/types';
 import { IAction } from '../actions/actions';
-import { ContactRoot, IContactRootProps } from '../components/ContactRoot';
+import { ContactRoot, IStateProps, IDispatchProps } from '../components/ContactRoot';
 
-function mapStateToProps(state: IContactState): IContactRootProps {
+function mapStateToProps(state: IContactState): IStateProps {
   return {
     contact: state.contact,
     isAdd: state.isAdd
   };
 }
 
-function mapDispatchToProps(dispatch: (action: IAction) => any) {
+function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {};
 }
 

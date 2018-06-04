@@ -18,8 +18,13 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageTypes = {
     RequestAddCalendar: 'RequestAddCalendar',
+    RequestEditCalendar: 'RequestEditCalendar',
     RequestSaveCalendar: 'RequestSaveCalendar',
     RequestDeleteCalendar: 'RequestDeleteCalendar',
+    RequestAddContact: 'RequestAddContact',
+    RequestEditContact: 'RequestEditContact',
+    RequestSaveContact: 'RequestSaveContact',
+    RequestDeleteContact: 'RequestDeleteContact',
     CloseDialog: 'CloseDialog'
 };
 //# sourceMappingURL=messages.js.map

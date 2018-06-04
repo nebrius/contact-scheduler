@@ -15,22 +15,26 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as React from 'react';
+import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
+import { IAppState } from '../util/types';
+import { IAction } from '../actions/actions';
+import { NoContactsCTA, IStateProps, IDispatchProps } from '../components/NoContactsCTA';
+import { MessageTypes } from '../common/messages';
 
-export interface IDispatchProps {
-  requestAddCalendar: () => void;
+function mapStateToProps(state: IAppState): IStateProps {
+  return {};
 }
 
-export function NoCalendarsCTA(props: IDispatchProps): JSX.Element {
-  return (
-    <div className="no-calendars-cta">
-      <h4>
-        No calendars have been connected yet.
-        <br />
-        Please connect a calendar to continue.
-      </h4>
-      <br />
-      <button type="button" className="btn btn-primary btn-lg" onClick={props.requestAddCalendar}>Add Calendar</button>
-    </div>
-  );
+function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
+  return {
+    requestAddContact: () => {
+      ipcRenderer.send(MessageTypes.RequestAddContact);
+    }
+  };
 }
+
+export const NoContactsCTAContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NoContactsCTA);

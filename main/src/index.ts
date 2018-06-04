@@ -20,7 +20,12 @@ import { waterfall } from 'async';
 import { app, BrowserWindow, ipcMain, Event } from 'electron';
 import { MessageTypes } from './common/messages';
 import { ICalendar, CB } from './common/types';
-import { IAppArguments, ICalendarDialogArguments } from './common/arguments';
+import {
+  IAppArguments,
+  IContactDialogArguments,
+  ICalendarDialogArguments,
+  ISaveCalendarMessageArguments,
+  IDeleteCalendarMessageArguments } from './common/arguments';
 import { init as initDB, getCalendars, createCalendar } from './db';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -87,6 +92,7 @@ function openDialogWindow(contentPath: string, title: string, args: { [ key: str
 
   dialogWindow.loadFile(contentPath);
   dialogWindow.setTitle(title);
+  dialogWindow.webContents.openDevTools();
 
   dialogWindow.on('closed', () => {
     dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
@@ -95,6 +101,20 @@ function openDialogWindow(contentPath: string, title: string, args: { [ key: str
   dialogWindows.push(dialogWindow);
 }
 
+ipcMain.on(MessageTypes.RequestAddContact, (event: Event, arg: string) => {
+  const args: IContactDialogArguments = {
+    isAdd: true
+  };
+  openDialogWindow(join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
+});
+
+ipcMain.on(MessageTypes.RequestEditContact, (event: Event, arg: string) => {
+  const args: IContactDialogArguments = {
+    isAdd: false
+  };
+  openDialogWindow(join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
+});
+
 ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {
   const args: ICalendarDialogArguments = {
     isAdd: true
@@ -102,13 +122,21 @@ ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {
   openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });
 
+ipcMain.on(MessageTypes.RequestEditCalendar, (event: Event, arg: string) => {
+  const args: ICalendarDialogArguments = {
+    isAdd: false
+  };
+  openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
+});
+
 ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
-  const calendar: ICalendar = JSON.parse(arg);
+  const parsedArgs: ISaveCalendarMessageArguments = JSON.parse(arg);
   function finalize() {
     (event.sender as any).getOwnerBrowserWindow().close();
+    // TODO: Need to propogate changes to renderer
   }
-  if (typeof calendar.id !== 'number' || isNaN(calendar.id)) {
-    createCalendar(calendar, (err) => {
+  if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
+    createCalendar(parsedArgs.calendar, (err) => {
       if (err) {
         console.error(err);
       }
@@ -121,8 +149,8 @@ ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
 });
 
 ipcMain.on(MessageTypes.RequestDeleteCalendar, (event: Event, arg: string) => {
-  const calendar: ICalendar = JSON.parse(arg);
-  console.log(calendar);
+  const args: IDeleteCalendarMessageArguments = JSON.parse(arg);
+  console.log(args.calendar);
   // TODO: delete calendar from db
   (event.sender as any).getOwnerBrowserWindow().close();
 });

@@ -18,11 +18,15 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { CalendarSource } from '../common/types';
 
+export type IStateProps = {} // No state props (yet?)
+
 export interface IDispatchProps {
   setCalendarSource: (calendarSource: CalendarSource) => void;
 }
 
-export function SelectCalendarSource(props: IDispatchProps): JSX.Element {
+export type IProps = IStateProps & IDispatchProps;
+
+export function SelectCalendarSource(props: IProps): JSX.Element {
   return (
     <div className="select-calendar-source-container">
       <button type="button" className="btn btn-primary btn-lg" onClick={() => props.setCalendarSource('office365')}>

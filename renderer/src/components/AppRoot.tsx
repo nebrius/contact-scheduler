@@ -16,16 +16,20 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as React from 'react';
-import { NoCalendarsCTAContainer } from '../containers/NoCalendarsCTAContainer';
+import { NoContactsCTAContainer } from '../containers/NoContactsCTAContainer';
 
-export interface IAppRootProps {
-  hasCalendars: boolean;
+export interface IStateProps {
+  hasContacts: boolean;
 }
 
-export function AppRoot(props: IAppRootProps): JSX.Element {
-  if (!props.hasCalendars) {
+export type IDispatchProps = {} // No dispatch props (yet?)
+
+export type IProps = IStateProps & IDispatchProps;
+
+export function AppRoot(props: IProps): JSX.Element {
+  if (!props.hasContacts) {
     return (
-      <NoCalendarsCTAContainer />
+      <NoContactsCTAContainer />
     );
   }
   return (

@@ -23,7 +23,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   bottom: 0;
 }
 
-.no-calendars-cta,
+.no-contacts-cta,
 .select-calendar-source-container {
   position: relative;
   height: 100%;
@@ -33,7 +33,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   align-items: center;
 }
 
-.no-calendars-cta > button,
+.no-contacts-cta > button,
 .select-calendar-source-container > button {
   margin: 5px;
   width: 200px;

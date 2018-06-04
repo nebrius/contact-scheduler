@@ -22,6 +22,9 @@ import { ICalendarState } from '../util/types';
 import { IAction } from '../actions/actions';
 import { EditCalendar, IStateProps, IDispatchProps } from '../components/EditCalendar';
 import { MessageTypes } from '../common/messages';
+import {
+  ISaveCalendarMessageArguments
+} from '../common/arguments';
 
 function mapStateToProps(state: ICalendarState): IStateProps {
   return {
@@ -33,11 +36,13 @@ function mapStateToProps(state: ICalendarState): IStateProps {
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
     saveCalendar: (calendar: ICalendar) => {
-      ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(calendar));
+      const args: ISaveCalendarMessageArguments = { calendar };
+      ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(args));
     },
     deleteCalendar: (calendar: ICalendar) => {
       // TODO: add confirmation flow
-      // ipcRenderer.send(MessageTypes.RequestDeleteCalendar, JSON.stringify(calendar));
+      // const args: IDeleteCalendarMessageArguments = { calendar };
+      // ipcRenderer.send(MessageTypes.RequestDeleteCalendar, JSON.stringify(args));
     }
   };
 }
