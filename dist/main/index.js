@@ -98,6 +98,27 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestEditContact, function (even
     };
     openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
 });
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, function (event, arg) {
+    var parsedArgs = JSON.parse(arg);
+    function finalize() {
+        event.sender.getOwnerBrowserWindow().close();
+        // TODO: Need to propogate changes to renderer
+    }
+    if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
+        // TODO once saving contacts is implemented
+        finalize();
+    }
+    else {
+        // TODO once editing contacts is implemented
+        finalize();
+    }
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteContact, function (event, arg) {
+    var args = JSON.parse(arg);
+    console.log(args.contact);
+    // TODO: delete contacts from db
+    event.sender.getOwnerBrowserWindow().close();
+});
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (event, arg) {
     var args = {
         isAdd: true

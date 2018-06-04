@@ -17,6 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import * as React from 'react';
 import { IContact } from '../common/types';
+import { EditContactContainer } from '../containers/EditContactContainer';
 
 export interface IStateProps {
   contact: IContact;
@@ -29,8 +30,6 @@ export type IProps = IStateProps & IDispatchProps;
 
 export function ContactRoot(props: IProps): JSX.Element {
   return (
-    <div className="contact-root-container">
-      Contact Root
-    </div>
+    <EditContactContainer />
   );
 }

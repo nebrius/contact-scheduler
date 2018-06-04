@@ -39,7 +39,8 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   width: 200px;
 }
 
-.edit-calendar-container {
+.edit-calendar-container,
+.edit-contact-container {
   position: relative;
   height: 100%;
   display: flex;
@@ -47,25 +48,37 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   padding: 5px;
 }
 
-.edit-calendar-data {
+.edit-calendar-data,
+.edit-contact-data {
   flex-grow: 1;
   flex-basis: 0;
   display: grid;
-  grid-template-columns: 100px auto;
-  grid-template-rows: 40px 50px auto;
   align-items: center;
 }
 
-.edit-calendar-data input {
+.edit-calendar-data {
+  grid-template-columns: 100px auto;
+  grid-template-rows: 40px 40px auto;
+}
+
+.edit-contact-data {
+  grid-template-columns: 100px auto;
+  grid-template-rows: 40px 40px 40px auto;
+}
+
+.edit-calendar-data input,
+.edit-contact-data input {
   width: 100%;
 }
 
-.edit-calendar-buttons {
+.edit-calendar-buttons,
+.edit-contact-buttons {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.edit-calendar-buttons > button {
+.edit-calendar-buttons > button,
+.edit-contact-buttons > button {
   margin: 0 5px;
 }

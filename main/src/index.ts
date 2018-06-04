@@ -23,6 +23,8 @@ import { ICalendar, CB } from './common/types';
 import {
   IAppArguments,
   IContactDialogArguments,
+  ISaveContactMessageArguments,
+  IDeleteContactMessageArguments,
   ICalendarDialogArguments,
   ISaveCalendarMessageArguments,
   IDeleteCalendarMessageArguments } from './common/arguments';
@@ -113,6 +115,28 @@ ipcMain.on(MessageTypes.RequestEditContact, (event: Event, arg: string) => {
     isAdd: false
   };
   openDialogWindow(join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
+});
+
+ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
+  const parsedArgs: ISaveContactMessageArguments = JSON.parse(arg);
+  function finalize() {
+    (event.sender as any).getOwnerBrowserWindow().close();
+    // TODO: Need to propogate changes to renderer
+  }
+  if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
+    // TODO once saving contacts is implemented
+    finalize();
+  } else {
+    // TODO once editing contacts is implemented
+    finalize();
+  }
+});
+
+ipcMain.on(MessageTypes.RequestDeleteContact, (event: Event, arg: string) => {
+  const args: IDeleteContactMessageArguments = JSON.parse(arg);
+  console.log(args.contact);
+  // TODO: delete contacts from db
+  (event.sender as any).getOwnerBrowserWindow().close();
 });
 
 ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {

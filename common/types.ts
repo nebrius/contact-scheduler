@@ -27,7 +27,7 @@ export interface ICalendar {
 }
 
 export interface IContact {
-  id: string;
+  id: number;
   name: string;
   frequency: 'weekly' | 'monthly' | 'quarterly';
 }

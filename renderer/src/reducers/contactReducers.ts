@@ -18,14 +18,17 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { Reducer } from 'redux';
 import { IAction } from '../actions/actions';
 import { IContactState } from '../util/types';
+import { IContactDialogArguments } from '../common/arguments';
+
+const initArgs: IContactDialogArguments = JSON.parse(process.argv.pop() as string);
 
 const DEFAULT_STATE: IContactState = {
   contact: {
-    id: '',
+    id: NaN,
     name: '',
     frequency: 'weekly'
   },
-  isAdd: false
+  isAdd: initArgs.isAdd
 };
 
 export const contactReducers: Reducer<IContactState> = (state: IContactState | undefined, action: IAction) => {

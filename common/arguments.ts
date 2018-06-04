@@ -22,11 +22,19 @@ export interface IAppArguments {
   contacts: IContact[];
 }
 
-export interface ICalendarDialogArguments {
+export interface IContactDialogArguments {
   isAdd: boolean;
 }
 
-export interface IContactDialogArguments {
+export interface ISaveContactMessageArguments {
+  contact: IContact;
+}
+
+export interface IDeleteContactMessageArguments {
+  contact: IContact;
+}
+
+export interface ICalendarDialogArguments {
   isAdd: boolean;
 }
 
