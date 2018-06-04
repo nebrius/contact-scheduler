@@ -17,40 +17,40 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
+var async_1 = require("async");
 var electron_1 = require("electron");
 var messages_1 = require("./common/messages");
 var db_1 = require("./db");
-db_1.init(function (err) {
-    if (err) {
-        console.error(err);
-        process.exit(-1);
-    }
-});
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
 var dialogWindows = [];
-function createWindow() {
-    // Create the browser window.
+function createWindow(args) {
     mainWindow = new electron_1.BrowserWindow({
         width: 800,
-        height: 600
+        height: 600,
+        webPreferences: {
+            additionalArguments: [JSON.stringify(args)]
+        }
     });
-    // and load the index.html of the app.
     mainWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'app.html'));
-    // Emitted when the window is closed.
-    mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
-        mainWindow = null;
-    });
+    mainWindow.on('closed', function () { mainWindow = null; });
 }
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-electron_1.app.on('ready', createWindow);
-// Quit when all windows are closed.
+electron_1.app.on('ready', function () {
+    async_1.waterfall([
+        function (next) { return db_1.init(next); },
+        function (next) { return db_1.getCalendars(next); }
+    ], function (err, calendars) {
+        if (err) {
+            console.error(err);
+            process.exit(-1);
+        }
+        createWindow({
+            calendars: calendars
+        });
+        console.log('running');
+    });
+});
 electron_1.app.on('window-all-closed', function () {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
@@ -61,9 +61,10 @@ electron_1.app.on('window-all-closed', function () {
 electron_1.app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (mainWindow === null) {
-        createWindow();
-    }
+    // if (mainWindow === null) {
+    //   createWindow();
+    // }
+    // TODO: re-enable the above
 });
 function openDialogWindow(contentPath, title, args) {
     var dialogWindow = new electron_1.BrowserWindow({
@@ -89,9 +90,21 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (even
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (event, arg) {
     var calendar = JSON.parse(arg);
-    console.log(calendar);
-    // TODO: save calendar to db
-    event.sender.getOwnerBrowserWindow().close();
+    function finalize() {
+        event.sender.getOwnerBrowserWindow().close();
+    }
+    if (typeof calendar.id !== 'number' || isNaN(calendar.id)) {
+        db_1.createCalendar(calendar, function (err) {
+            if (err) {
+                console.error(err);
+            }
+            finalize();
+        });
+    }
+    else {
+        // TODO once editing calendars is implemented
+        finalize();
+    }
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, function (event, arg) {
     var calendar = JSON.parse(arg);

@@ -16,5 +16,15 @@
   "bugs": {
     "url": "https://github.com/nebrius/contact-scheduler/issues"
   },
-  "homepage": "https://github.com/nebrius/contact-scheduler#readme"
+  "homepage": "https://github.com/nebrius/contact-scheduler#readme",
+  "devDependencies": {
+    "@types/async": "^2.0.49",
+    "@types/sqlite3": "^3.1.3",
+    "electron": "^2.0.2",
+    "electron-rebuild": "^1.7.3"
+  },
+  "dependencies": {
+    "async": "^2.6.1",
+    "sqlite3": "^4.0.0"
+  }
 }

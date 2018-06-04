@@ -16,18 +16,45 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-var appDataFolder = process.env.APPDATA;
-if (!appDataFolder) {
-    if (process.platform === 'darwin') {
-        appDataFolder = process.env.HOME + "Library/Application Support";
-    }
-    else {
-        appDataFolder = process.env.HOME + ".contact-scheduler";
-    }
-}
-console.log(appDataFolder);
+var fs_1 = require("fs");
+var path_1 = require("path");
+var electron_1 = require("electron");
+var async_1 = require("async");
+var sqlite3_1 = require("sqlite3");
+var dbPath = path_1.join(electron_1.app.getPath('userData'), 'contact-scheduler-db.sqlite3');
+var db;
+var CALENDAR_SCHEMA = "CREATE TABLE calendars(\n  id INTEGER PRIMARY KEY,\n  displayName text NOT NULL,\n  source text NOT NULL\n)";
 function init(cb) {
-    setImmediate(cb);
+    var isNewDB = !fs_1.existsSync(dbPath);
+    var sqlite3 = sqlite3_1.verbose();
+    db = new sqlite3.Database(dbPath, function (err) {
+        if (err) {
+            cb(err);
+            return;
+        }
+        if (isNewDB) {
+            async_1.series([
+                function (next) { return db.run(CALENDAR_SCHEMA, next); }
+            ], cb);
+        }
+        else {
+            cb(undefined);
+        }
+    });
 }
 exports.init = init;
+function getCalendars(cb) {
+    db.all('SELECT * FROM calendars', [], function (err, rows) {
+        if (err) {
+            cb(err, undefined);
+            return;
+        }
+        cb(undefined, rows);
+    });
+}
+exports.getCalendars = getCalendars;
+function createCalendar(calendar, cb) {
+    db.run("INSERT INTO calendars(displayName, source) VALUES(?, ?)", [calendar.displayName, calendar.source], cb);
+}
+exports.createCalendar = createCalendar;
 //# sourceMappingURL=db.js.map

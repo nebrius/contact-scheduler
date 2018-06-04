@@ -24,7 +24,7 @@ const initArgs: ICalendarDialogArguments = JSON.parse(process.argv.pop() as stri
 
 const DEFAULT_STATE: ICalendarState = {
   calendar: {
-    id: '',
+    id: NaN,
     displayName: '',
     source: 'office365'
   },
