@@ -97,7 +97,7 @@ function openDialogWindow(contentPath: string, title: string, args: { [ key: str
 
   dialogWindow.loadFile(contentPath);
   dialogWindow.setTitle(title);
-  dialogWindow.webContents.openDevTools();
+  // dialogWindow.webContents.openDevTools();
 
   dialogWindow.on('closed', () => {
     dialogWindows.splice(dialogWindows.indexOf(dialogWindow));

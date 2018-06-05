@@ -82,7 +82,7 @@ function openDialogWindow(contentPath, title, args) {
     dialogWindow.setMenu(null);
     dialogWindow.loadFile(contentPath);
     dialogWindow.setTitle(title);
-    dialogWindow.webContents.openDevTools();
+    // dialogWindow.webContents.openDevTools();
     dialogWindow.on('closed', function () {
         dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
     });
