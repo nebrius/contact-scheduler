@@ -68,21 +68,24 @@ export class EditContact extends React.Component<IProps, IState> {
               id="contactFrequencyWeekly"
               name="contactFrequency"
               value="weekly"
-              onChange={this.onFrequencyChange} />
+              onChange={this.onFrequencyChange}
+              checked={this.state.unsavedEntry.frequency === 'weekly'} />
             <label htmlFor="contactFrequencyWeekly">Weekly</label>
             <input
               type="radio"
               id="contactFrequencyMonthly"
               name="contactFrequency"
               value="monthly"
-              onChange={this.onFrequencyChange}  />
+              onChange={this.onFrequencyChange}
+              checked={this.state.unsavedEntry.frequency === 'monthly'} />
             <label htmlFor="contactFrequencyMonthly">Monthly</label>
             <input
               type="radio"
               id="contactFrequencyQuarterly"
               name="contactFrequency"
               value="quarterly"
-              onChange={this.onFrequencyChange}  />
+              onChange={this.onFrequencyChange}
+              checked={this.state.unsavedEntry.frequency === 'quarterly'} />
             <label htmlFor="contactFrequencyQuarterly">Quarterly</label>
           </div>
         </div>
