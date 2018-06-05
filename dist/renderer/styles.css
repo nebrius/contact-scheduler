@@ -23,6 +23,10 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   bottom: 0;
 }
 
+label {
+  margin: 0;
+}
+
 .no-contacts-cta,
 .select-calendar-source-container {
   position: relative;
@@ -66,9 +70,19 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   grid-template-rows: 40px 40px 40px auto;
 }
 
-.edit-calendar-data input,
-.edit-contact-data input {
+.edit-calendar-data input[type=text],
+.edit-contact-data input[type=text] {
   width: 100%;
+}
+
+.edit-calendar-data input[type=radio],
+.edit-contact-data input[type=radio] {
+  margin-right: 5px;
+}
+
+.edit-calendar-data label,
+.edit-contact-data label {
+  margin-right: 7px;
 }
 
 .edit-calendar-buttons,

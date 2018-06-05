@@ -54,10 +54,36 @@ export class EditContact extends React.Component<IProps, IState> {
       <div className="edit-contact-container">
         <div className="edit-contact-data">
           <div>
-            <span>Name:</span>
+            <label htmlFor="contactName">Name:</label>
           </div>
           <div>
-            <input type="text" value={entry.name} onChange={this.onNameEdit} />
+            <input type="text" value={entry.name} onChange={this.onNameEdit} id="contactName" />
+          </div>
+          <div>
+            <label htmlFor="contactFrequency">Frequency:</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="contactFrequencyWeekly"
+              name="contactFrequency"
+              value="weekly"
+              onChange={this.onFrequencyChange} />
+            <label htmlFor="contactFrequencyWeekly">Weekly</label>
+            <input
+              type="radio"
+              id="contactFrequencyMonthly"
+              name="contactFrequency"
+              value="monthly"
+              onChange={this.onFrequencyChange}  />
+            <label htmlFor="contactFrequencyMonthly">Monthly</label>
+            <input
+              type="radio"
+              id="contactFrequencyQuarterly"
+              name="contactFrequency"
+              value="quarterly"
+              onChange={this.onFrequencyChange}  />
+            <label htmlFor="contactFrequencyQuarterly">Quarterly</label>
           </div>
         </div>
         <div className="edit-contact-buttons">
@@ -76,6 +102,20 @@ export class EditContact extends React.Component<IProps, IState> {
         unsavedEntry: {
           ...previousState.unsavedEntry,
           name
+        }
+      };
+      return newState;
+    });
+  }
+
+  private onFrequencyChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const frequency: any = event.currentTarget.value;
+    this.setState((previousState) => {
+      const newState: IState = {
+        ...previousState,
+        unsavedEntry: {
+          ...previousState.unsavedEntry,
+          frequency
         }
       };
       return newState;

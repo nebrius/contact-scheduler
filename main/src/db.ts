@@ -20,7 +20,7 @@ import { join } from 'path';
 import { app } from 'electron';
 import { series } from 'async';
 import { verbose, Database } from 'sqlite3';
-import { ICalendar, CB, CBWithResult } from './common/types';
+import { ICalendar, IContact, CB, CBWithResult } from './common/types';
 
 const dbPath = join(app.getPath('userData'), 'contact-scheduler-db.sqlite3');
 let db: Database;
@@ -30,6 +30,13 @@ const CALENDAR_SCHEMA =
   id INTEGER PRIMARY KEY,
   displayName text NOT NULL,
   source text NOT NULL
+)`;
+
+const CONTACT_SCHEMA =
+`CREATE TABLE contacts(
+  id INTEGER PRIMARY KEY,
+  name text NOT NULL,
+  frequency text NOT NULL
 )`;
 
 export function init(cb: CB): void {
@@ -42,7 +49,8 @@ export function init(cb: CB): void {
     }
     if (isNewDB) {
       series([
-        (next) => db.run(CALENDAR_SCHEMA, next)
+        (next) => db.run(CALENDAR_SCHEMA, next),
+        (next) => db.run(CONTACT_SCHEMA, next)
       ], (err?: Error) => cb(err)); // Need to slice off extra params so can't pass cb directly
     } else {
       cb(undefined);
@@ -62,4 +70,18 @@ export function getCalendars(cb: CBWithResult<ICalendar[]>): void {
 
 export function createCalendar(calendar: ICalendar, cb: CB): void {
   db.run(`INSERT INTO calendars(displayName, source) VALUES(?, ?)`, [ calendar.displayName, calendar.source ], cb);
+}
+
+export function getContacts(cb: CBWithResult<IContact[]>): void {
+  db.all('SELECT * FROM contacts', [], (err, rows) => {
+    if (err) {
+      cb(err, undefined);
+      return;
+    }
+    cb(undefined, rows);
+  });
+}
+
+export function createContact(contact: IContact, cb: CB): void {
+  db.run(`INSERT INTO contacts(name, frequency) VALUES(?, ?)`, [ contact.name, contact.frequency ], cb);
 }

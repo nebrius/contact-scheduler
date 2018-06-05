@@ -16,10 +16,10 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
-import { waterfall } from 'async';
+import { series } from 'async';
 import { app, BrowserWindow, ipcMain, Event } from 'electron';
 import { MessageTypes } from './common/messages';
-import { ICalendar, CB } from './common/types';
+import { ICalendar, IContact, CB } from './common/types';
 import {
   IAppArguments,
   IContactDialogArguments,
@@ -28,7 +28,7 @@ import {
   ICalendarDialogArguments,
   ISaveCalendarMessageArguments,
   IDeleteCalendarMessageArguments } from './common/arguments';
-import { init as initDB, getCalendars, createCalendar } from './db';
+import { init as initDB, getCalendars, createCalendar, getContacts, createContact } from './db';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -48,19 +48,22 @@ function createWindow(args: IAppArguments) {
 }
 
 app.on('ready', () => {
-  waterfall([
+  series([
     (next: CB) => initDB(next),
-    (next: CB) => getCalendars(next)
-  ], (err, calendars?: ICalendar[]) => {
-    if (err || !calendars) {
+    (next: CB) => getCalendars(next),
+    (next: CB) => getContacts(next)
+  ], (err, results) => {
+    if (err || !results) {
       console.error(err);
       process.exit(-1);
-    } else if (calendars) { // Always true in practice, just here to make TS happy
-      createWindow({
-        calendars,
-        contacts: [] // TODO
-      });
+      return;
     }
+    const calendars: ICalendar[] = results[1] as any;
+    const contacts: IContact[] = results[2] as any;
+    createWindow({
+      calendars,
+      contacts
+    });
     console.log('running');
   });
 });
@@ -124,8 +127,12 @@ ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
     // TODO: Need to propogate changes to renderer
   }
   if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-    // TODO once saving contacts is implemented
-    finalize();
+    createContact(parsedArgs.contact, (err) => {
+      if (err) {
+        console.error(err);
+      }
+      finalize();
+    });
   } else {
     // TODO once editing contacts is implemented
     finalize();

@@ -37,20 +37,22 @@ function createWindow(args) {
     mainWindow.on('closed', function () { mainWindow = null; });
 }
 electron_1.app.on('ready', function () {
-    async_1.waterfall([
+    async_1.series([
         function (next) { return db_1.init(next); },
-        function (next) { return db_1.getCalendars(next); }
-    ], function (err, calendars) {
-        if (err || !calendars) {
+        function (next) { return db_1.getCalendars(next); },
+        function (next) { return db_1.getContacts(next); }
+    ], function (err, results) {
+        if (err || !results) {
             console.error(err);
             process.exit(-1);
+            return;
         }
-        else if (calendars) { // Always true in practice, just here to make TS happy
-            createWindow({
-                calendars: calendars,
-                contacts: [] // TODO
-            });
-        }
+        var calendars = results[1];
+        var contacts = results[2];
+        createWindow({
+            calendars: calendars,
+            contacts: contacts
+        });
         console.log('running');
     });
 });
@@ -105,8 +107,12 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, function (even
         // TODO: Need to propogate changes to renderer
     }
     if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-        // TODO once saving contacts is implemented
-        finalize();
+        db_1.createContact(parsedArgs.contact, function (err) {
+            if (err) {
+                console.error(err);
+            }
+            finalize();
+        });
     }
     else {
         // TODO once editing contacts is implemented
