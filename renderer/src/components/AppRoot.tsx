@@ -19,9 +19,11 @@ import * as React from 'react';
 import { NoContactsCTAContainer } from '../containers/NoContactsCTAContainer';
 import { DailyContactQueueContainer } from '../containers/DailyContactQueueContainer';
 import { WeeklyCalendarContainer } from '../containers/WeeklyCalendarContainer';
+import { ContactsListContainer } from '../containers/ContactsListContainer';
 
 export interface IStateProps {
   hasContacts: boolean;
+  dialog: undefined | 'contacts' | 'calendars';
 }
 
 export type IDispatchProps = {} // No dispatch props (yet?)
@@ -33,6 +35,17 @@ export function AppRoot(props: IProps): JSX.Element {
     return (
       <NoContactsCTAContainer />
     );
+  }
+  switch (props.dialog) {
+    case 'contacts':
+      return (
+        <div className="app-root-container">
+          <ContactsListContainer />
+        </div>
+      );
+    case 'calendars':
+      // TODO
+      break;
   }
   return (
     <div className="app-root-container">

@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { Reducer } from 'redux';
-import { IAction, ISelectCalendarAction, ACTIONS } from '../actions/actions';
+import { IAction, ISelectCalendarSourceAction, ACTIONS } from '../actions/actions';
 import { ICalendarState } from '../util/types';
 import { ICalendarDialogArguments } from '../common/arguments';
 
@@ -42,7 +42,7 @@ export const calendarReducers: Reducer<ICalendarState> = (state: ICalendarState 
         ...state,
         calendar: {
           ...state.calendar,
-          source: (action as ISelectCalendarAction).source
+          source: (action as ISelectCalendarSourceAction).source
         },
         sourceSelected: true
       };

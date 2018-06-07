@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { connect } from 'react-redux';
 import { IAppState } from '../util/types';
-import { IAction } from '../actions/actions';
+import { IAction, openContactsDialog } from '../actions/actions';
 import { DailyContactQueue, IStateProps, IDispatchProps } from '../components/DailyContactQueue';
 
 function mapStateToProps(state: IAppState): IStateProps {
@@ -27,7 +27,11 @@ function mapStateToProps(state: IAppState): IStateProps {
 }
 
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {};
+  return {
+    openContactsDialog() {
+      dispatch(openContactsDialog());
+    }
+  };
 }
 
 export const DailyContactQueueContainer = connect(

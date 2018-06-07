@@ -16,24 +16,30 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { connect } from 'react-redux';
-import { CalendarSource } from '../common/types';
-import { ICalendarState } from '../util/types';
-import { ISelectCalendarSourceAction, selectCalendarSource } from '../actions/actions';
-import { SelectCalendarSource, IStateProps, IDispatchProps } from '../components/SelectCalendarSource';
+import { IContact } from '../common/types';
+import { IAppState } from '../util/types';
+import { IAction, closeDialog } from '../actions/actions';
+import { ContactList, IStateProps, IDispatchProps } from '../components/ContactList';
 
-function mapStateToProps(state: ICalendarState): IStateProps {
-  return {};
+function mapStateToProps(state: IAppState): IStateProps {
+  return {
+    contacts: state.contacts
+  };
 }
 
-function mapDispatchToProps(dispatch: (action: ISelectCalendarSourceAction) => any): IDispatchProps {
+function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
-    setCalendarSource: (calendarSource: CalendarSource) => {
-      dispatch(selectCalendarSource(calendarSource));
+    selectContact(contact: IContact) {
+      console.log(`Selecting contact ${contact.name}`);
+      // TODO
+    },
+    closeContacts() {
+      dispatch(closeDialog());
     }
   };
 }
 
-export const SelectCalendarSourceContainer = connect(
+export const ContactsListContainer = connect(
   mapStateToProps,
   mapDispatchToProps
-)(SelectCalendarSource);
+)(ContactList);

@@ -15,26 +15,29 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { ICalendar, IContact } from '../common/types';
+import * as React from 'react';
+import { IContact } from '../common/types';
 
-export interface IUIState {
-  dialog: undefined | 'contacts' | 'calendars';
-}
-
-export interface IAppState {
-  calendars: ICalendar[];
+export interface IStateProps {
   contacts: IContact[];
-  dailyContactQueue: IContact[];
-  uiState: IUIState;
 }
 
-export interface ICalendarState {
-  calendar: ICalendar;
-  isAdd: boolean;
-  sourceSelected: boolean;
+export interface IDispatchProps {
+  selectContact: (contact: IContact) => void;
+  closeContacts: () => void;
 }
 
-export interface IContactState {
-  contact: IContact;
-  isAdd: boolean;
+export type IProps = IStateProps & IDispatchProps;
+
+export function ContactList(props: IProps): JSX.Element {
+  return (
+    <div className="contact-list">
+      <div className="contact-list-header">
+        <button type="button" className="btn btn-outline-primary" onClick={props.closeContacts}>╳</button>
+      </div>
+      <div className="contact-list-contents">
+        contacts list
+      </div>
+    </div>
+  );
 }

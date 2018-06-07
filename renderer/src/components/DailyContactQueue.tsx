@@ -22,22 +22,34 @@ export interface IStateProps {
   contactQueue: IContact[];
 }
 
-export type IDispatchProps = {} // No dispatch props (yet?)
+export type IDispatchProps = {
+  openContactsDialog: () => void;
+}
 
 export type IProps = IStateProps & IDispatchProps;
 
 export function DailyContactQueue(props: IProps): JSX.Element {
-  if (!props.contactQueue.length) {
-    return (
+  let contents: JSX.Element;
+  if (props.contactQueue.length) {
+    contents = (
+      <div className="daily-contact-queue">
+        <div className="daily-contact-queue-title"><h2>Today's Contacts</h2></div>
+        <div>Queue</div>
+      </div>
+    );
+  } else {
+    contents = (
       <div className="daily-contact-queue-empty">
         <h3>No one else to contact today</h3>
       </div>
     );
   }
   return (
-    <div className="daily-contact-queue">
-      <div className="daily-contact-queue-title"><h2>Today's Contacts</h2></div>
-      <div>Queue</div>
+    <div className="daily-contact-queue-container">
+      {contents}
+      <div className="daily-contact-queue-footer">
+        <button type="button" className="btn btn-outline-primary btn-lg" onClick={props.openContactsDialog}>Edit Contacts List</button>
+      </div>
     </div>
   );
 }

@@ -15,26 +15,31 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { ICalendar, IContact } from '../common/types';
+import { Reducer } from 'redux';
+import { IAction, ACTIONS } from '../../actions/actions';
+import { IUIState } from '../../util/types';
 
-export interface IUIState {
-  dialog: undefined | 'contacts' | 'calendars';
-}
-
-export interface IAppState {
-  calendars: ICalendar[];
-  contacts: IContact[];
-  dailyContactQueue: IContact[];
-  uiState: IUIState;
-}
-
-export interface ICalendarState {
-  calendar: ICalendar;
-  isAdd: boolean;
-  sourceSelected: boolean;
-}
-
-export interface IContactState {
-  contact: IContact;
-  isAdd: boolean;
+export function createUISteteReducer(): Reducer<IUIState> {
+  const DEFAULT_STATE: IUIState = {
+    dialog: undefined
+  };
+  return (state: IUIState | undefined, action: IAction) => {
+    if (!state) {
+      state = DEFAULT_STATE;
+    }
+    switch (action.type) {
+      case ACTIONS.OPEN_CONTACTS_DIALOG:
+        return {
+          ...state,
+          dialog: 'contacts'
+        };
+      case ACTIONS.CLOSE_DIALOG:
+        return {
+          ...state,
+          dialog: undefined
+        };
+      default:
+        return state;
+    }
+  };
 }

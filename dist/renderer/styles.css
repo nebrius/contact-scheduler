@@ -34,9 +34,26 @@ label {
   flex-direction: row;
 }
 
+.daily-contact-queue-container {
+  flex-basis: 0;
+  flex-grow: 1;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ccc;
+}
+
+.daily-contact-queue-footer {
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid #ccc;
+}
+
 .daily-contact-queue,
 .daily-contact-queue-empty {
-  border-right: 1px solid #ccc;
   padding: 5px;
   flex-basis: 0;
   flex-grow: 1;
@@ -141,4 +158,23 @@ label {
 .edit-calendar-buttons > button,
 .edit-contact-buttons > button {
   margin: 0 5px;
+}
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.contact-list-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.contact-list-contents {
+  flex-basis: 0;
+  flex-grow: 1;
 }

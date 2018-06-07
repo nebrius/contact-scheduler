@@ -22,7 +22,8 @@ import { AppRoot, IStateProps, IDispatchProps } from '../components/AppRoot';
 
 function mapStateToProps(state: IAppState): IStateProps {
   return {
-    hasContacts: !!state.contacts.length
+    hasContacts: !!state.contacts.length,
+    dialog: state.uiState.dialog
   };
 }
 

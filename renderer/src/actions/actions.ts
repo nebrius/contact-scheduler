@@ -18,24 +18,22 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { CalendarSource, ICalendar, IContact } from '../common/types';
 
 export const ACTIONS = {
-  SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
   UPDATE_CALENDARS: 'UPDATE_CALENDARS',
-  UPDATE_CONTACTS: 'UPDATE_CONTACTS'
+  UPDATE_CONTACTS: 'UPDATE_CONTACTS',
+
+  CLOSE_DIALOG: 'CLOSE_DIALOG',
+
+  OPEN_CONTACTS_DIALOG: 'OPEN_CONTACTS_DIALOG',
+  EDIT_CONTACT: 'EDIT_CONTACT',
+
+  SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
 };
 
 export interface IAction {
   type: string;
 }
 
-export interface ISelectCalendarAction extends IAction {
-  source: CalendarSource;
-}
-export function selectCalendarSource(source: CalendarSource): ISelectCalendarAction {
-  return {
-    source,
-    type: ACTIONS.SELECT_CALENDAR_SOURCE
-  };
-}
+// General state actions
 
 export interface IUpdateCalendarsAction extends IAction {
   calendars: ICalendar[];
@@ -54,5 +52,41 @@ export function updateContacts(contacts: IContact[]): IUpdateContactsAction {
   return {
     contacts,
     type: ACTIONS.UPDATE_CONTACTS
+  };
+}
+
+export function closeDialog(): IAction {
+  return {
+    type: ACTIONS.CLOSE_DIALOG
+  };
+}
+
+// Actions for the edit contacts UI
+
+export function openContactsDialog(): IAction {
+  return {
+    type: ACTIONS.OPEN_CONTACTS_DIALOG
+  };
+}
+
+export interface IEditContactAction extends IAction {
+  contact: IContact;
+}
+export function editContact(contact: IContact): IEditContactAction {
+  return {
+    contact,
+    type: ACTIONS.EDIT_CONTACT
+  };
+}
+
+// Actions for the edit calendars UI
+
+export interface ISelectCalendarSourceAction extends IAction {
+  source: CalendarSource;
+}
+export function selectCalendarSource(source: CalendarSource): ISelectCalendarSourceAction {
+  return {
+    source,
+    type: ACTIONS.SELECT_CALENDAR_SOURCE
   };
 }
