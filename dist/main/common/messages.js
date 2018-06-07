@@ -25,6 +25,8 @@ exports.MessageTypes = {
     RequestEditContact: 'RequestEditContact',
     RequestSaveContact: 'RequestSaveContact',
     RequestDeleteContact: 'RequestDeleteContact',
-    CloseDialog: 'CloseDialog'
+    CloseDialog: 'CloseDialog',
+    UpdateContacts: 'UpdateContacts',
+    UpdateCalendars: 'UpdateCalendars'
 };
 //# sourceMappingURL=messages.js.map

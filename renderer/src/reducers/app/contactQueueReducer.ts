@@ -15,16 +15,19 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export const MessageTypes = {
-  RequestAddCalendar: 'RequestAddCalendar',
-  RequestEditCalendar: 'RequestEditCalendar',
-  RequestSaveCalendar: 'RequestSaveCalendar',
-  RequestDeleteCalendar: 'RequestDeleteCalendar',
-  RequestAddContact: 'RequestAddContact',
-  RequestEditContact: 'RequestEditContact',
-  RequestSaveContact: 'RequestSaveContact',
-  RequestDeleteContact: 'RequestDeleteContact',
-  CloseDialog: 'CloseDialog',
-  UpdateContacts: 'UpdateContacts',
-  UpdateCalendars: 'UpdateCalendars'
-};
+import { Reducer } from 'redux';
+import { IAction } from '../../actions/actions';
+import { IContact } from '../../common/types';
+
+export function createDailyContactQueueReducer(dailyContactQueue: IContact[]): Reducer<IContact[]> {
+  const DEFAULT_STATE: IContact[] = dailyContactQueue;
+  return (state: IContact[] | undefined, action: IAction) => {
+    if (!state) {
+      state = DEFAULT_STATE;
+    }
+    switch (action.type) {
+      default:
+        return state;
+    }
+  };
+}

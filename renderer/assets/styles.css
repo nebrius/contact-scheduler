@@ -27,6 +27,52 @@ label {
   margin: 0;
 }
 
+.app-root-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.daily-contact-queue,
+.daily-contact-queue-empty {
+  border-right: 1px solid #ccc;
+  padding: 5px;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.daily-contact-queue-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.daily-contact-queue-empty > h3 {
+  text-align: center;
+}
+
+.daily-contact-queue {
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-contact-queue-title {
+  display: flex;
+  justify-content: center;
+}
+
+.daily-contact-queue-contents {
+  flex-grow: 1;
+}
+
+.weekly-calendar {
+  flex-basis: 0;
+  flex-grow: 2;
+  padding: 5px;
+}
+
 .no-contacts-cta,
 .select-calendar-source-container {
   position: relative;

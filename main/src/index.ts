@@ -27,7 +27,10 @@ import {
   IDeleteContactMessageArguments,
   ICalendarDialogArguments,
   ISaveCalendarMessageArguments,
-  IDeleteCalendarMessageArguments } from './common/arguments';
+  IDeleteCalendarMessageArguments,
+  IUpdateCalendarsArguments,
+  IUpdateContactsArguments
+} from './common/arguments';
 import { init as initDB, getCalendars, createCalendar, getContacts, createContact } from './db';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -62,7 +65,8 @@ app.on('ready', () => {
     const contacts: IContact[] = results[2] as any;
     createWindow({
       calendars,
-      contacts
+      contacts,
+      dailyContactQueue: []
     });
     console.log('running');
   });
@@ -124,7 +128,18 @@ ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
   const parsedArgs: ISaveContactMessageArguments = JSON.parse(arg);
   function finalize() {
     (event.sender as any).getOwnerBrowserWindow().close();
-    // TODO: Need to propogate changes to renderer
+    getContacts((err, contacts) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      if (mainWindow && contacts) {
+        const args: IUpdateContactsArguments = {
+          contacts
+        };
+        mainWindow.webContents.send(MessageTypes.UpdateContacts, JSON.stringify(args));
+      }
+    });
   }
   if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
     createContact(parsedArgs.contact, (err) => {
@@ -164,7 +179,18 @@ ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
   const parsedArgs: ISaveCalendarMessageArguments = JSON.parse(arg);
   function finalize() {
     (event.sender as any).getOwnerBrowserWindow().close();
-    // TODO: Need to propogate changes to renderer
+    getCalendars((err, calendars) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      if (mainWindow && calendars) {
+        const args: IUpdateCalendarsArguments = {
+          calendars
+        };
+        mainWindow.webContents.send(MessageTypes.UpdateCalendars, JSON.stringify(args));
+      }
+    });
   }
   if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
     createCalendar(parsedArgs.calendar, (err) => {

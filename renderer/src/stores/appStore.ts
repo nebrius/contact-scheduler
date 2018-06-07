@@ -16,6 +16,20 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { createStore } from 'redux';
+import { ipcRenderer } from 'electron';
 import { appReducers } from '../reducers/appReducers';
+import { MessageTypes } from '../common/messages';
+import { IUpdateCalendarsArguments, IUpdateContactsArguments } from '../common/arguments';
+import { updateCalendars, updateContacts } from '../actions/actions';
 
 export const appStore = createStore(appReducers);
+
+ipcRenderer.on(MessageTypes.UpdateCalendars, (event: Event, arg: string) => {
+  const parsedArgs: IUpdateCalendarsArguments = JSON.parse(arg);
+  appStore.dispatch(updateCalendars(parsedArgs.calendars));
+});
+
+ipcRenderer.on(MessageTypes.UpdateContacts, (event: Event, arg: string) => {
+  const parsedArgs: IUpdateContactsArguments = JSON.parse(arg);
+  appStore.dispatch(updateContacts(parsedArgs.contacts));
+});

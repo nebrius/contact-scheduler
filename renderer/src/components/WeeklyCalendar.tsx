@@ -15,16 +15,21 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export const MessageTypes = {
-  RequestAddCalendar: 'RequestAddCalendar',
-  RequestEditCalendar: 'RequestEditCalendar',
-  RequestSaveCalendar: 'RequestSaveCalendar',
-  RequestDeleteCalendar: 'RequestDeleteCalendar',
-  RequestAddContact: 'RequestAddContact',
-  RequestEditContact: 'RequestEditContact',
-  RequestSaveContact: 'RequestSaveContact',
-  RequestDeleteContact: 'RequestDeleteContact',
-  CloseDialog: 'CloseDialog',
-  UpdateContacts: 'UpdateContacts',
-  UpdateCalendars: 'UpdateCalendars'
-};
+import * as React from 'react';
+import { ICalendar } from '../common/types';
+
+export interface IStateProps {
+  calendars: ICalendar[];
+}
+
+export type IDispatchProps = {} // No dispatch props (yet?)
+
+export type IProps = IStateProps & IDispatchProps;
+
+export function WeeklyCalendar(props: IProps): JSX.Element {
+  return (
+    <div className="weekly-calendar">
+      Weekly Calendar
+    </div>
+  );
+}

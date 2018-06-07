@@ -17,6 +17,8 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import * as React from 'react';
 import { NoContactsCTAContainer } from '../containers/NoContactsCTAContainer';
+import { DailyContactQueueContainer } from '../containers/DailyContactQueueContainer';
+import { WeeklyCalendarContainer } from '../containers/WeeklyCalendarContainer';
 
 export interface IStateProps {
   hasContacts: boolean;
@@ -34,7 +36,8 @@ export function AppRoot(props: IProps): JSX.Element {
   }
   return (
     <div className="app-root-container">
-      Hi. I have some calendars
+      <DailyContactQueueContainer />
+      <WeeklyCalendarContainer />
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { ICalendar, IContact } from './types';
 export interface IAppArguments {
   calendars: ICalendar[];
   contacts: IContact[];
+  dailyContactQueue: IContact[];
 }
 
 export interface IContactDialogArguments {
@@ -44,4 +45,12 @@ export interface ISaveCalendarMessageArguments {
 
 export interface IDeleteCalendarMessageArguments {
   calendar: ICalendar;
+}
+
+export interface IUpdateCalendarsArguments {
+  calendars: ICalendar[];
+}
+
+export interface IUpdateContactsArguments {
+  contacts: IContact[];
 }

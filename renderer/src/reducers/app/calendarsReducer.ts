@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { Reducer } from 'redux';
-import { IAction } from '../../actions/actions';
+import { IAction, IUpdateCalendarsAction, ACTIONS } from '../../actions/actions';
 import { ICalendar } from '../../common/types';
 
 export function createCalendarsReducer(calendars: ICalendar[]): Reducer<ICalendar[]> {
@@ -25,6 +25,11 @@ export function createCalendarsReducer(calendars: ICalendar[]): Reducer<ICalenda
     if (!state) {
       state = DEFAULT_STATE;
     }
-    return state;
+    switch (action.type) {
+      case ACTIONS.UPDATE_CALENDARS:
+        return [ ...(action as IUpdateCalendarsAction).calendars ];
+      default:
+        return state;
+    }
   };
 }

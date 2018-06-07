@@ -15,12 +15,12 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { CalendarSource } from '../common/types';
+import { CalendarSource, ICalendar, IContact } from '../common/types';
 
 export const ACTIONS = {
   SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
-  SAVE_CALENDAR: 'SAVE_CALENDAR',
-  DELETE_CALENDAR: 'DELETE_CALENDAR'
+  UPDATE_CALENDARS: 'UPDATE_CALENDARS',
+  UPDATE_CONTACTS: 'UPDATE_CONTACTS'
 };
 
 export interface IAction {
@@ -34,5 +34,25 @@ export function selectCalendarSource(source: CalendarSource): ISelectCalendarAct
   return {
     source,
     type: ACTIONS.SELECT_CALENDAR_SOURCE
+  };
+}
+
+export interface IUpdateCalendarsAction extends IAction {
+  calendars: ICalendar[];
+}
+export function updateCalendars(calendars: ICalendar[]): IUpdateCalendarsAction {
+  return {
+    calendars,
+    type: ACTIONS.UPDATE_CALENDARS
+  };
+}
+
+export interface IUpdateContactsAction extends IAction {
+  contacts: IContact[];
+}
+export function updateContacts(contacts: IContact[]): IUpdateContactsAction {
+  return {
+    contacts,
+    type: ACTIONS.UPDATE_CONTACTS
   };
 }

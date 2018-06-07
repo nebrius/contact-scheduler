@@ -51,7 +51,8 @@ electron_1.app.on('ready', function () {
         var contacts = results[2];
         createWindow({
             calendars: calendars,
-            contacts: contacts
+            contacts: contacts,
+            dailyContactQueue: []
         });
         console.log('running');
     });
@@ -104,7 +105,18 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, function (even
     var parsedArgs = JSON.parse(arg);
     function finalize() {
         event.sender.getOwnerBrowserWindow().close();
-        // TODO: Need to propogate changes to renderer
+        db_1.getContacts(function (err, contacts) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            if (mainWindow && contacts) {
+                var args = {
+                    contacts: contacts
+                };
+                mainWindow.webContents.send(messages_1.MessageTypes.UpdateContacts, JSON.stringify(args));
+            }
+        });
     }
     if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
         db_1.createContact(parsedArgs.contact, function (err) {
@@ -141,7 +153,18 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (eve
     var parsedArgs = JSON.parse(arg);
     function finalize() {
         event.sender.getOwnerBrowserWindow().close();
-        // TODO: Need to propogate changes to renderer
+        db_1.getCalendars(function (err, calendars) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            if (mainWindow && calendars) {
+                var args = {
+                    calendars: calendars
+                };
+                mainWindow.webContents.send(messages_1.MessageTypes.UpdateCalendars, JSON.stringify(args));
+            }
+        });
     }
     if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
         db_1.createCalendar(parsedArgs.calendar, function (err) {
