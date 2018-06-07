@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { combineReducers } from 'redux';
 import { createContactsReducer } from './app/contactsReducer';
-import { createDailyContactQueueReducer } from './app/contactQueueReducer';
+import { createDailyContactQueueReducer } from './app/dailyContactQueueReducer';
 import { createCalendarsReducer } from './app/calendarsReducer';
 import { IAppArguments } from '../common/arguments';
 

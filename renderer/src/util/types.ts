@@ -20,6 +20,7 @@ import { ICalendar, IContact } from '../common/types';
 export interface IAppState {
   calendars: ICalendar[];
   contacts: IContact[];
+  dailyContactQueue: IContact[];
 }
 
 export interface ICalendarState {

@@ -22,7 +22,7 @@ import { DailyContactQueue, IStateProps, IDispatchProps } from '../components/Da
 
 function mapStateToProps(state: IAppState): IStateProps {
   return {
-    contactQueue: []
+    contactQueue: state.dailyContactQueue
   };
 }
 
