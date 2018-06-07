@@ -19,13 +19,30 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
   --border: 1px solid #ccc;
 }
 
-button {
+.button {
   border: none;
+  outline: none !important;
   background-color: #fff;
 }
 
-button:hover {
+.button:hover {
   background-color: #ccc;
+}
+
+.button:focus {
+  background-color: #ccc;
+}
+
+.button-selected {
+  background-color: #BA55D3;
+}
+
+.button-selected:hover {
+  background-color: #d355cd;
+}
+
+.button-selected:focus {
+  background-color: #d355cd;
 }
 
 #root {
