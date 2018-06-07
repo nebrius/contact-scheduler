@@ -16,10 +16,12 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { connect } from 'react-redux';
-import { IContact } from '../common/types';
+import { ipcRenderer } from 'electron';
 import { IAppState } from '../util/types';
 import { IAction, closeDialog } from '../actions/actions';
 import { ContactList, IStateProps, IDispatchProps } from '../components/ContactList';
+import { IContact } from '../common/types';
+import { MessageTypes, ISaveContactMessage } from '../common/messages';
 
 function mapStateToProps(state: IAppState): IStateProps {
   return {
@@ -29,12 +31,16 @@ function mapStateToProps(state: IAppState): IStateProps {
 
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
-    selectContact(contact: IContact) {
-      console.log(`Selecting contact ${contact.name}`);
-      // TODO
-    },
     closeContacts() {
       dispatch(closeDialog());
+    },
+    saveContact(contact: IContact) {
+      const args: ISaveContactMessage = { contact };
+      ipcRenderer.send(MessageTypes.RequestSaveContact, JSON.stringify(args));
+    },
+    deleteContact(contact: IContact) {
+      console.log(`Deleting contact ${contact.name}`);
+      // TODO
     }
   };
 }

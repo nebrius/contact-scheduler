@@ -21,10 +21,7 @@ import { ICalendar } from '../common/types';
 import { ICalendarState } from '../util/types';
 import { IAction } from '../actions/actions';
 import { EditCalendar, IStateProps, IDispatchProps } from '../components/EditCalendar';
-import { MessageTypes } from '../common/messages';
-import {
-  ISaveCalendarMessageArguments
-} from '../common/arguments';
+import { MessageTypes, ISaveCalendarMessage } from '../common/messages';
 
 function mapStateToProps(state: ICalendarState): IStateProps {
   return {
@@ -36,7 +33,7 @@ function mapStateToProps(state: ICalendarState): IStateProps {
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
     saveCalendar: (calendar: ICalendar) => {
-      const args: ISaveCalendarMessageArguments = { calendar };
+      const args: ISaveCalendarMessage = { calendar };
       ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(args));
     },
     deleteCalendar: (calendar: ICalendar) => {

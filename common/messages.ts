@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { ICalendar, IContact } from './types';
+
 export const MessageTypes = {
   RequestAddCalendar: 'RequestAddCalendar',
   RequestEditCalendar: 'RequestEditCalendar',
@@ -28,3 +30,19 @@ export const MessageTypes = {
   UpdateContacts: 'UpdateContacts',
   UpdateCalendars: 'UpdateCalendars'
 };
+
+export interface ISaveContactMessage {
+  contact: IContact;
+}
+
+export interface IDeleteContactMessage {
+  contact: IContact;
+}
+
+export interface ISaveCalendarMessage {
+  calendar: ICalendar;
+}
+
+export interface IDeleteCalendarMessage {
+  calendar: ICalendar;
+}

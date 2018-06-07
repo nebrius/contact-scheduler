@@ -26,6 +26,7 @@ export interface IStateProps {
 export interface IDispatchProps {
   saveContact: (contact: IContact) => void;
   deleteContact: (contact: IContact) => void;
+  closeContact: () => void;
 }
 
 export type IProps = IStateProps & IDispatchProps;

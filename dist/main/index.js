@@ -24,7 +24,6 @@ var db_1 = require("./db");
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
-var dialogWindows = [];
 function createWindow(args) {
     mainWindow = new electron_1.BrowserWindow({
         width: 800,
@@ -72,39 +71,9 @@ electron_1.app.on('activate', function () {
     // }
     // TODO: re-enable the above
 });
-function openDialogWindow(contentPath, title, args) {
-    var dialogWindow = new electron_1.BrowserWindow({
-        width: 640,
-        height: 480,
-        webPreferences: {
-            additionalArguments: [JSON.stringify(args)]
-        }
-    });
-    dialogWindow.setMenu(null);
-    dialogWindow.loadFile(contentPath);
-    dialogWindow.setTitle(title);
-    // dialogWindow.webContents.openDevTools();
-    dialogWindow.on('closed', function () {
-        dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
-    });
-    dialogWindows.push(dialogWindow);
-}
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddContact, function (event, arg) {
-    var args = {
-        isAdd: true
-    };
-    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
-});
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestEditContact, function (event, arg) {
-    var args = {
-        isAdd: false
-    };
-    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
-});
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, function (event, arg) {
     var parsedArgs = JSON.parse(arg);
     function finalize() {
-        event.sender.getOwnerBrowserWindow().close();
         db_1.getContacts(function (err, contacts) {
             if (err) {
                 console.error(err);
@@ -135,24 +104,10 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteContact, function (ev
     var args = JSON.parse(arg);
     console.log(args.contact);
     // TODO: delete contacts from db
-    event.sender.getOwnerBrowserWindow().close();
-});
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestAddCalendar, function (event, arg) {
-    var args = {
-        isAdd: true
-    };
-    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
-});
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestEditCalendar, function (event, arg) {
-    var args = {
-        isAdd: false
-    };
-    openDialogWindow(path_1.join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (event, arg) {
     var parsedArgs = JSON.parse(arg);
     function finalize() {
-        event.sender.getOwnerBrowserWindow().close();
         db_1.getCalendars(function (err, calendars) {
             if (err) {
                 console.error(err);
@@ -183,6 +138,5 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, function (e
     var args = JSON.parse(arg);
     console.log(args.calendar);
     // TODO: delete calendar from db
-    event.sender.getOwnerBrowserWindow().close();
 });
 //# sourceMappingURL=index.js.map

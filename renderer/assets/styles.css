@@ -15,6 +15,19 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+:root {
+  --border: 1px solid #ccc;
+}
+
+button {
+  border: none;
+  background-color: #fff;
+}
+
+button:hover {
+  background-color: #ccc;
+}
+
 #root {
   position: absolute;
   top: 0;
@@ -35,13 +48,12 @@ label {
 }
 
 .daily-contact-queue-container {
-  flex-basis: 0;
   flex-grow: 1;
   position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #ccc;
+  border-right: var(--border);
 }
 
 .daily-contact-queue-footer {
@@ -49,13 +61,12 @@ label {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 1px solid #ccc;
+  border-top: var(--border);
 }
 
 .daily-contact-queue,
 .daily-contact-queue-empty {
   padding: 5px;
-  flex-basis: 0;
   flex-grow: 1;
 }
 
@@ -85,7 +96,6 @@ label {
 }
 
 .weekly-calendar {
-  flex-basis: 0;
   flex-grow: 2;
   padding: 5px;
 }
@@ -108,19 +118,17 @@ label {
 
 .edit-calendar-container,
 .edit-contact-container {
-  position: relative;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 5px;
+  border-left: var(--border);
 }
 
 .edit-calendar-data,
 .edit-contact-data {
   flex-grow: 1;
-  flex-basis: 0;
   display: grid;
   align-items: center;
+  padding: 5px 15px;
 }
 
 .edit-calendar-data {
@@ -131,6 +139,10 @@ label {
 .edit-contact-data {
   grid-template-columns: 100px auto;
   grid-template-rows: 40px 40px 40px auto;
+}
+
+.edit-contact-close-container > button {
+  width: 100%;
 }
 
 .edit-calendar-data input[type=text],
@@ -153,6 +165,7 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 5px 15px;
 }
 
 .edit-calendar-buttons > button,
@@ -169,12 +182,27 @@ label {
 }
 
 .contact-list-header {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
+  border-bottom: var(--border);
+}
+
+.contact-list-header > button {
+  border-left: var(--border);
+  padding: 5px;
+  width: 40px;
 }
 
 .contact-list-contents {
-  flex-basis: 0;
   flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.contact-list-contacts-container {
+  flex-grow: 1;
+}
+
+.contact-list-entry {
+  width: 100%;
+  padding: 10px;
+  text-align: left;
 }

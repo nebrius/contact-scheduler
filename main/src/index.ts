@@ -18,16 +18,16 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { join } from 'path';
 import { series } from 'async';
 import { app, BrowserWindow, ipcMain, Event } from 'electron';
-import { MessageTypes } from './common/messages';
+import {
+  MessageTypes,
+  ISaveContactMessage,
+  IDeleteContactMessage,
+  ISaveCalendarMessage,
+  IDeleteCalendarMessage
+} from './common/messages';
 import { ICalendar, IContact, CB } from './common/types';
 import {
   IAppArguments,
-  IContactDialogArguments,
-  ISaveContactMessageArguments,
-  IDeleteContactMessageArguments,
-  ICalendarDialogArguments,
-  ISaveCalendarMessageArguments,
-  IDeleteCalendarMessageArguments,
   IUpdateCalendarsArguments,
   IUpdateContactsArguments
 } from './common/arguments';
@@ -36,7 +36,6 @@ import { init as initDB, getCalendars, createCalendar, getContacts, createContac
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | null = null;
-const dialogWindows: BrowserWindow[] = [];
 
 function createWindow(args: IAppArguments) {
   mainWindow = new BrowserWindow({
@@ -89,45 +88,13 @@ app.on('activate', () => {
   // TODO: re-enable the above
 });
 
-function openDialogWindow(contentPath: string, title: string, args: { [ key: string ]: any }): void {
-  const dialogWindow = new BrowserWindow({
-    width: 640,
-    height: 480,
-    webPreferences: {
-      additionalArguments: [ JSON.stringify(args) ]
-    }
-  } as any);
-  dialogWindow.setMenu(null);
-
-  dialogWindow.loadFile(contentPath);
-  dialogWindow.setTitle(title);
-  // dialogWindow.webContents.openDevTools();
-
-  dialogWindow.on('closed', () => {
-    dialogWindows.splice(dialogWindows.indexOf(dialogWindow));
-  });
-
-  dialogWindows.push(dialogWindow);
-}
-
-ipcMain.on(MessageTypes.RequestAddContact, (event: Event, arg: string) => {
-  const args: IContactDialogArguments = {
-    isAdd: true
-  };
-  openDialogWindow(join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
-});
-
-ipcMain.on(MessageTypes.RequestEditContact, (event: Event, arg: string) => {
-  const args: IContactDialogArguments = {
-    isAdd: false
-  };
-  openDialogWindow(join(__dirname, '..', 'renderer', 'contact.html'), 'Add Contact', args);
-});
-
 ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
-  const parsedArgs: ISaveContactMessageArguments = JSON.parse(arg);
-  function finalize() {
-    (event.sender as any).getOwnerBrowserWindow().close();
+  const parsedArgs: ISaveContactMessage = JSON.parse(arg);
+  function finalize(err?: Error) {
+    if (err) {
+      console.error(err);
+      return;
+    }
     getContacts((err, contacts) => {
       if (err) {
         console.error(err);
@@ -142,12 +109,7 @@ ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
     });
   }
   if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-    createContact(parsedArgs.contact, (err) => {
-      if (err) {
-        console.error(err);
-      }
-      finalize();
-    });
+    createContact(parsedArgs.contact, finalize);
   } else {
     // TODO once editing contacts is implemented
     finalize();
@@ -155,30 +117,18 @@ ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
 });
 
 ipcMain.on(MessageTypes.RequestDeleteContact, (event: Event, arg: string) => {
-  const args: IDeleteContactMessageArguments = JSON.parse(arg);
+  const args: IDeleteContactMessage = JSON.parse(arg);
   console.log(args.contact);
   // TODO: delete contacts from db
-  (event.sender as any).getOwnerBrowserWindow().close();
-});
-
-ipcMain.on(MessageTypes.RequestAddCalendar, (event: Event, arg: string) => {
-  const args: ICalendarDialogArguments = {
-    isAdd: true
-  };
-  openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
-});
-
-ipcMain.on(MessageTypes.RequestEditCalendar, (event: Event, arg: string) => {
-  const args: ICalendarDialogArguments = {
-    isAdd: false
-  };
-  openDialogWindow(join(__dirname, '..', 'renderer', 'calendar.html'), 'Add Calendar', args);
 });
 
 ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
-  const parsedArgs: ISaveCalendarMessageArguments = JSON.parse(arg);
-  function finalize() {
-    (event.sender as any).getOwnerBrowserWindow().close();
+  const parsedArgs: ISaveCalendarMessage = JSON.parse(arg);
+  function finalize(err?: Error) {
+    if (err) {
+      console.error(err);
+      return;
+    }
     getCalendars((err, calendars) => {
       if (err) {
         console.error(err);
@@ -193,12 +143,7 @@ ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
     });
   }
   if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
-    createCalendar(parsedArgs.calendar, (err) => {
-      if (err) {
-        console.error(err);
-      }
-      finalize();
-    });
+    createCalendar(parsedArgs.calendar, finalize);
   } else {
     // TODO once editing calendars is implemented
     finalize();
@@ -206,8 +151,7 @@ ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
 });
 
 ipcMain.on(MessageTypes.RequestDeleteCalendar, (event: Event, arg: string) => {
-  const args: IDeleteCalendarMessageArguments = JSON.parse(arg);
+  const args: IDeleteCalendarMessage = JSON.parse(arg);
   console.log(args.calendar);
   // TODO: delete calendar from db
-  (event.sender as any).getOwnerBrowserWindow().close();
 });

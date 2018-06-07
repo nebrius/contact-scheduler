@@ -23,8 +23,6 @@ module.exports = {
   target: 'electron-renderer',
 
   entry: {
-    calendar: './src/calendar.tsx',
-    contact: './src/contact.tsx',
     app: './src/app.tsx'
   },
 

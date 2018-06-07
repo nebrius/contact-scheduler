@@ -23,30 +23,6 @@ export interface IAppArguments {
   dailyContactQueue: IContact[];
 }
 
-export interface IContactDialogArguments {
-  isAdd: boolean;
-}
-
-export interface ISaveContactMessageArguments {
-  contact: IContact;
-}
-
-export interface IDeleteContactMessageArguments {
-  contact: IContact;
-}
-
-export interface ICalendarDialogArguments {
-  isAdd: boolean;
-}
-
-export interface ISaveCalendarMessageArguments {
-  calendar: ICalendar;
-}
-
-export interface IDeleteCalendarMessageArguments {
-  calendar: ICalendar;
-}
-
 export interface IUpdateCalendarsArguments {
   calendars: ICalendar[];
 }
