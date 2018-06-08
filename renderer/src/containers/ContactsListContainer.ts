@@ -21,7 +21,7 @@ import { IAppState } from '../util/types';
 import { IAction, closeDialog } from '../actions/actions';
 import { ContactList, IStateProps, IDispatchProps } from '../components/ContactList';
 import { IContact } from '../common/types';
-import { MessageTypes, ISaveContactMessage } from '../common/messages';
+import { MessageTypes, ISaveContactMessage, IDeleteContactMessage } from '../common/messages';
 
 function mapStateToProps(state: IAppState): IStateProps {
   return {
@@ -39,8 +39,8 @@ function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps 
       ipcRenderer.send(MessageTypes.RequestSaveContact, JSON.stringify(args));
     },
     deleteContact(contact: IContact) {
-      console.log(`Deleting contact ${contact.name}`);
-      // TODO
+      const args: IDeleteContactMessage = { contact };
+      ipcRenderer.send(MessageTypes.RequestDeleteContact, JSON.stringify(args));
     }
   };
 }

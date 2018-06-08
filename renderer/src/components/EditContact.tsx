@@ -126,7 +126,9 @@ export class EditContact extends React.Component<IProps, IState> {
   }
 
   private onDelete = () => {
-    this.props.deleteContact(this.props.contact);
+    if (window.confirm(`Are you sure you would like to delete ${this.props.contact.name} from your contacts list?`)) {
+      this.props.deleteContact(this.props.contact);
+    }
   }
 
   private onSave = () => {
