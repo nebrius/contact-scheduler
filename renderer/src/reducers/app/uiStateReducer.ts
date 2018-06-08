@@ -19,7 +19,7 @@ import { Reducer } from 'redux';
 import { IAction, ACTIONS } from '../../actions/actions';
 import { IUIState } from '../../util/types';
 
-export function createUISteteReducer(): Reducer<IUIState> {
+export function createUIStateReducer(): Reducer<IUIState> {
   const DEFAULT_STATE: IUIState = {
     dialog: undefined
   };
@@ -33,6 +33,11 @@ export function createUISteteReducer(): Reducer<IUIState> {
           ...state,
           dialog: 'contacts'
         };
+        case ACTIONS.OPEN_CALENDARS_DIALOG:
+          return {
+            ...state,
+            dialog: 'calendars'
+          };
       case ACTIONS.CLOSE_DIALOG:
         return {
           ...state,

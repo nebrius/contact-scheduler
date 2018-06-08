@@ -64,8 +64,10 @@ label {
   flex-direction: row;
 }
 
-.daily-contact-queue-container {
+.daily-contact-queue-container,
+.weekly-calendar-container {
   flex-grow: 1;
+  flex-basis: 0;
   position: relative;
   height: 100%;
   display: flex;
@@ -73,7 +75,8 @@ label {
   border-right: var(--border);
 }
 
-.daily-contact-queue-footer {
+.daily-contact-queue-footer,
+.weekly-calendar-footer {
   padding: 5px;
   display: flex;
   justify-content: center;
@@ -82,12 +85,14 @@ label {
 }
 
 .daily-contact-queue,
-.daily-contact-queue-empty {
+.daily-contact-queue-empty,
+.weekly-calendar-contents {
   padding: 5px;
   flex-grow: 1;
 }
 
-.daily-contact-queue-empty {
+.daily-contact-queue-empty,
+.weekly-calendar-contents {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -112,13 +117,11 @@ label {
   flex-grow: 1;
 }
 
-.weekly-calendar {
+.weekly-calendar-container {
   flex-grow: 2;
-  padding: 5px;
 }
 
-.no-contacts-cta,
-.select-calendar-source-container {
+.no-contacts-cta {
   position: relative;
   height: 100%;
   display: flex;
@@ -138,6 +141,20 @@ label {
   display: flex;
   flex-direction: column;
   border-left: var(--border);
+  width: 400px;
+}
+
+.edit-calendar-data-source {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center
+}
+
+.edit-calendar-data-source > button {
+  margin: 5px;
+  width: 200px;
 }
 
 .edit-calendar-data,
@@ -147,6 +164,7 @@ label {
   align-items: center;
   padding: 5px 15px;
 }
+
 
 .edit-calendar-data {
   grid-template-columns: 100px auto;
@@ -195,7 +213,8 @@ label {
   margin: 0 5px;
 }
 
-.contact-list {
+.contact-list,
+.calendar-list {
   display: flex;
   flex-direction: column;
   position: relative;
@@ -203,43 +222,51 @@ label {
   width: 100%;
 }
 
-.contact-list-header {
+.contact-list-header,
+.calendar-list-header {
   border-bottom: var(--border);
 }
 
-.contact-list-header > button {
+.contact-list-header > button,
+.calendar-list-header > button {
   border-left: var(--border);
   padding: 5px;
   width: 40px;
 }
 
-.contact-list-contents {
+.contact-list-contents,
+.calendar-list-contents {
   flex-grow: 1;
   display: flex;
   flex-direction: row;
 }
 
-.contact-list-contents-list-container {
+.contact-list-contents-list-container,
+.calendar-list-contents-list-container {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
-.contact-list-contents-contacts {
+.contact-list-contents-contacts,
+.calendar-list-contents-calendars {
   flex-grow: 1;
 }
 
-.contact-list-contents-add {
+.contact-list-contents-add,
+.calendar-list-contents-add {
   padding: 5px;
   display: flex;
   justify-content: center;
 }
 
-.contact-list-contacts-container {
+.contact-list-contacts-container,
+.calendar-list-calendars-container {
   flex-grow: 1;
 }
 
-.contact-list-entry {
+.contact-list-entry,
+.calendar-list-entry {
   width: 100%;
   padding: 10px;
   text-align: left;

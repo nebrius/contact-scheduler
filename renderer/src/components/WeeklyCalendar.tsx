@@ -22,14 +22,21 @@ export interface IStateProps {
   calendars: ICalendar[];
 }
 
-export type IDispatchProps = {} // No dispatch props (yet?)
+export type IDispatchProps = {
+  openCalendarsDialog: () => void;
+}
 
 export type IProps = IStateProps & IDispatchProps;
 
 export function WeeklyCalendar(props: IProps): JSX.Element {
   return (
-    <div className="weekly-calendar">
-      Weekly Calendar
+    <div className="weekly-calendar-container">
+      <div className="weekly-calendar-contents">
+        Calendars
+      </div>
+      <div className="weekly-calendar-footer">
+        <button type="button" className="btn btn-outline-primary btn-lg" onClick={props.openCalendarsDialog}>Edit Calendars</button>
+      </div>
     </div>
   );
 }

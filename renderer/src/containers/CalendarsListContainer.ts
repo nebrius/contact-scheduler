@@ -17,34 +17,35 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
+import { IAppState } from '../util/types';
+import { IAction, closeDialog } from '../actions/actions';
+import { CalendarList, IStateProps, IDispatchProps } from '../components/CalendarList';
 import { ICalendar } from '../common/types';
-import { ICalendarState } from '../util/types';
-import { IAction } from '../actions/actions';
-import { EditCalendar, IStateProps, IDispatchProps } from '../components/EditCalendar';
-import { MessageTypes, ISaveCalendarMessage } from '../common/messages';
+import { MessageTypes, ISaveCalendarMessage, IDeleteCalendarMessage } from '../common/messages';
 
-function mapStateToProps(state: ICalendarState): IStateProps {
+function mapStateToProps(state: IAppState): IStateProps {
   return {
-    calendar: state.calendar,
-    isAdd: state.isAdd
+    calendars: state.calendars
   };
 }
 
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
-    saveCalendar: (calendar: ICalendar) => {
+    closeCalendars() {
+      dispatch(closeDialog());
+    },
+    saveCalendar(calendar: ICalendar) {
       const args: ISaveCalendarMessage = { calendar };
       ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(args));
     },
-    deleteCalendar: (calendar: ICalendar) => {
-      // TODO: add confirmation flow
-      // const args: IDeleteCalendarMessageArguments = { calendar };
-      // ipcRenderer.send(MessageTypes.RequestDeleteCalendar, JSON.stringify(args));
+    deleteCalendar(calendar: ICalendar) {
+      const args: IDeleteCalendarMessage = { calendar };
+      ipcRenderer.send(MessageTypes.RequestDeleteCalendar, JSON.stringify(args));
     }
   };
 }
 
-export const EditCalendarContainer = connect(
+export const CalendarsListContainer = connect(
   mapStateToProps,
   mapDispatchToProps
-)(EditCalendar);
+)(CalendarList);

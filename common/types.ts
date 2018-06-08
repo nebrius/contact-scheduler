@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 export type CB = (err: Error | undefined) => void;
 export type CBWithResult<Result> = (err: Error | undefined, result: Result | undefined) => void;
 
-export type CalendarSource = 'office365' | 'google';
+export type CalendarSource = 'office365' | 'google' | undefined;
 
 export interface ICalendar {
   id: number;

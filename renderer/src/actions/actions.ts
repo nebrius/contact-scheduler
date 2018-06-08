@@ -26,6 +26,7 @@ export const ACTIONS = {
   OPEN_CONTACTS_DIALOG: 'OPEN_CONTACTS_DIALOG',
   EDIT_CONTACT: 'EDIT_CONTACT',
 
+  OPEN_CALENDARS_DIALOG: 'OPEN_CALENDARS_DIALOG',
   SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
 };
 
@@ -80,6 +81,12 @@ export function editContact(contact: IContact): IEditContactAction {
 }
 
 // Actions for the edit calendars UI
+
+export function openCalendarsDialog() {
+  return {
+    type: ACTIONS.OPEN_CALENDARS_DIALOG
+  };
+}
 
 export interface ISelectCalendarSourceAction extends IAction {
   source: CalendarSource;

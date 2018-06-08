@@ -20,6 +20,7 @@ import { NoContactsCTAContainer } from '../containers/NoContactsCTAContainer';
 import { DailyContactQueueContainer } from '../containers/DailyContactQueueContainer';
 import { WeeklyCalendarContainer } from '../containers/WeeklyCalendarContainer';
 import { ContactsListContainer } from '../containers/ContactsListContainer';
+import { CalendarsListContainer } from '../containers/CalendarsListContainer';
 
 export interface IStateProps {
   hasContacts: boolean;
@@ -39,8 +40,11 @@ export function AppRoot(props: IProps): JSX.Element {
         </div>
       );
     case 'calendars':
-      // TODO
-      break;
+      return (
+        <div className="app-root-container">
+          <CalendarsListContainer />
+        </div>
+      );
   }
   if (!props.hasContacts) {
     return (
