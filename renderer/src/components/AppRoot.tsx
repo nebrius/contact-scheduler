@@ -31,11 +31,6 @@ export type IDispatchProps = {} // No dispatch props (yet?)
 export type IProps = IStateProps & IDispatchProps;
 
 export function AppRoot(props: IProps): JSX.Element {
-  if (!props.hasContacts) {
-    return (
-      <NoContactsCTAContainer />
-    );
-  }
   switch (props.dialog) {
     case 'contacts':
       return (
@@ -46,6 +41,11 @@ export function AppRoot(props: IProps): JSX.Element {
     case 'calendars':
       // TODO
       break;
+  }
+  if (!props.hasContacts) {
+    return (
+      <NoContactsCTAContainer />
+    );
   }
   return (
     <div className="app-root-container">

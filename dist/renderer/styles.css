@@ -153,6 +153,11 @@ label {
   grid-template-rows: 40px 40px auto;
 }
 
+.edit-contact-header {
+  margin-top: 10px;
+  text-align: center;
+}
+
 .edit-contact-data {
   grid-template-columns: 100px auto;
   grid-template-rows: 40px 40px 40px auto;
@@ -212,6 +217,22 @@ label {
   flex-grow: 1;
   display: flex;
   flex-direction: row;
+}
+
+.contact-list-contents-list-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-list-contents-contacts {
+  flex-grow: 1;
+}
+
+.contact-list-contents-add {
+  padding: 5px;
+  display: flex;
+  justify-content: center;
 }
 
 .contact-list-contacts-container {

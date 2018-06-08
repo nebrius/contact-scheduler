@@ -16,11 +16,9 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
 import { IAppState } from '../util/types';
-import { IAction } from '../actions/actions';
+import { IAction, openContactsDialog } from '../actions/actions';
 import { NoContactsCTA, IStateProps, IDispatchProps } from '../components/NoContactsCTA';
-import { MessageTypes } from '../common/messages';
 
 function mapStateToProps(state: IAppState): IStateProps {
   return {};
@@ -29,7 +27,7 @@ function mapStateToProps(state: IAppState): IStateProps {
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
     requestAddContact: () => {
-      ipcRenderer.send(MessageTypes.RequestAddContact);
+      dispatch(openContactsDialog());
     }
   };
 }

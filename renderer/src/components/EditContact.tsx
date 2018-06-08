@@ -26,6 +26,7 @@ export interface IStateProps {
 export interface IDispatchProps {
   saveContact: (contact: IContact) => void;
   deleteContact: (contact: IContact) => void;
+  closeContact: () => void;
 }
 
 export type IProps = IStateProps & IDispatchProps;
@@ -52,6 +53,7 @@ export class EditContact extends React.Component<IProps, IState> {
     }
     return (
       <div className="edit-contact-container">
+        <h3 className="edit-contact-header">{this.props.isAdd ? 'New Contact' : 'Edit Contact'}</h3>
         <div className="edit-contact-data">
           <div>
             <label htmlFor="contactName">Name:</label>
@@ -92,6 +94,7 @@ export class EditContact extends React.Component<IProps, IState> {
         <div className="edit-contact-buttons">
           {deleteButton}
           <button type="button" className="btn btn-primary btn-lg" onClick={this.onSave}>Save</button>
+          <button type="button" className="btn btn-primary btn-lg" onClick={this.onCancel}>Cancel</button>
         </div>
       </div>
     );
@@ -133,5 +136,9 @@ export class EditContact extends React.Component<IProps, IState> {
 
   private onSave = () => {
     this.props.saveContact(this.state.unsavedEntry);
+  }
+
+  private onCancel = () => {
+    this.props.closeContact();
   }
 }

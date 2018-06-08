@@ -20,6 +20,12 @@ import { IContact } from '../common/types';
 import { EditContact } from './EditContact';
 import * as classnames from 'classnames';
 
+const NEW_CONTACT_TEMPLATE: IContact = {
+  name: '',
+  frequency: 'weekly',
+  id: NaN
+};
+
 export interface IStateProps {
   contacts: IContact[];
 }
@@ -41,7 +47,7 @@ export class ContactList extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
-      selectedContact: undefined
+      selectedContact: props.contacts.length ? undefined : { ...NEW_CONTACT_TEMPLATE }
     };
   }
 
@@ -51,9 +57,10 @@ export class ContactList extends React.Component<IProps, IState> {
       editContact = (
         <EditContact
           contact={this.state.selectedContact}
-          isAdd={false}
-          saveContact={this.props.saveContact}
-          deleteContact={this.props.deleteContact} />
+          isAdd={isNaN(this.state.selectedContact.id)}
+          saveContact={this.saveContact}
+          deleteContact={this.deleteContact}
+          closeContact={this.closeContact}/>
       );
     }
     return (
@@ -62,19 +69,24 @@ export class ContactList extends React.Component<IProps, IState> {
           <button type="button" className="button contact-list-close-button" onClick={this.props.closeContacts}>←</button>
         </div>
         <div className="contact-list-contents">
-          <div className="contact-list-contacts-container">
-            {this.props.contacts.map((contact) => (
-              <button
-                className={classnames(
-                  'contact-list-entry',
-                  'button ',
-                  { 'button-selected': contact === this.state.selectedContact }
-                )}
-                type="button"
-                key={contact.id}
-                onClick={() => this.openContact(contact)}
-              >{contact.name}</button>
-            ))}
+          <div className="contact-list-contents-list-container">
+            <div className="contact-list-contents-contacts">
+              {this.props.contacts.map((contact) => (
+                <button
+                  className={classnames(
+                    'contact-list-entry',
+                    'button ',
+                    { 'button-selected': contact === this.state.selectedContact }
+                  )}
+                  type="button"
+                  key={contact.id}
+                  onClick={() => this.openContact(contact)}
+                >{contact.name}</button>
+              ))}
+            </div>
+            <div className="contact-list-contents-add">
+              <button className="btn btn-primary" onClick={this.createContact}>Add Contact</button>
+            </div>
           </div>
           {editContact}
         </div>
@@ -82,11 +94,53 @@ export class ContactList extends React.Component<IProps, IState> {
     );
   }
 
-  private openContact(contact: IContact) {
+  private openContact = (contact: IContact) => {
     this.setState((previousState) => {
       const newState: IState = {
         ...previousState,
         selectedContact: contact
+      };
+      return newState;
+    });
+  }
+
+  private createContact = () => {
+    this.setState((previousState) => {
+      const newState: IState = {
+        ...previousState,
+        selectedContact: { ...NEW_CONTACT_TEMPLATE }
+      };
+      return newState;
+    });
+  }
+
+  private saveContact = (contact: IContact) => {
+    this.props.saveContact(contact);
+    this.setState((previousState) => {
+      const newState: IState = {
+        ...previousState,
+        selectedContact: undefined
+      };
+      return newState;
+    });
+  }
+
+  private deleteContact = (contact: IContact) => {
+    this.props.deleteContact(contact);
+    this.setState((previousState) => {
+      const newState: IState = {
+        ...previousState,
+        selectedContact: undefined
+      };
+      return newState;
+    });
+  }
+
+  private closeContact = () => {
+    this.setState((previousState) => {
+      const newState: IState = {
+        ...previousState,
+        selectedContact: undefined
       };
       return newState;
     });
