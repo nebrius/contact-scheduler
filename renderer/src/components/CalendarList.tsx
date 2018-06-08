@@ -71,7 +71,9 @@ export class CalendarList extends React.Component<IProps, IState> {
     return (
       <div className="calendar-list">
         <div className="calendar-list-header">
-          <button type="button" className="button calendar-list-close-button" onClick={this.props.closeCalendars}>←</button>
+          <button type="button" className="button calendar-list-close-button" onClick={this.props.closeCalendars}>
+            <i className="fas fa-arrow-circle-left 2x"></i>
+          </button>
         </div>
         <div className="calendar-list-contents">
           <div className="calendar-list-contents-list-container">

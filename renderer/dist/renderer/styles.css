@@ -64,17 +64,6 @@ label {
   flex-direction: row;
 }
 
-.side-bar-container {
-  display: flex;
-  flex-direction: column;
-  border-right: var(--border);
-  padding: 5px;
-}
-
-.side-bar-container > button {
-  margin-bottom: 10px;
-}
-
 .daily-contact-queue-container,
 .weekly-calendar-container {
   flex-grow: 1;
@@ -84,6 +73,15 @@ label {
   display: flex;
   flex-direction: column;
   border-right: var(--border);
+}
+
+.daily-contact-queue-footer,
+.weekly-calendar-footer {
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: var(--border);
 }
 
 .daily-contact-queue,

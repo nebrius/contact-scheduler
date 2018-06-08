@@ -15,25 +15,27 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as React from 'react';
-import { ICalendar } from '../common/types';
+import { connect } from 'react-redux';
+import { IAppState } from '../util/types';
+import { IAction, openContactsDialog, openCalendarsDialog } from '../actions/actions';
+import { SideBar, IStateProps, IDispatchProps } from '../components/SideBar';
 
-export interface IStateProps {
-  calendars: ICalendar[];
+function mapStateToProps(state: IAppState): IStateProps {
+  return {};
 }
 
-export type IDispatchProps = {
-  openCalendarsDialog: () => void;
+function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
+  return {
+    openContactsDialog() {
+      dispatch(openContactsDialog());
+    },
+    openCalendarsDialog() {
+      dispatch(openCalendarsDialog());
+    }
+  };
 }
 
-export type IProps = IStateProps & IDispatchProps;
-
-export function WeeklyCalendar(props: IProps): JSX.Element {
-  return (
-    <div className="weekly-calendar-container">
-      <div className="weekly-calendar-contents">
-        Calendars
-      </div>
-    </div>
-  );
-}
+export const SideBarContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SideBar);

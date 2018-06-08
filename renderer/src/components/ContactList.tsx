@@ -71,7 +71,9 @@ export class ContactList extends React.Component<IProps, IState> {
     return (
       <div className="contact-list">
         <div className="contact-list-header">
-          <button type="button" className="button contact-list-close-button" onClick={this.props.closeContacts}>←</button>
+          <button type="button" className="button contact-list-close-button" onClick={this.props.closeContacts}>
+            <i className="fas fa-arrow-circle-left 2x"></i>
+          </button>
         </div>
         <div className="contact-list-contents">
           <div className="contact-list-contents-list-container">

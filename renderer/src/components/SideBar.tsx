@@ -16,37 +16,25 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as React from 'react';
-import { IContact } from '../common/types';
 
-export interface IStateProps {
-  contactQueue: IContact[];
-}
+export interface IStateProps {} // No state props (yet?)
 
 export type IDispatchProps = {
   openContactsDialog: () => void;
+  openCalendarsDialog: () => void;
 }
 
 export type IProps = IStateProps & IDispatchProps;
 
-export function DailyContactQueue(props: IProps): JSX.Element {
-  let contents: JSX.Element;
-  if (props.contactQueue.length) {
-    contents = (
-      <div className="daily-contact-queue">
-        <div className="daily-contact-queue-title"><h2>Today's Contacts</h2></div>
-        <div>Queue</div>
-      </div>
-    );
-  } else {
-    contents = (
-      <div className="daily-contact-queue-empty">
-        <h3>No one else to contact today</h3>
-      </div>
-    );
-  }
+export function SideBar(props: IProps): JSX.Element {
   return (
-    <div className="daily-contact-queue-container">
-      {contents}
+    <div className="side-bar-container">
+      <button type="button" className="button" onClick={props.openContactsDialog}>
+        <i className="fas fa-address-card fa-2x"></i>
+      </button>
+      <button type="button" className="button" onClick={props.openCalendarsDialog}>
+        <i className="fas fa-calendar-alt fa-2x"></i>
+      </button>
     </div>
   );
 }

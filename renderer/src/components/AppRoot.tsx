@@ -21,6 +21,7 @@ import { DailyContactQueueContainer } from '../containers/DailyContactQueueConta
 import { WeeklyCalendarContainer } from '../containers/WeeklyCalendarContainer';
 import { ContactsListContainer } from '../containers/ContactsListContainer';
 import { CalendarsListContainer } from '../containers/CalendarsListContainer';
+import { SideBarContainer } from '../containers/SideBarContainer';
 
 export interface IStateProps {
   hasContacts: boolean;
@@ -53,6 +54,7 @@ export function AppRoot(props: IProps): JSX.Element {
   }
   return (
     <div className="app-root-container">
+      <SideBarContainer />
       <DailyContactQueueContainer />
       <WeeklyCalendarContainer />
     </div>
