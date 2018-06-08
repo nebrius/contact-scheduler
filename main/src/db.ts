@@ -22,18 +22,21 @@ import { series } from 'async';
 import { verbose, Database } from 'sqlite3';
 import { ICalendar, IContact, CB, CBWithResult } from './common/types';
 
+const CALENDARS_TABLE_NAME = 'calendars';
+const CONTACTS_TABLE_NAME = 'contacts';
+
 const dbPath = join(app.getPath('userData'), 'contact-scheduler-db.sqlite3');
 let db: Database;
 
 const CALENDAR_SCHEMA =
-`CREATE TABLE calendars(
+`CREATE TABLE ${CALENDARS_TABLE_NAME}(
   id INTEGER PRIMARY KEY,
   displayName text NOT NULL,
   source text NOT NULL
 )`;
 
 const CONTACT_SCHEMA =
-`CREATE TABLE contacts(
+`CREATE TABLE ${CONTACTS_TABLE_NAME}(
   id INTEGER PRIMARY KEY,
   name text NOT NULL,
   frequency text NOT NULL
@@ -59,7 +62,7 @@ export function init(cb: CB): void {
 }
 
 export function getCalendars(cb: CBWithResult<ICalendar[]>): void {
-  db.all('SELECT * FROM calendars', [], (err, rows) => {
+  db.all(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, [], (err, rows) => {
     if (err) {
       cb(err, undefined);
       return;
@@ -69,11 +72,22 @@ export function getCalendars(cb: CBWithResult<ICalendar[]>): void {
 }
 
 export function createCalendar(calendar: ICalendar, cb: CB): void {
-  db.run(`INSERT INTO calendars(displayName, source) VALUES(?, ?)`, [ calendar.displayName, calendar.source ], cb);
+  db.run(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
+    [ calendar.displayName, calendar.source ], cb);
+}
+
+export function updateCalendar(calendar: ICalendar, cb: CB): void {
+  db.run(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
+    [ calendar.displayName, calendar.source, calendar.id ], cb);
+}
+
+export function deleteCalendar(calendar: ICalendar, cb: CB): void {
+  db.run(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`,
+    [ calendar.id ], cb);
 }
 
 export function getContacts(cb: CBWithResult<IContact[]>): void {
-  db.all('SELECT * FROM contacts', [], (err, rows) => {
+  db.all(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, [], (err, rows) => {
     if (err) {
       cb(err, undefined);
       return;
@@ -83,5 +97,16 @@ export function getContacts(cb: CBWithResult<IContact[]>): void {
 }
 
 export function createContact(contact: IContact, cb: CB): void {
-  db.run(`INSERT INTO contacts(name, frequency) VALUES(?, ?)`, [ contact.name, contact.frequency ], cb);
+  db.run(`INSERT INTO ${CONTACTS_TABLE_NAME}(name, frequency) VALUES(?, ?)`,
+    [ contact.name, contact.frequency ], cb);
+}
+
+export function updateContact(contact: IContact, cb: CB): void {
+  db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
+    [ contact.name, contact.frequency, contact.id ], cb);
+}
+
+export function deleteContact(contact: IContact, cb: CB): void {
+  db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
+    [ contact.id ], cb);
 }

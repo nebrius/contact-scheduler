@@ -71,72 +71,66 @@ electron_1.app.on('activate', function () {
     // }
     // TODO: re-enable the above
 });
+function finalizeContactOperation(operationErr) {
+    if (operationErr) {
+        console.error(operationErr);
+        return;
+    }
+    db_1.getContacts(function (getErr, contacts) {
+        if (getErr) {
+            console.error(getErr);
+            return;
+        }
+        if (mainWindow && contacts) {
+            var args = {
+                contacts: contacts
+            };
+            mainWindow.webContents.send(messages_1.MessageTypes.UpdateContacts, JSON.stringify(args));
+        }
+    });
+}
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, function (event, arg) {
     var parsedArgs = JSON.parse(arg);
-    function finalize() {
-        db_1.getContacts(function (err, contacts) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            if (mainWindow && contacts) {
-                var args = {
-                    contacts: contacts
-                };
-                mainWindow.webContents.send(messages_1.MessageTypes.UpdateContacts, JSON.stringify(args));
-            }
-        });
-    }
     if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-        db_1.createContact(parsedArgs.contact, function (err) {
-            if (err) {
-                console.error(err);
-            }
-            finalize();
-        });
+        db_1.createContact(parsedArgs.contact, finalizeContactOperation);
     }
     else {
-        // TODO once editing contacts is implemented
-        finalize();
+        db_1.updateContact(parsedArgs.contact, finalizeContactOperation);
     }
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteContact, function (event, arg) {
-    var args = JSON.parse(arg);
-    console.log(args.contact);
-    // TODO: delete contacts from db
+    var parsedArgs = JSON.parse(arg);
+    db_1.deleteContact(parsedArgs.contact, finalizeContactOperation);
 });
+function finalizeCalendarOperation(operationErr) {
+    if (operationErr) {
+        console.error(operationErr);
+        return;
+    }
+    db_1.getCalendars(function (getErr, calendars) {
+        if (getErr) {
+            console.error(getErr);
+            return;
+        }
+        if (mainWindow && calendars) {
+            var args = {
+                calendars: calendars
+            };
+            mainWindow.webContents.send(messages_1.MessageTypes.UpdateCalendars, JSON.stringify(args));
+        }
+    });
+}
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (event, arg) {
     var parsedArgs = JSON.parse(arg);
-    function finalize() {
-        db_1.getCalendars(function (err, calendars) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            if (mainWindow && calendars) {
-                var args = {
-                    calendars: calendars
-                };
-                mainWindow.webContents.send(messages_1.MessageTypes.UpdateCalendars, JSON.stringify(args));
-            }
-        });
-    }
     if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
-        db_1.createCalendar(parsedArgs.calendar, function (err) {
-            if (err) {
-                console.error(err);
-            }
-            finalize();
-        });
+        db_1.createCalendar(parsedArgs.calendar, finalizeCalendarOperation);
     }
     else {
-        // TODO once editing calendars is implemented
-        finalize();
+        db_1.updateCalendar(parsedArgs.calendar, finalizeCalendarOperation);
     }
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, function (event, arg) {
-    var args = JSON.parse(arg);
-    console.log(args.calendar);
-    // TODO: delete calendar from db
+    var parsedArgs = JSON.parse(arg);
+    db_1.deleteCalendar(parsedArgs.calendar, finalizeCalendarOperation);
 });
 //# sourceMappingURL=index.js.map

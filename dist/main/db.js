@@ -21,10 +21,12 @@ var path_1 = require("path");
 var electron_1 = require("electron");
 var async_1 = require("async");
 var sqlite3_1 = require("sqlite3");
+var CALENDARS_TABLE_NAME = 'calendars';
+var CONTACTS_TABLE_NAME = 'contacts';
 var dbPath = path_1.join(electron_1.app.getPath('userData'), 'contact-scheduler-db.sqlite3');
 var db;
-var CALENDAR_SCHEMA = "CREATE TABLE calendars(\n  id INTEGER PRIMARY KEY,\n  displayName text NOT NULL,\n  source text NOT NULL\n)";
-var CONTACT_SCHEMA = "CREATE TABLE contacts(\n  id INTEGER PRIMARY KEY,\n  name text NOT NULL,\n  frequency text NOT NULL\n)";
+var CALENDAR_SCHEMA = "CREATE TABLE " + CALENDARS_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  displayName text NOT NULL,\n  source text NOT NULL\n)";
+var CONTACT_SCHEMA = "CREATE TABLE " + CONTACTS_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  name text NOT NULL,\n  frequency text NOT NULL\n)";
 function init(cb) {
     var isNewDB = !fs_1.existsSync(dbPath);
     var sqlite3 = sqlite3_1.verbose();
@@ -46,7 +48,7 @@ function init(cb) {
 }
 exports.init = init;
 function getCalendars(cb) {
-    db.all('SELECT * FROM calendars', [], function (err, rows) {
+    db.all("SELECT * FROM " + CALENDARS_TABLE_NAME, [], function (err, rows) {
         if (err) {
             cb(err, undefined);
             return;
@@ -56,11 +58,19 @@ function getCalendars(cb) {
 }
 exports.getCalendars = getCalendars;
 function createCalendar(calendar, cb) {
-    db.run("INSERT INTO calendars(displayName, source) VALUES(?, ?)", [calendar.displayName, calendar.source], cb);
+    db.run("INSERT INTO " + CALENDARS_TABLE_NAME + "(displayName, source) VALUES(?, ?)", [calendar.displayName, calendar.source], cb);
 }
 exports.createCalendar = createCalendar;
+function updateCalendar(calendar, cb) {
+    db.run("UPDATE " + CALENDARS_TABLE_NAME + " SET displayName = ?, source = ? WHERE id = ?", [calendar.displayName, calendar.source, calendar.id], cb);
+}
+exports.updateCalendar = updateCalendar;
+function deleteCalendar(calendar, cb) {
+    db.run("DELETE FROM " + CALENDARS_TABLE_NAME + " WHERE id = ?", [calendar.id], cb);
+}
+exports.deleteCalendar = deleteCalendar;
 function getContacts(cb) {
-    db.all('SELECT * FROM contacts', [], function (err, rows) {
+    db.all("SELECT * FROM " + CONTACTS_TABLE_NAME, [], function (err, rows) {
         if (err) {
             cb(err, undefined);
             return;
@@ -70,7 +80,15 @@ function getContacts(cb) {
 }
 exports.getContacts = getContacts;
 function createContact(contact, cb) {
-    db.run("INSERT INTO contacts(name, frequency) VALUES(?, ?)", [contact.name, contact.frequency], cb);
+    db.run("INSERT INTO " + CONTACTS_TABLE_NAME + "(name, frequency) VALUES(?, ?)", [contact.name, contact.frequency], cb);
 }
 exports.createContact = createContact;
+function updateContact(contact, cb) {
+    db.run("UPDATE " + CONTACTS_TABLE_NAME + " SET name = ?, frequency = ? WHERE id = ?", [contact.name, contact.frequency, contact.id], cb);
+}
+exports.updateContact = updateContact;
+function deleteContact(contact, cb) {
+    db.run("DELETE FROM " + CONTACTS_TABLE_NAME + " WHERE id = ?", [contact.id], cb);
+}
+exports.deleteContact = deleteContact;
 //# sourceMappingURL=db.js.map

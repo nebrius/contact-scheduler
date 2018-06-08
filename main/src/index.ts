@@ -31,7 +31,17 @@ import {
   IUpdateCalendarsArguments,
   IUpdateContactsArguments
 } from './common/arguments';
-import { init as initDB, getCalendars, createCalendar, getContacts, createContact } from './db';
+import {
+  init as initDB,
+  getCalendars,
+  createCalendar,
+  updateCalendar,
+  deleteCalendar,
+  getContacts,
+  createContact,
+  updateContact,
+  deleteContact
+} from './db';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -88,70 +98,68 @@ app.on('activate', () => {
   // TODO: re-enable the above
 });
 
-ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
-  const parsedArgs: ISaveContactMessage = JSON.parse(arg);
-  function finalize(err?: Error) {
-    if (err) {
-      console.error(err);
+function finalizeContactOperation(operationErr?: Error) {
+  if (operationErr) {
+    console.error(operationErr);
+    return;
+  }
+  getContacts((getErr, contacts) => {
+    if (getErr) {
+      console.error(getErr);
       return;
     }
-    getContacts((err, contacts) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      if (mainWindow && contacts) {
-        const args: IUpdateContactsArguments = {
-          contacts
-        };
-        mainWindow.webContents.send(MessageTypes.UpdateContacts, JSON.stringify(args));
-      }
-    });
-  }
+    if (mainWindow && contacts) {
+      const args: IUpdateContactsArguments = {
+        contacts
+      };
+      mainWindow.webContents.send(MessageTypes.UpdateContacts, JSON.stringify(args));
+    }
+  });
+}
+
+ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
+  const parsedArgs: ISaveContactMessage = JSON.parse(arg);
   if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-    createContact(parsedArgs.contact, finalize);
+    createContact(parsedArgs.contact, finalizeContactOperation);
   } else {
-    // TODO once editing contacts is implemented
-    finalize();
+    updateContact(parsedArgs.contact, finalizeContactOperation);
   }
 });
 
 ipcMain.on(MessageTypes.RequestDeleteContact, (event: Event, arg: string) => {
-  const args: IDeleteContactMessage = JSON.parse(arg);
-  console.log(args.contact);
-  // TODO: delete contacts from db
+  const parsedArgs: IDeleteContactMessage = JSON.parse(arg);
+  deleteContact(parsedArgs.contact, finalizeContactOperation);
 });
+
+function finalizeCalendarOperation(operationErr?: Error) {
+  if (operationErr) {
+    console.error(operationErr);
+    return;
+  }
+  getCalendars((getErr, calendars) => {
+    if (getErr) {
+      console.error(getErr);
+      return;
+    }
+    if (mainWindow && calendars) {
+      const args: IUpdateCalendarsArguments = {
+        calendars
+      };
+      mainWindow.webContents.send(MessageTypes.UpdateCalendars, JSON.stringify(args));
+    }
+  });
+}
 
 ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
   const parsedArgs: ISaveCalendarMessage = JSON.parse(arg);
-  function finalize(err?: Error) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    getCalendars((err, calendars) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      if (mainWindow && calendars) {
-        const args: IUpdateCalendarsArguments = {
-          calendars
-        };
-        mainWindow.webContents.send(MessageTypes.UpdateCalendars, JSON.stringify(args));
-      }
-    });
-  }
   if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
-    createCalendar(parsedArgs.calendar, finalize);
+    createCalendar(parsedArgs.calendar, finalizeCalendarOperation);
   } else {
-    // TODO once editing calendars is implemented
-    finalize();
+    updateCalendar(parsedArgs.calendar, finalizeCalendarOperation);
   }
 });
 
 ipcMain.on(MessageTypes.RequestDeleteCalendar, (event: Event, arg: string) => {
-  const args: IDeleteCalendarMessage = JSON.parse(arg);
-  console.log(args.calendar);
-  // TODO: delete calendar from db
+  const parsedArgs: IDeleteCalendarMessage = JSON.parse(arg);
+  deleteCalendar(parsedArgs.calendar, finalizeCalendarOperation);
 });
