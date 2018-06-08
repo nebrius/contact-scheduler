@@ -18,6 +18,8 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { ICalendar, CalendarSource } from '../common/types';
 
+import equals = require('deep-equal');
+
 export interface IStateProps {
   calendar: ICalendar;
   isAdd: boolean;
@@ -76,7 +78,12 @@ export class EditCalendar extends React.Component<IProps, IState> {
         </div>
       );
       saveButton = (
-        <button type="button" className="btn btn-primary btn-lg" onClick={this.onSave}>Save</button>
+        <button
+          type="button"
+          className="btn btn-primary btn-lg"
+          onClick={this.onSave}
+          disabled={!this.props.isAdd && equals(this.props.calendar, this.state.unsavedEntry)}
+        >Save</button>
       );
     }
     return (

@@ -18,6 +18,8 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { IContact } from '../common/types';
 
+import equals = require('deep-equal');
+
 export interface IStateProps {
   contact: IContact;
   isAdd: boolean;
@@ -93,7 +95,12 @@ export class EditContact extends React.Component<IProps, IState> {
         </div>
         <div className="edit-contact-buttons">
           {deleteButton}
-          <button type="button" className="btn btn-primary btn-lg" onClick={this.onSave}>Save</button>
+          <button
+            type="button"
+            className="btn btn-primary btn-lg"
+            onClick={this.onSave}
+            disabled={!this.props.isAdd && equals(this.props.contact, this.state.unsavedEntry)}
+          >Save</button>
           <button type="button" className="btn btn-primary btn-lg" onClick={this.onCancel}>Cancel</button>
         </div>
       </div>

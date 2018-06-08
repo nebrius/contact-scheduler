@@ -53,6 +53,7 @@ export class CalendarList extends React.Component<IProps, IState> {
 
   public render() {
     let editCalendar: JSX.Element | undefined;
+    let addButton: JSX.Element | undefined;
     if (this.state.selectedCalendar) {
       editCalendar = (
         <EditCalendar
@@ -61,6 +62,10 @@ export class CalendarList extends React.Component<IProps, IState> {
           saveCalendar={this.saveCalendar}
           deleteCalendar={this.deleteCalendar}
           closeCalendar={this.closeCalendar} />
+      );
+    } else {
+      addButton = (
+        <button className="btn btn-primary" onClick={this.createCalendar}>Add Calendar</button>
       );
     }
     return (
@@ -85,7 +90,7 @@ export class CalendarList extends React.Component<IProps, IState> {
               ))}
             </div>
             <div className="calendar-list-contents-add">
-              <button className="btn btn-primary" onClick={this.createCalendar}>Add Calendar</button>
+              {addButton}
             </div>
           </div>
           {editCalendar}

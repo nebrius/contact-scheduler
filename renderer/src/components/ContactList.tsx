@@ -53,6 +53,7 @@ export class ContactList extends React.Component<IProps, IState> {
 
   public render() {
     let editContact: JSX.Element | undefined;
+    let addButton: JSX.Element | undefined;
     if (this.state.selectedContact) {
       editContact = (
         <EditContact
@@ -61,6 +62,10 @@ export class ContactList extends React.Component<IProps, IState> {
           saveContact={this.saveContact}
           deleteContact={this.deleteContact}
           closeContact={this.closeContact}/>
+      );
+    } else {
+      addButton = (
+        <button className="btn btn-primary" onClick={this.createContact}>Add Contact</button>
       );
     }
     return (
@@ -85,7 +90,7 @@ export class ContactList extends React.Component<IProps, IState> {
               ))}
             </div>
             <div className="contact-list-contents-add">
-              <button className="btn btn-primary" onClick={this.createContact}>Add Contact</button>
+              {addButton}
             </div>
           </div>
           {editContact}
