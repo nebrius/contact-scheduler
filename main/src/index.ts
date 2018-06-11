@@ -92,10 +92,25 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  // if (mainWindow === null) {
-  //   createWindow();
-  // }
-  // TODO: re-enable the above
+  if (mainWindow === null) {
+    series([
+      (next: CB) => getCalendars(next),
+      (next: CB) => getContacts(next)
+    ], (err, results) => {
+      if (err || !results) {
+        console.error(err);
+        process.exit(-1);
+        return;
+      }
+      const calendars: ICalendar[] = results[1] as any;
+      const contacts: IContact[] = results[2] as any;
+      createWindow({
+        calendars,
+        contacts,
+        dailyContactQueue: []
+      });
+    });
+  }
 });
 
 function finalizeContactOperation(operationErr?: Error) {

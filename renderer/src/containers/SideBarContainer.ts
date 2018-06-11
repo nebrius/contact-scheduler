@@ -17,20 +17,25 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { connect } from 'react-redux';
 import { IAppState } from '../util/types';
-import { IAction, openContactsDialog, openCalendarsDialog } from '../actions/actions';
+import { IAction, navigateToHome, navigateToContacts, navigateToCalendars } from '../actions/actions';
 import { SideBar, IStateProps, IDispatchProps } from '../components/SideBar';
 
 function mapStateToProps(state: IAppState): IStateProps {
-  return {};
+  return {
+    activeTab: state.uiState.tab
+  };
 }
 
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
-    openContactsDialog() {
-      dispatch(openContactsDialog());
+    navigateToHome() {
+      dispatch(navigateToHome());
     },
-    openCalendarsDialog() {
-      dispatch(openCalendarsDialog());
+    navigateToContacts() {
+      dispatch(navigateToContacts());
+    },
+    navigateToCalendars() {
+      dispatch(navigateToCalendars());
     }
   };
 }

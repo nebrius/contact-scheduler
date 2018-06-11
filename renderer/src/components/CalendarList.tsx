@@ -31,7 +31,6 @@ export interface IStateProps {
 }
 
 export interface IDispatchProps {
-  closeCalendars: () => void;
   saveCalendar: (calendar: ICalendar) => void;
   deleteCalendar: (calendar: ICalendar) => void;
 }
@@ -70,33 +69,26 @@ export class CalendarList extends React.Component<IProps, IState> {
     }
     return (
       <div className="calendar-list">
-        <div className="calendar-list-header">
-          <button type="button" className="button calendar-list-close-button" onClick={this.props.closeCalendars}>
-            <i className="fas fa-arrow-circle-left 2x"></i>
-          </button>
-        </div>
-        <div className="calendar-list-contents">
-          <div className="calendar-list-contents-list-container">
-            <div className="calendar-list-contents-calendars">
-              {this.props.calendars.map((calendar) => (
-                <button
-                  className={classnames(
-                    'calendar-list-entry',
-                    'button ',
-                    { 'button-selected': calendar === this.state.selectedCalendar }
-                  )}
-                  type="button"
-                  key={calendar.id}
-                  onClick={() => this.openCalendar(calendar)}
-                >{calendar.displayName}</button>
-              ))}
-            </div>
-            <div className="calendar-list-contents-add">
-              {addButton}
-            </div>
+        <div className="calendar-list-contents-list-container">
+          <div className="calendar-list-contents-calendars">
+            {this.props.calendars.map((calendar) => (
+              <button
+                className={classnames(
+                  'calendar-list-entry',
+                  'button ',
+                  { 'button-selected': calendar === this.state.selectedCalendar }
+                )}
+                type="button"
+                key={calendar.id}
+                onClick={() => this.openCalendar(calendar)}
+              >{calendar.displayName}</button>
+            ))}
           </div>
-          {editCalendar}
+          <div className="calendar-list-contents-add">
+            {addButton}
+          </div>
         </div>
+        {editCalendar}
       </div>
     );
   }

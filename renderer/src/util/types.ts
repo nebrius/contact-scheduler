@@ -17,8 +17,10 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { ICalendar, IContact } from '../common/types';
 
+export type Tab = 'home' | 'contacts' | 'calendars';
+
 export interface IUIState {
-  dialog: undefined | 'contacts' | 'calendars';
+  tab: Tab;
 }
 
 export interface IAppState {

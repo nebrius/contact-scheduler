@@ -22,9 +22,7 @@ export interface IStateProps {
   contactQueue: IContact[];
 }
 
-export type IDispatchProps = {
-  openContactsDialog: () => void;
-}
+export type IDispatchProps = {} // No dispatch props (yet?)
 
 export type IProps = IStateProps & IDispatchProps;
 

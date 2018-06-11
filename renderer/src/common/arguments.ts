@@ -15,26 +15,18 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { connect } from 'react-redux';
-import { IAppState } from '../util/types';
-import { IAction, navigateToCalendars } from '../actions/actions';
-import { WeeklyCalendar, IStateProps, IDispatchProps } from '../components/WeeklyCalendar';
+import { ICalendar, IContact } from './types';
 
-function mapStateToProps(state: IAppState): IStateProps {
-  return {
-    calendars: []
-  };
+export interface IAppArguments {
+  calendars: ICalendar[];
+  contacts: IContact[];
+  dailyContactQueue: IContact[];
 }
 
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {
-    navigateToCalendars() {
-      dispatch(navigateToCalendars());
-    }
-  };
+export interface IUpdateCalendarsArguments {
+  calendars: ICalendar[];
 }
 
-export const WeeklyCalendarContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WeeklyCalendar);
+export interface IUpdateContactsArguments {
+  contacts: IContact[];
+}

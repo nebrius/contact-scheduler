@@ -22,10 +22,11 @@ import { WeeklyCalendarContainer } from '../containers/WeeklyCalendarContainer';
 import { ContactsListContainer } from '../containers/ContactsListContainer';
 import { CalendarsListContainer } from '../containers/CalendarsListContainer';
 import { SideBarContainer } from '../containers/SideBarContainer';
+import { Tab } from '../util/types';
 
 export interface IStateProps {
   hasContacts: boolean;
-  dialog: undefined | 'contacts' | 'calendars';
+  tab: Tab;
 }
 
 export type IDispatchProps = {} // No dispatch props (yet?)
@@ -33,30 +34,36 @@ export type IDispatchProps = {} // No dispatch props (yet?)
 export type IProps = IStateProps & IDispatchProps;
 
 export function AppRoot(props: IProps): JSX.Element {
-  switch (props.dialog) {
+  switch (props.tab) {
     case 'contacts':
       return (
         <div className="app-root-container">
+          <SideBarContainer />
           <ContactsListContainer />
         </div>
       );
     case 'calendars':
       return (
         <div className="app-root-container">
+          <SideBarContainer />
           <CalendarsListContainer />
         </div>
       );
+    default:
+      if (!props.hasContacts) {
+        return (
+          <div className="app-root-container">
+            <SideBarContainer />
+            <NoContactsCTAContainer />
+          </div>
+        );
+      }
+      return (
+        <div className="app-root-container">
+          <SideBarContainer />
+          <DailyContactQueueContainer />
+          <WeeklyCalendarContainer />
+        </div>
+      );
   }
-  if (!props.hasContacts) {
-    return (
-      <NoContactsCTAContainer />
-    );
-  }
-  return (
-    <div className="app-root-container">
-      <SideBarContainer />
-      <DailyContactQueueContainer />
-      <WeeklyCalendarContainer />
-    </div>
-  );
 }

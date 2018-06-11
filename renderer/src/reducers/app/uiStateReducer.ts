@@ -21,27 +21,27 @@ import { IUIState } from '../../util/types';
 
 export function createUIStateReducer(): Reducer<IUIState> {
   const DEFAULT_STATE: IUIState = {
-    dialog: undefined
+    tab: 'home'
   };
   return (state: IUIState | undefined, action: IAction) => {
     if (!state) {
       state = DEFAULT_STATE;
     }
     switch (action.type) {
-      case ACTIONS.OPEN_CONTACTS_DIALOG:
+      case ACTIONS.NAVIGATE_TO_HOME:
         return {
           ...state,
-          dialog: 'contacts'
+          tab: 'home'
         };
-        case ACTIONS.OPEN_CALENDARS_DIALOG:
-          return {
-            ...state,
-            dialog: 'calendars'
-          };
-      case ACTIONS.CLOSE_DIALOG:
+      case ACTIONS.NAVIGATE_TO_CONTACTS:
         return {
           ...state,
-          dialog: undefined
+          tab: 'contacts'
+        };
+      case ACTIONS.NAVIGATE_TO_CALENDARS:
+        return {
+          ...state,
+          tab: 'calendars'
         };
       default:
         return state;

@@ -21,13 +21,11 @@ export const ACTIONS = {
   UPDATE_CALENDARS: 'UPDATE_CALENDARS',
   UPDATE_CONTACTS: 'UPDATE_CONTACTS',
 
-  CLOSE_DIALOG: 'CLOSE_DIALOG',
+  NAVIGATE_TO_HOME: 'NAVIGATE_TO_HOME',
+  NAVIGATE_TO_CONTACTS: 'NAVIGATE_TO_CONTACTS',
+  NAVIGATE_TO_CALENDARS: 'NAVIGATE_TO_CALENDARS',
 
-  OPEN_CONTACTS_DIALOG: 'OPEN_CONTACTS_DIALOG',
-  EDIT_CONTACT: 'EDIT_CONTACT',
-
-  OPEN_CALENDARS_DIALOG: 'OPEN_CALENDARS_DIALOG',
-  SELECT_CALENDAR_SOURCE: 'SELECT_CALENDAR_SOURCE',
+  EDIT_CONTACT: 'EDIT_CONTACT'
 };
 
 export interface IAction {
@@ -56,17 +54,19 @@ export function updateContacts(contacts: IContact[]): IUpdateContactsAction {
   };
 }
 
-export function closeDialog(): IAction {
+// Actions for the home UI
+
+export function navigateToHome(): IAction {
   return {
-    type: ACTIONS.CLOSE_DIALOG
+    type: ACTIONS.NAVIGATE_TO_HOME
   };
 }
 
 // Actions for the edit contacts UI
 
-export function openContactsDialog(): IAction {
+export function navigateToContacts(): IAction {
   return {
-    type: ACTIONS.OPEN_CONTACTS_DIALOG
+    type: ACTIONS.NAVIGATE_TO_CONTACTS
   };
 }
 
@@ -82,9 +82,9 @@ export function editContact(contact: IContact): IEditContactAction {
 
 // Actions for the edit calendars UI
 
-export function openCalendarsDialog() {
+export function navigateToCalendars() {
   return {
-    type: ACTIONS.OPEN_CALENDARS_DIALOG
+    type: ACTIONS.NAVIGATE_TO_CALENDARS
   };
 }
 
@@ -94,6 +94,6 @@ export interface ISelectCalendarSourceAction extends IAction {
 export function selectCalendarSource(source: CalendarSource): ISelectCalendarSourceAction {
   return {
     source,
-    type: ACTIONS.SELECT_CALENDAR_SOURCE
+    type: ACTIONS.NAVIGATE_TO_CALENDARS
   };
 }

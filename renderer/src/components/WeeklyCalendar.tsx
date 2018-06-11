@@ -23,7 +23,7 @@ export interface IStateProps {
 }
 
 export type IDispatchProps = {
-  openCalendarsDialog: () => void;
+  navigateToCalendars: () => void;
 }
 
 export type IProps = IStateProps & IDispatchProps;

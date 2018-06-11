@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { connect } from 'react-redux';
 import { IAppState } from '../util/types';
-import { IAction, openContactsDialog } from '../actions/actions';
+import { IAction, navigateToContacts } from '../actions/actions';
 import { NoContactsCTA, IStateProps, IDispatchProps } from '../components/NoContactsCTA';
 
 function mapStateToProps(state: IAppState): IStateProps {
@@ -27,7 +27,7 @@ function mapStateToProps(state: IAppState): IStateProps {
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
     requestAddContact: () => {
-      dispatch(openContactsDialog());
+      dispatch(navigateToContacts());
     }
   };
 }

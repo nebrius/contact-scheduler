@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { IAppState } from '../util/types';
-import { IAction, closeDialog } from '../actions/actions';
+import { IAction } from '../actions/actions';
 import { CalendarList, IStateProps, IDispatchProps } from '../components/CalendarList';
 import { ICalendar } from '../common/types';
 import { MessageTypes, ISaveCalendarMessage, IDeleteCalendarMessage } from '../common/messages';
@@ -31,9 +31,6 @@ function mapStateToProps(state: IAppState): IStateProps {
 
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
-    closeCalendars() {
-      dispatch(closeDialog());
-    },
     saveCalendar(calendar: ICalendar) {
       const args: ISaveCalendarMessage = { calendar };
       ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(args));

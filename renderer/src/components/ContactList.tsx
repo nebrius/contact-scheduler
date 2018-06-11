@@ -31,7 +31,6 @@ export interface IStateProps {
 }
 
 export interface IDispatchProps {
-  closeContacts: () => void;
   saveContact: (contact: IContact) => void;
   deleteContact: (contact: IContact) => void;
 }
@@ -70,33 +69,26 @@ export class ContactList extends React.Component<IProps, IState> {
     }
     return (
       <div className="contact-list">
-        <div className="contact-list-header">
-          <button type="button" className="button contact-list-close-button" onClick={this.props.closeContacts}>
-            <i className="fas fa-arrow-circle-left 2x"></i>
-          </button>
-        </div>
-        <div className="contact-list-contents">
-          <div className="contact-list-contents-list-container">
-            <div className="contact-list-contents-contacts">
-              {this.props.contacts.map((contact) => (
-                <button
-                  className={classnames(
-                    'contact-list-entry',
-                    'button ',
-                    { 'button-selected': contact === this.state.selectedContact }
-                  )}
-                  type="button"
-                  key={contact.id}
-                  onClick={() => this.openContact(contact)}
-                >{contact.name}</button>
-              ))}
-            </div>
-            <div className="contact-list-contents-add">
-              {addButton}
-            </div>
+        <div className="contact-list-contents-list-container">
+          <div className="contact-list-contents-contacts">
+            {this.props.contacts.map((contact) => (
+              <button
+                className={classnames(
+                  'contact-list-entry',
+                  'button ',
+                  { 'button-selected': contact === this.state.selectedContact }
+                )}
+                type="button"
+                key={contact.id}
+                onClick={() => this.openContact(contact)}
+              >{contact.name}</button>
+            ))}
           </div>
-          {editContact}
+          <div className="contact-list-contents-add">
+            {addButton}
+          </div>
         </div>
+        {editContact}
       </div>
     );
   }

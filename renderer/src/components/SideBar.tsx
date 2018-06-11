@@ -16,23 +16,34 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as React from 'react';
+import * as classnames from 'classnames';
+import { Tab } from '../util/types';
 
-export interface IStateProps {} // No state props (yet?)
+export interface IStateProps {
+  activeTab: Tab;
+}
 
 export type IDispatchProps = {
-  openContactsDialog: () => void;
-  openCalendarsDialog: () => void;
+  navigateToHome: () => void;
+  navigateToContacts: () => void;
+  navigateToCalendars: () => void;
 }
 
 export type IProps = IStateProps & IDispatchProps;
 
 export function SideBar(props: IProps): JSX.Element {
+  function getClassnames(tab: Tab): string {
+    return classnames('button', { 'button-selected': props.activeTab === tab });
+  }
   return (
     <div className="side-bar-container">
-      <button type="button" className="button" onClick={props.openContactsDialog}>
+      <button type="button" className={getClassnames('home')} onClick={props.navigateToHome}>
+        <i className="fas fa-home fa-2x"></i>
+      </button>
+      <button type="button" className={getClassnames('contacts')} onClick={props.navigateToContacts}>
         <i className="fas fa-address-card fa-2x"></i>
       </button>
-      <button type="button" className="button" onClick={props.openCalendarsDialog}>
+      <button type="button" className={getClassnames('calendars')} onClick={props.navigateToCalendars}>
         <i className="fas fa-calendar-alt fa-2x"></i>
       </button>
     </div>
