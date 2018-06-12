@@ -15,20 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export type CB = (err: Error | undefined) => void;
-export type CBWithResult<Result> = (err: Error | undefined, result: Result | undefined) => void;
+import { CB } from './common/types';
 
-export type CalendarSource = 'office365' | 'google' | undefined;
-
-export interface ICalendar {
-  id: number;
-  displayName: string;
-  source: CalendarSource;
-}
-
-export interface IContact {
-  id: number;
-  name: string;
-  frequency: 'weekly' | 'monthly' | 'quarterly';
-  lastContacted: number;
+export function init(cb: CB): void {
+  setImmediate(cb);
 }

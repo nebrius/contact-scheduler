@@ -42,6 +42,7 @@ import {
   updateContact,
   deleteContact
 } from './db';
+import { init as initScheduler } from './scheduler';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -62,6 +63,7 @@ function createWindow(args: IAppArguments) {
 app.on('ready', () => {
   series([
     (next: CB) => initDB(next),
+    (next: CB) => initScheduler(next),
     (next: CB) => getCalendars(next),
     (next: CB) => getContacts(next)
   ], (err, results) => {
@@ -70,8 +72,8 @@ app.on('ready', () => {
       process.exit(-1);
       return;
     }
-    const calendars: ICalendar[] = results[1] as any;
-    const contacts: IContact[] = results[2] as any;
+    const calendars: ICalendar[] = results[2] as any;
+    const contacts: IContact[] = results[3] as any;
     createWindow({
       calendars,
       contacts,

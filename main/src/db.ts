@@ -24,6 +24,7 @@ import { ICalendar, IContact, CB, CBWithResult } from './common/types';
 
 const CALENDARS_TABLE_NAME = 'calendars';
 const CONTACTS_TABLE_NAME = 'contacts';
+const SCHEDULE_TABLE_NAME = 'schedule';
 
 const dbPath = join(app.getPath('userData'), 'contact-scheduler-db.sqlite3');
 let db: Database;
@@ -39,7 +40,15 @@ const CONTACT_SCHEMA =
 `CREATE TABLE ${CONTACTS_TABLE_NAME}(
   id INTEGER PRIMARY KEY,
   name text NOT NULL,
-  frequency text NOT NULL
+  frequency text NOT NULL,
+  lastContacted INTEGER NOT NULL
+)`;
+
+const SCHEDULE_SCHEMA =
+`CREATE TABLE ${SCHEDULE_TABLE_NAME}(
+  id INTEGER PRIMARY KEY,
+  contactOrder INTEGER NOT NULL,
+  contactId INTEGER NOT NULL
 )`;
 
 export function init(cb: CB): void {
@@ -51,10 +60,12 @@ export function init(cb: CB): void {
       return;
     }
     if (isNewDB) {
+      // Need to slice off extra params so can't pass cb or next directly here
       series([
-        (next) => db.run(CALENDAR_SCHEMA, next),
-        (next) => db.run(CONTACT_SCHEMA, next)
-      ], (err?: Error) => cb(err)); // Need to slice off extra params so can't pass cb directly
+        (next) => db.run(CALENDAR_SCHEMA, (err?: Error) => next(err)),
+        (next) => db.run(CONTACT_SCHEMA, (err?: Error) => next(err)),
+        (next) => db.run(SCHEDULE_SCHEMA, (err?: Error) => next(err))
+      ], (err?: Error) => cb(err));
     } else {
       cb(undefined);
     }
@@ -62,13 +73,7 @@ export function init(cb: CB): void {
 }
 
 export function getCalendars(cb: CBWithResult<ICalendar[]>): void {
-  db.all(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, [], (err, rows) => {
-    if (err) {
-      cb(err, undefined);
-      return;
-    }
-    cb(undefined, rows);
-  });
+  db.all(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, [], cb);
 }
 
 export function createCalendar(calendar: ICalendar, cb: CB): void {
@@ -87,13 +92,7 @@ export function deleteCalendar(calendar: ICalendar, cb: CB): void {
 }
 
 export function getContacts(cb: CBWithResult<IContact[]>): void {
-  db.all(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, [], (err, rows) => {
-    if (err) {
-      cb(err, undefined);
-      return;
-    }
-    cb(undefined, rows);
-  });
+  db.all(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, [], cb);
 }
 
 export function createContact(contact: IContact, cb: CB): void {

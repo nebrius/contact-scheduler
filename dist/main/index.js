@@ -21,6 +21,7 @@ var async_1 = require("async");
 var electron_1 = require("electron");
 var messages_1 = require("./common/messages");
 var db_1 = require("./db");
+var scheduler_1 = require("./scheduler");
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
@@ -38,6 +39,7 @@ function createWindow(args) {
 electron_1.app.on('ready', function () {
     async_1.series([
         function (next) { return db_1.init(next); },
+        function (next) { return scheduler_1.init(next); },
         function (next) { return db_1.getCalendars(next); },
         function (next) { return db_1.getContacts(next); }
     ], function (err, results) {
@@ -46,8 +48,8 @@ electron_1.app.on('ready', function () {
             process.exit(-1);
             return;
         }
-        var calendars = results[1];
-        var contacts = results[2];
+        var calendars = results[2];
+        var contacts = results[3];
         createWindow({
             calendars: calendars,
             contacts: contacts,
