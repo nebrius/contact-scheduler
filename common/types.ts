@@ -30,4 +30,5 @@ export interface IContact {
   id: number;
   name: string;
   frequency: 'weekly' | 'monthly' | 'quarterly';
+  lastContacted: number;
 }
