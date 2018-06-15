@@ -23,7 +23,8 @@ import * as classnames from 'classnames';
 const NEW_CONTACT_TEMPLATE: IContact = {
   name: '',
   frequency: 'weekly',
-  id: NaN
+  id: NaN,
+  lastContacted: 1
 };
 
 export interface IStateProps {

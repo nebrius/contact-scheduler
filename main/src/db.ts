@@ -17,8 +17,9 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { EventEmitter } from 'events';
 import { app } from 'electron';
-import { series } from 'async';
+import { series, waterfall } from 'async';
 import { verbose, Database } from 'sqlite3';
 import { ICalendar, IContact, CB, CBWithResult } from './common/types';
 
@@ -51,6 +52,20 @@ const SCHEDULE_SCHEMA =
   contactId INTEGER NOT NULL
 )`;
 
+let calendars: ICalendar[] = [];
+let contacts: IContact[] = [];
+
+class DataSource extends EventEmitter {
+  public getCalendars() {
+    return [ ...calendars ];
+  }
+  public getContacts() {
+    return [ ...contacts ];
+  }
+}
+
+export const dataSource = new DataSource();
+
 export function init(cb: CB): void {
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
@@ -77,18 +92,42 @@ export function getCalendars(cb: CBWithResult<ICalendar[]>): void {
 }
 
 export function createCalendar(calendar: ICalendar, cb: CB): void {
-  db.run(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
-    [ calendar.displayName, calendar.source ], cb);
+  waterfall([
+    (next: CB) => db.run(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
+      [ calendar.displayName, calendar.source ], next),
+    (next: CB) => getCalendars(next),
+    (newCalendars: ICalendar[], next: CB) => {
+      calendars = newCalendars;
+      dataSource.emit('calendarsUpdated', calendars);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function updateCalendar(calendar: ICalendar, cb: CB): void {
-  db.run(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
-    [ calendar.displayName, calendar.source, calendar.id ], cb);
+  waterfall([
+    (next: CB) => db.run(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
+      [ calendar.displayName, calendar.source, calendar.id ], next),
+    (next: CB) => getCalendars(next),
+    (newCalendars: ICalendar[], next: CB) => {
+      calendars = newCalendars;
+      dataSource.emit('calendarsUpdated', calendars);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function deleteCalendar(calendar: ICalendar, cb: CB): void {
-  db.run(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`,
-    [ calendar.id ], cb);
+  waterfall([
+    (next: CB) => db.run(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`,
+      [ calendar.id ], next),
+    (next: CB) => getCalendars(next),
+    (newCalendars: ICalendar[], next: CB) => {
+      calendars = newCalendars;
+      dataSource.emit('calendarsUpdated', calendars);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function getContacts(cb: CBWithResult<IContact[]>): void {
@@ -96,16 +135,40 @@ export function getContacts(cb: CBWithResult<IContact[]>): void {
 }
 
 export function createContact(contact: IContact, cb: CB): void {
-  db.run(`INSERT INTO ${CONTACTS_TABLE_NAME}(name, frequency) VALUES(?, ?)`,
-    [ contact.name, contact.frequency ], cb);
+  waterfall([
+    (next: CB) => db.run(`INSERT INTO ${CONTACTS_TABLE_NAME}(name, frequency, lastContacted) VALUES(?, ?, 0)`,
+      [ contact.name, contact.frequency ], next),
+    (next: CB) => getContacts(next),
+    (newContacts: IContact[], next: CB) => {
+      contacts = newContacts;
+      dataSource.emit('contactsUpdated', contacts);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function updateContact(contact: IContact, cb: CB): void {
-  db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
-    [ contact.name, contact.frequency, contact.id ], cb);
+  waterfall([
+    (next: CB) => db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
+      [ contact.name, contact.frequency, contact.id ], next),
+    (next: CB) => getContacts(next),
+    (newContacts: IContact[], next: CB) => {
+      contacts = newContacts;
+      dataSource.emit('contactsUpdated', contacts);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function deleteContact(contact: IContact, cb: CB): void {
-  db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
-    [ contact.id ], cb);
+  waterfall([
+    (next: CB) => db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
+      [ contact.id ], next),
+    (next: CB) => getContacts(next),
+    (newContacts: IContact[], next: CB) => {
+      contacts = newContacts;
+      dataSource.emit('contactsUpdated', contacts);
+      next(undefined);
+    }
+  ], cb);
 }

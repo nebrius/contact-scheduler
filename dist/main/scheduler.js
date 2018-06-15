@@ -16,7 +16,14 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
+var db_1 = require("./db");
 function init(cb) {
+    db_1.dataSource.on('calendarsUpdated', function (calendars) {
+        console.log(calendars);
+    });
+    db_1.dataSource.on('contactsUpdated', function (contacts) {
+        console.log(contacts);
+    });
     setImmediate(cb);
 }
 exports.init = init;

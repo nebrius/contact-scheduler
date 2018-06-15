@@ -16,7 +16,14 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { CB } from './common/types';
+import { dataSource } from './db';
 
 export function init(cb: CB): void {
+  dataSource.on('calendarsUpdated', (calendars) => {
+    console.log(calendars);
+  });
+  dataSource.on('contactsUpdated', (contacts) => {
+    console.log(contacts);
+  });
   setImmediate(cb);
 }
