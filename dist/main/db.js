@@ -25,6 +25,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var path_1 = require("path");
@@ -42,6 +50,10 @@ var CONTACT_SCHEMA = "CREATE TABLE " + CONTACTS_TABLE_NAME + "(\n  id INTEGER PR
 var SCHEDULE_SCHEMA = "CREATE TABLE " + SCHEDULE_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  queue text NOT NULL,\n  lastUpdated INTEGER NOT NULL\n)";
 var calendars = [];
 var contacts = [];
+var queue = {
+    contactQueue: [],
+    lastUpdated: 0
+};
 var DataSource = /** @class */ (function (_super) {
     __extends(DataSource, _super);
     function DataSource() {
@@ -53,6 +65,9 @@ var DataSource = /** @class */ (function (_super) {
     DataSource.prototype.getContacts = function () {
         return contacts.slice();
     };
+    DataSource.prototype.getQueue = function () {
+        return __assign({}, queue);
+    };
     return DataSource;
 }(events_1.EventEmitter));
 exports.dataSource = new DataSource();
@@ -60,133 +75,119 @@ function init(cb) {
     var isNewDB = !fs_1.existsSync(dbPath);
     var sqlite3 = sqlite3_1.verbose();
     console.log("Loading database from " + dbPath);
-    db = new sqlite3.Database(dbPath, function (connectErr) {
-        if (connectErr) {
-            cb(connectErr);
-            return;
-        }
-        if (isNewDB) {
+    async_1.waterfall([
+        function (next) { return (db = new sqlite3.Database(dbPath, next)); },
+        function (next) {
+            if (!isNewDB) {
+                next(undefined);
+                return;
+            }
             console.log("New database detected, initializing");
             // Need to slice off extra params so can't pass cb or next directly here
             async_1.series([
-                function (next) { return db.run(CALENDAR_SCHEMA, function (err) { return next(err); }); },
-                function (next) { return db.run(CONTACT_SCHEMA, function (err) { return next(err); }); },
-                function (next) { return db.run(SCHEDULE_SCHEMA, function (err) { return next(err); }); },
-                function (next) { return db.run("INSERT INTO " + SCHEDULE_TABLE_NAME + "(queue, lastUpdated) VALUES(?, 0)", ['[]'], function (err) { return next(err); }); }
-            ], function (err) { return cb(err); });
-        }
-        else {
-            cb(undefined);
-        }
-    });
+                function (nextInit) { return db.run(CALENDAR_SCHEMA, function (err) { return nextInit(err); }); },
+                function (nextInit) { return db.run(CONTACT_SCHEMA, function (err) { return nextInit(err); }); },
+                function (nextInit) { return db.run(SCHEDULE_SCHEMA, function (err) { return nextInit(err); }); },
+                function (nextInit) { return db.run("INSERT INTO " + SCHEDULE_TABLE_NAME + "(queue, lastUpdated) VALUES(?, 0)", ['[]'], function (err) { return nextInit(err); }); }
+            ], function (err) { return next(err); });
+        },
+        function (next) { return refreshContacts(next); },
+        function (next) { return refreshCalendars(next); },
+        function (next) { return refreshQueue(next); }
+    ], cb);
 }
 exports.init = init;
-function getCalendars(cb) {
-    db.all("SELECT * FROM " + CALENDARS_TABLE_NAME, [], cb);
-}
-exports.getCalendars = getCalendars;
-function createCalendar(calendar, cb) {
+function refreshCalendars(cb) {
     async_1.waterfall([
-        function (next) { return db.run("INSERT INTO " + CALENDARS_TABLE_NAME + "(displayName, source) VALUES(?, ?)", [calendar.displayName, calendar.source], next); },
-        function (next) { return getCalendars(next); },
+        function (next) { return db.all("SELECT * FROM " + CALENDARS_TABLE_NAME, [], next); },
         function (newCalendars, next) {
             calendars = newCalendars;
             exports.dataSource.emit('calendarsUpdated', calendars);
             next(undefined);
         }
+    ], cb);
+}
+function createCalendar(calendar, cb) {
+    async_1.waterfall([
+        function (next) { return db.run("INSERT INTO " + CALENDARS_TABLE_NAME + "(displayName, source) VALUES(?, ?)", [calendar.displayName, calendar.source], next); },
+        function (next) { return refreshCalendars(next); }
     ], cb);
 }
 exports.createCalendar = createCalendar;
 function updateCalendar(calendar, cb) {
     async_1.waterfall([
         function (next) { return db.run("UPDATE " + CALENDARS_TABLE_NAME + " SET displayName = ?, source = ? WHERE id = ?", [calendar.displayName, calendar.source, calendar.id], next); },
-        function (next) { return getCalendars(next); },
-        function (newCalendars, next) {
-            calendars = newCalendars;
-            exports.dataSource.emit('calendarsUpdated', calendars);
-            next(undefined);
-        }
+        function (next) { return refreshCalendars(next); }
     ], cb);
 }
 exports.updateCalendar = updateCalendar;
 function deleteCalendar(calendar, cb) {
     async_1.waterfall([
         function (next) { return db.run("DELETE FROM " + CALENDARS_TABLE_NAME + " WHERE id = ?", [calendar.id], next); },
-        function (next) { return getCalendars(next); },
-        function (newCalendars, next) {
-            calendars = newCalendars;
-            exports.dataSource.emit('calendarsUpdated', calendars);
-            next(undefined);
-        }
+        function (next) { return refreshCalendars(next); }
     ], cb);
 }
 exports.deleteCalendar = deleteCalendar;
-function getContacts(cb) {
-    db.all("SELECT * FROM " + CONTACTS_TABLE_NAME, [], cb);
-}
-exports.getContacts = getContacts;
-function createContact(contact, cb) {
+function refreshContacts(cb) {
     async_1.waterfall([
-        function (next) { return db.run("INSERT INTO " + CONTACTS_TABLE_NAME + "(name, frequency, lastContacted) VALUES(?, ?, 0)", [contact.name, contact.frequency], next); },
-        function (next) { return getContacts(next); },
+        function (next) { return db.all("SELECT * FROM " + CONTACTS_TABLE_NAME, [], next); },
         function (newContacts, next) {
             contacts = newContacts;
             exports.dataSource.emit('contactsUpdated', contacts);
             next(undefined);
         }
+    ], cb);
+}
+function createContact(contact, cb) {
+    async_1.waterfall([
+        function (next) { return db.run("INSERT INTO " + CONTACTS_TABLE_NAME + "(name, frequency, lastContacted) VALUES(?, ?, 0)", [contact.name, contact.frequency], next); },
+        function (next) { return refreshContacts(next); }
     ], cb);
 }
 exports.createContact = createContact;
 function updateContact(contact, cb) {
     async_1.waterfall([
         function (next) { return db.run("UPDATE " + CONTACTS_TABLE_NAME + " SET name = ?, frequency = ? WHERE id = ?", [contact.name, contact.frequency, contact.id], next); },
-        function (next) { return getContacts(next); },
-        function (newContacts, next) {
-            contacts = newContacts;
-            exports.dataSource.emit('contactsUpdated', contacts);
-            next(undefined);
-        }
+        function (next) { return refreshContacts(next); }
     ], cb);
 }
 exports.updateContact = updateContact;
 function deleteContact(contact, cb) {
     async_1.waterfall([
         function (next) { return db.run("DELETE FROM " + CONTACTS_TABLE_NAME + " WHERE id = ?", [contact.id], next); },
-        function (next) { return getContacts(next); },
-        function (newContacts, next) {
-            contacts = newContacts;
-            exports.dataSource.emit('contactsUpdated', contacts);
+        function (next) { return refreshContacts(next); }
+    ], cb);
+}
+exports.deleteContact = deleteContact;
+function refreshQueue(cb) {
+    async_1.waterfall([
+        function (next) { return db.get("SELECT * FROM " + SCHEDULE_TABLE_NAME, [], next); },
+        function (result, next) {
+            var ids = JSON.parse(result.queue);
+            var contactQueue = ids.map(function (id) {
+                for (var _i = 0, contacts_1 = contacts; _i < contacts_1.length; _i++) {
+                    var contact = contacts_1[_i];
+                    if (contact.id === id) {
+                        return contact;
+                    }
+                }
+                throw new Error("Internal error: could not locate contact with id " + id);
+            });
+            queue = {
+                contactQueue: contactQueue,
+                lastUpdated: result.lastUpdated
+            };
+            exports.dataSource.emit('queueUpdated', queue);
             next(undefined);
         }
     ], cb);
 }
-exports.deleteContact = deleteContact;
-function getWeeklyQueue(cb) {
-    db.get("SELECT * FROM " + SCHEDULE_TABLE_NAME, [], function (err, result) {
-        if (err) {
-            cb(err, undefined);
-            return;
-        }
-        var ids = JSON.parse(result.queue);
-        var queue = ids.map(function (id) {
-            for (var _i = 0, contacts_1 = contacts; _i < contacts_1.length; _i++) {
-                var contact = contacts_1[_i];
-                if (contact.id === id) {
-                    return contact;
-                }
-            }
-            throw new Error("Internal error: could not locate contact with id " + id);
-        });
-        cb(undefined, {
-            contactQueue: queue,
-            lastUpdated: result.lastUpdated
-        });
-    });
-}
-exports.getWeeklyQueue = getWeeklyQueue;
-function setWeeklyQueue(queue, cb) {
-    var ids = JSON.stringify(queue.map(function (contact) { return contact.id; }));
-    db.run("UPDATE " + SCHEDULE_TABLE_NAME + " SET queue = ?, lastUpdated = ?", [ids, Date.now()], cb);
+function setWeeklyQueue(contactQueue, cb) {
+    var ids = JSON.stringify(contactQueue.map(function (contact) { return contact.id; }));
+    async_1.waterfall([
+        function (next) { return db.run("UPDATE " + SCHEDULE_TABLE_NAME + " SET queue = ?, lastUpdated = ?", [ids, Date.now()], next); },
+        function (next) { return refreshQueue(next); }
+    ], cb);
 }
 exports.setWeeklyQueue = setWeeklyQueue;
 //# sourceMappingURL=db.js.map

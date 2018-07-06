@@ -39,20 +39,16 @@ function createWindow(args) {
 electron_1.app.on('ready', function () {
     async_1.series([
         function (next) { return db_1.init(next); },
-        function (next) { return scheduler_1.init(next); },
-        function (next) { return db_1.getCalendars(next); },
-        function (next) { return db_1.getContacts(next); }
-    ], function (err, results) {
-        if (err || !results) {
+        function (next) { return scheduler_1.init(next); }
+    ], function (err) {
+        if (err) {
             console.error(err);
             process.exit(-1);
             return;
         }
-        var calendars = results[2];
-        var contacts = results[3];
         createWindow({
-            calendars: calendars,
-            contacts: contacts,
+            calendars: db_1.dataSource.getCalendars(),
+            contacts: db_1.dataSource.getContacts(),
             dailyContactQueue: []
         });
         console.log('running');
@@ -69,22 +65,10 @@ electron_1.app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-        async_1.series([
-            function (next) { return db_1.getCalendars(next); },
-            function (next) { return db_1.getContacts(next); }
-        ], function (err, results) {
-            if (err || !results) {
-                console.error(err);
-                process.exit(-1);
-                return;
-            }
-            var calendars = results[1];
-            var contacts = results[2];
-            createWindow({
-                calendars: calendars,
-                contacts: contacts,
-                dailyContactQueue: []
-            });
+        createWindow({
+            calendars: db_1.dataSource.getCalendars(),
+            contacts: db_1.dataSource.getContacts(),
+            dailyContactQueue: []
         });
     }
 });
@@ -93,18 +77,12 @@ function finalizeContactOperation(operationErr) {
         console.error(operationErr);
         return;
     }
-    db_1.getContacts(function (getErr, contacts) {
-        if (getErr) {
-            console.error(getErr);
-            return;
-        }
-        if (mainWindow && contacts) {
-            var args = {
-                contacts: contacts
-            };
-            mainWindow.webContents.send(messages_1.MessageTypes.UpdateContacts, JSON.stringify(args));
-        }
-    });
+    if (mainWindow) {
+        var args = {
+            contacts: db_1.dataSource.getContacts()
+        };
+        mainWindow.webContents.send(messages_1.MessageTypes.UpdateContacts, JSON.stringify(args));
+    }
 }
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, function (event, arg) {
     var parsedArgs = JSON.parse(arg);
@@ -124,18 +102,12 @@ function finalizeCalendarOperation(operationErr) {
         console.error(operationErr);
         return;
     }
-    db_1.getCalendars(function (getErr, calendars) {
-        if (getErr) {
-            console.error(getErr);
-            return;
-        }
-        if (mainWindow && calendars) {
-            var args = {
-                calendars: calendars
-            };
-            mainWindow.webContents.send(messages_1.MessageTypes.UpdateCalendars, JSON.stringify(args));
-        }
-    });
+    if (mainWindow) {
+        var args = {
+            calendars: db_1.dataSource.getCalendars()
+        };
+        mainWindow.webContents.send(messages_1.MessageTypes.UpdateCalendars, JSON.stringify(args));
+    }
 }
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, function (event, arg) {
     var parsedArgs = JSON.parse(arg);

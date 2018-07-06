@@ -25,5 +25,8 @@ export function init(cb: CB): void {
   dataSource.on('contactsUpdated', (contacts) => {
     console.log(contacts);
   });
+  dataSource.on('queueUpdated', (queue) => {
+    console.log(queue);
+  });
   setImmediate(cb);
 }

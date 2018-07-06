@@ -24,6 +24,9 @@ function init(cb) {
     db_1.dataSource.on('contactsUpdated', function (contacts) {
         console.log(contacts);
     });
+    db_1.dataSource.on('queueUpdated', function (queue) {
+        console.log(queue);
+    });
     setImmediate(cb);
 }
 exports.init = init;

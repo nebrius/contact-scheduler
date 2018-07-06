@@ -21,7 +21,7 @@ import { EventEmitter } from 'events';
 import { app } from 'electron';
 import { series, waterfall } from 'async';
 import { verbose, Database } from 'sqlite3';
-import { ICalendar, IContact, CB, CBWithResult } from './common/types';
+import { ICalendar, IContact, CB } from './common/types';
 
 const CALENDARS_TABLE_NAME = 'calendars';
 const CONTACTS_TABLE_NAME = 'contacts';
@@ -52,6 +52,12 @@ const SCHEDULE_SCHEMA =
   lastUpdated INTEGER NOT NULL
 )`;
 
+interface IRawQueue {
+  id: number;
+  queue: string;
+  lastUpdated: number;
+}
+
 interface IQueue {
   contactQueue: IContact[];
   lastUpdated: number;
@@ -59,6 +65,10 @@ interface IQueue {
 
 let calendars: ICalendar[] = [];
 let contacts: IContact[] = [];
+let queue: IQueue = {
+  contactQueue: [],
+  lastUpdated: 0
+};
 
 class DataSource extends EventEmitter {
   public getCalendars() {
@@ -66,6 +76,9 @@ class DataSource extends EventEmitter {
   }
   public getContacts() {
     return [ ...contacts ];
+  }
+  public getQueue() {
+    return { ...queue };
   }
 }
 
@@ -75,41 +88,45 @@ export function init(cb: CB): void {
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
   console.log(`Loading database from ${dbPath}`);
-  db = new sqlite3.Database(dbPath, (connectErr) => {
-    if (connectErr) {
-      cb(connectErr);
-      return;
-    }
-    if (isNewDB) {
+  waterfall([
+    (next: (err: Error | null) => void) => (db = new sqlite3.Database(dbPath, next)),
+    (next: CB) => {
+      if (!isNewDB) {
+        next(undefined);
+        return;
+      }
       console.log(`New database detected, initializing`);
       // Need to slice off extra params so can't pass cb or next directly here
       series([
-        (next) => db.run(CALENDAR_SCHEMA, (err?: Error) => next(err)),
-        (next) => db.run(CONTACT_SCHEMA, (err?: Error) => next(err)),
-        (next) => db.run(SCHEDULE_SCHEMA, (err?: Error) => next(err)),
-        (next) => db.run(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ],
-          (err?: Error) => next(err))
-      ], (err?: Error) => cb(err));
-    } else {
-      cb(undefined);
-    }
-  });
+        (nextInit) => db.run(CALENDAR_SCHEMA, (err?: Error) => nextInit(err)),
+        (nextInit) => db.run(CONTACT_SCHEMA, (err?: Error) => nextInit(err)),
+        (nextInit) => db.run(SCHEDULE_SCHEMA, (err?: Error) => nextInit(err)),
+        (nextInit) => db.run(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ],
+          (err?: Error) => nextInit(err))
+      ], (err?: Error) => next(err));
+    },
+    (next: CB) => refreshContacts(next),
+    (next: CB) => refreshCalendars(next),
+    (next: CB) => refreshQueue(next)
+  ], cb);
 }
 
-export function getCalendars(cb: CBWithResult<ICalendar[]>): void {
-  db.all(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, [], cb);
+function refreshCalendars(cb: CB): void {
+  waterfall([
+    (next: CB) =>  db.all(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, [], next),
+    (newCalendars: ICalendar[], next: CB) => {
+      calendars = newCalendars;
+      dataSource.emit('calendarsUpdated', calendars);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function createCalendar(calendar: ICalendar, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
       [ calendar.displayName, calendar.source ], next),
-    (next: CB) => getCalendars(next),
-    (newCalendars: ICalendar[], next: CB) => {
-      calendars = newCalendars;
-      dataSource.emit('calendarsUpdated', calendars);
-      next(undefined);
-    }
+    (next: CB) => refreshCalendars(next)
   ], cb);
 }
 
@@ -117,12 +134,7 @@ export function updateCalendar(calendar: ICalendar, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
       [ calendar.displayName, calendar.source, calendar.id ], next),
-    (next: CB) => getCalendars(next),
-    (newCalendars: ICalendar[], next: CB) => {
-      calendars = newCalendars;
-      dataSource.emit('calendarsUpdated', calendars);
-      next(undefined);
-    }
+    (next: CB) => refreshCalendars(next)
   ], cb);
 }
 
@@ -130,29 +142,26 @@ export function deleteCalendar(calendar: ICalendar, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`,
       [ calendar.id ], next),
-    (next: CB) => getCalendars(next),
-    (newCalendars: ICalendar[], next: CB) => {
-      calendars = newCalendars;
-      dataSource.emit('calendarsUpdated', calendars);
-      next(undefined);
-    }
+    (next: CB) => refreshCalendars(next)
   ], cb);
 }
 
-export function getContacts(cb: CBWithResult<IContact[]>): void {
-  db.all(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, [], cb);
+function refreshContacts(cb: CB): void {
+  waterfall([
+    (next: CB) => db.all(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, [], next),
+    (newContacts: IContact[], next: CB) => {
+      contacts = newContacts;
+      dataSource.emit('contactsUpdated', contacts);
+      next(undefined);
+    }
+  ], cb);
 }
 
 export function createContact(contact: IContact, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`INSERT INTO ${CONTACTS_TABLE_NAME}(name, frequency, lastContacted) VALUES(?, ?, 0)`,
       [ contact.name, contact.frequency ], next),
-    (next: CB) => getContacts(next),
-    (newContacts: IContact[], next: CB) => {
-      contacts = newContacts;
-      dataSource.emit('contactsUpdated', contacts);
-      next(undefined);
-    }
+    (next: CB) => refreshContacts(next)
   ], cb);
 }
 
@@ -160,12 +169,7 @@ export function updateContact(contact: IContact, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
       [ contact.name, contact.frequency, contact.id ], next),
-    (next: CB) => getContacts(next),
-    (newContacts: IContact[], next: CB) => {
-      contacts = newContacts;
-      dataSource.emit('contactsUpdated', contacts);
-      next(undefined);
-    }
+    (next: CB) => refreshContacts(next)
   ], cb);
 }
 
@@ -173,38 +177,37 @@ export function deleteContact(contact: IContact, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
       [ contact.id ], next),
-    (next: CB) => getContacts(next),
-    (newContacts: IContact[], next: CB) => {
-      contacts = newContacts;
-      dataSource.emit('contactsUpdated', contacts);
+    (next: CB) => refreshContacts(next)
+  ], cb);
+}
+
+function refreshQueue(cb: CB): void {
+  waterfall([
+    (next: CB) => db.get(`SELECT * FROM ${SCHEDULE_TABLE_NAME}`, [], next),
+    (result: IRawQueue, next: CB) => {
+      const ids = JSON.parse(result.queue);
+      const contactQueue: IContact[] = ids.map((id: number) => {
+        for (const contact of contacts) {
+          if (contact.id === id) {
+            return contact;
+          }
+        }
+        throw new Error(`Internal error: could not locate contact with id ${id}`);
+      });
+      queue = {
+        contactQueue,
+        lastUpdated: result.lastUpdated
+      };
+      dataSource.emit('queueUpdated', queue);
       next(undefined);
     }
   ], cb);
 }
 
-export function getWeeklyQueue(cb: CBWithResult<IQueue>): void {
-  db.get(`SELECT * FROM ${SCHEDULE_TABLE_NAME}`, [], (err, result) => {
-    if (err) {
-      cb(err, undefined);
-      return;
-    }
-    const ids = JSON.parse(result.queue);
-    const queue: IContact[] = ids.map((id: number) => {
-      for (const contact of contacts) {
-        if (contact.id === id) {
-          return contact;
-        }
-      }
-      throw new Error(`Internal error: could not locate contact with id ${id}`);
-    });
-    cb(undefined, {
-      contactQueue: queue,
-      lastUpdated: result.lastUpdated
-    });
-  });
-}
-
-export function setWeeklyQueue(queue: IContact[], cb: CB): void {
-  const ids = JSON.stringify(queue.map((contact) => contact.id));
-  db.run(`UPDATE ${SCHEDULE_TABLE_NAME} SET queue = ?, lastUpdated = ?`, [ ids, Date.now() ], cb);
+export function setWeeklyQueue(contactQueue: IContact[], cb: CB): void {
+  const ids = JSON.stringify(contactQueue.map((contact) => contact.id));
+  waterfall([
+    (next: CB) => db.run(`UPDATE ${SCHEDULE_TABLE_NAME} SET queue = ?, lastUpdated = ?`, [ ids, Date.now() ], next),
+    (next: CB) => refreshQueue(next)
+  ], cb);
 }

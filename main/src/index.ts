@@ -25,7 +25,7 @@ import {
   ISaveCalendarMessage,
   IDeleteCalendarMessage
 } from './common/messages';
-import { ICalendar, IContact, CB } from './common/types';
+import { CB } from './common/types';
 import {
   IAppArguments,
   IUpdateCalendarsArguments,
@@ -33,14 +33,13 @@ import {
 } from './common/arguments';
 import {
   init as initDB,
-  getCalendars,
   createCalendar,
   updateCalendar,
   deleteCalendar,
-  getContacts,
   createContact,
   updateContact,
-  deleteContact
+  deleteContact,
+  dataSource
 } from './db';
 import { init as initScheduler } from './scheduler';
 
@@ -63,20 +62,16 @@ function createWindow(args: IAppArguments) {
 app.on('ready', () => {
   series([
     (next: CB) => initDB(next),
-    (next: CB) => initScheduler(next),
-    (next: CB) => getCalendars(next),
-    (next: CB) => getContacts(next)
-  ], (err, results) => {
-    if (err || !results) {
+    (next: CB) => initScheduler(next)
+  ], (err) => {
+    if (err) {
       console.error(err);
       process.exit(-1);
       return;
     }
-    const calendars: ICalendar[] = results[2] as any;
-    const contacts: IContact[] = results[3] as any;
     createWindow({
-      calendars,
-      contacts,
+      calendars: dataSource.getCalendars(),
+      contacts: dataSource.getContacts(),
       dailyContactQueue: []
     });
     console.log('running');
@@ -95,22 +90,10 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
-    series([
-      (next: CB) => getCalendars(next),
-      (next: CB) => getContacts(next)
-    ], (err, results) => {
-      if (err || !results) {
-        console.error(err);
-        process.exit(-1);
-        return;
-      }
-      const calendars: ICalendar[] = results[1] as any;
-      const contacts: IContact[] = results[2] as any;
-      createWindow({
-        calendars,
-        contacts,
-        dailyContactQueue: []
-      });
+    createWindow({
+      calendars: dataSource.getCalendars(),
+      contacts: dataSource.getContacts(),
+      dailyContactQueue: []
     });
   }
 });
@@ -120,18 +103,12 @@ function finalizeContactOperation(operationErr?: Error) {
     console.error(operationErr);
     return;
   }
-  getContacts((getErr, contacts) => {
-    if (getErr) {
-      console.error(getErr);
-      return;
-    }
-    if (mainWindow && contacts) {
-      const args: IUpdateContactsArguments = {
-        contacts
-      };
-      mainWindow.webContents.send(MessageTypes.UpdateContacts, JSON.stringify(args));
-    }
-  });
+  if (mainWindow) {
+    const args: IUpdateContactsArguments = {
+      contacts: dataSource.getContacts()
+    };
+    mainWindow.webContents.send(MessageTypes.UpdateContacts, JSON.stringify(args));
+  }
 }
 
 ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
@@ -153,18 +130,12 @@ function finalizeCalendarOperation(operationErr?: Error) {
     console.error(operationErr);
     return;
   }
-  getCalendars((getErr, calendars) => {
-    if (getErr) {
-      console.error(getErr);
-      return;
-    }
-    if (mainWindow && calendars) {
-      const args: IUpdateCalendarsArguments = {
-        calendars
-      };
-      mainWindow.webContents.send(MessageTypes.UpdateCalendars, JSON.stringify(args));
-    }
-  });
+  if (mainWindow) {
+    const args: IUpdateCalendarsArguments = {
+      calendars: dataSource.getCalendars()
+    };
+    mainWindow.webContents.send(MessageTypes.UpdateCalendars, JSON.stringify(args));
+  }
 }
 
 ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
