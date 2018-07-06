@@ -54,7 +54,7 @@ export class EditContact extends React.Component<IProps, IState> {
       );
     }
     return (
-      <div className="edit-contact-container">
+      <div key={this.props.contact.id} className="edit-contact-container">
         <h3 className="edit-contact-header">{this.props.isAdd ? 'New Contact' : 'Edit Contact'}</h3>
         <div className="edit-contact-data">
           <div>
