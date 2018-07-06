@@ -48,9 +48,14 @@ const CONTACT_SCHEMA =
 const SCHEDULE_SCHEMA =
 `CREATE TABLE ${SCHEDULE_TABLE_NAME}(
   id INTEGER PRIMARY KEY,
-  contactOrder INTEGER NOT NULL,
-  contactId INTEGER NOT NULL
+  queue text NOT NULL,
+  lastUpdated INTEGER NOT NULL
 )`;
+
+interface IQueue {
+  contactQueue: IContact[];
+  lastUpdated: number;
+}
 
 let calendars: ICalendar[] = [];
 let contacts: IContact[] = [];
@@ -69,17 +74,21 @@ export const dataSource = new DataSource();
 export function init(cb: CB): void {
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
+  console.log(`Loading database from ${dbPath}`);
   db = new sqlite3.Database(dbPath, (connectErr) => {
     if (connectErr) {
       cb(connectErr);
       return;
     }
     if (isNewDB) {
+      console.log(`New database detected, initializing`);
       // Need to slice off extra params so can't pass cb or next directly here
       series([
         (next) => db.run(CALENDAR_SCHEMA, (err?: Error) => next(err)),
         (next) => db.run(CONTACT_SCHEMA, (err?: Error) => next(err)),
-        (next) => db.run(SCHEDULE_SCHEMA, (err?: Error) => next(err))
+        (next) => db.run(SCHEDULE_SCHEMA, (err?: Error) => next(err)),
+        (next) => db.run(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ],
+          (err?: Error) => next(err))
       ], (err?: Error) => cb(err));
     } else {
       cb(undefined);
@@ -171,4 +180,31 @@ export function deleteContact(contact: IContact, cb: CB): void {
       next(undefined);
     }
   ], cb);
+}
+
+export function getWeeklyQueue(cb: CBWithResult<IQueue>): void {
+  db.get(`SELECT * FROM ${SCHEDULE_TABLE_NAME}`, [], (err, result) => {
+    if (err) {
+      cb(err, undefined);
+      return;
+    }
+    const ids = JSON.parse(result.queue);
+    const queue: IContact[] = ids.map((id: number) => {
+      for (const contact of contacts) {
+        if (contact.id === id) {
+          return contact;
+        }
+      }
+      throw new Error(`Internal error: could not locate contact with id ${id}`);
+    });
+    cb(undefined, {
+      contactQueue: queue,
+      lastUpdated: result.lastUpdated
+    });
+  });
+}
+
+export function setWeeklyQueue(queue: IContact[], cb: CB): void {
+  const ids = JSON.stringify(queue.map((contact) => contact.id));
+  db.run(`UPDATE ${SCHEDULE_TABLE_NAME} SET queue = ?, lastUpdated = ?`, [ ids, Date.now() ], cb);
 }

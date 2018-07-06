@@ -39,7 +39,7 @@ var dbPath = path_1.join(electron_1.app.getPath('userData'), 'contact-scheduler-
 var db;
 var CALENDAR_SCHEMA = "CREATE TABLE " + CALENDARS_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  displayName text NOT NULL,\n  source text NOT NULL\n)";
 var CONTACT_SCHEMA = "CREATE TABLE " + CONTACTS_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  name text NOT NULL,\n  frequency text NOT NULL,\n  lastContacted INTEGER NOT NULL\n)";
-var SCHEDULE_SCHEMA = "CREATE TABLE " + SCHEDULE_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  contactOrder INTEGER NOT NULL,\n  contactId INTEGER NOT NULL\n)";
+var SCHEDULE_SCHEMA = "CREATE TABLE " + SCHEDULE_TABLE_NAME + "(\n  id INTEGER PRIMARY KEY,\n  queue text NOT NULL,\n  lastUpdated INTEGER NOT NULL\n)";
 var calendars = [];
 var contacts = [];
 var DataSource = /** @class */ (function (_super) {
@@ -59,17 +59,20 @@ exports.dataSource = new DataSource();
 function init(cb) {
     var isNewDB = !fs_1.existsSync(dbPath);
     var sqlite3 = sqlite3_1.verbose();
+    console.log("Loading database from " + dbPath);
     db = new sqlite3.Database(dbPath, function (connectErr) {
         if (connectErr) {
             cb(connectErr);
             return;
         }
         if (isNewDB) {
+            console.log("New database detected, initializing");
             // Need to slice off extra params so can't pass cb or next directly here
             async_1.series([
                 function (next) { return db.run(CALENDAR_SCHEMA, function (err) { return next(err); }); },
                 function (next) { return db.run(CONTACT_SCHEMA, function (err) { return next(err); }); },
-                function (next) { return db.run(SCHEDULE_SCHEMA, function (err) { return next(err); }); }
+                function (next) { return db.run(SCHEDULE_SCHEMA, function (err) { return next(err); }); },
+                function (next) { return db.run("INSERT INTO " + SCHEDULE_TABLE_NAME + "(queue, lastUpdated) VALUES(?, 0)", ['[]'], function (err) { return next(err); }); }
             ], function (err) { return cb(err); });
         }
         else {
@@ -158,4 +161,32 @@ function deleteContact(contact, cb) {
     ], cb);
 }
 exports.deleteContact = deleteContact;
+function getWeeklyQueue(cb) {
+    db.get("SELECT * FROM " + SCHEDULE_TABLE_NAME, [], function (err, result) {
+        if (err) {
+            cb(err, undefined);
+            return;
+        }
+        var ids = JSON.parse(result.queue);
+        var queue = ids.map(function (id) {
+            for (var _i = 0, contacts_1 = contacts; _i < contacts_1.length; _i++) {
+                var contact = contacts_1[_i];
+                if (contact.id === id) {
+                    return contact;
+                }
+            }
+            throw new Error("Internal error: could not locate contact with id " + id);
+        });
+        cb(undefined, {
+            contactQueue: queue,
+            lastUpdated: result.lastUpdated
+        });
+    });
+}
+exports.getWeeklyQueue = getWeeklyQueue;
+function setWeeklyQueue(queue, cb) {
+    var ids = JSON.stringify(queue.map(function (contact) { return contact.id; }));
+    db.run("UPDATE " + SCHEDULE_TABLE_NAME + " SET queue = ?, lastUpdated = ?", [ids, Date.now()], cb);
+}
+exports.setWeeklyQueue = setWeeklyQueue;
 //# sourceMappingURL=db.js.map
