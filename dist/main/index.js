@@ -35,6 +35,8 @@ function createWindow(args) {
     });
     mainWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'app.html'));
     mainWindow.on('closed', function () { mainWindow = null; });
+    mainWindow.webContents.openDevTools();
+    mainWindow.maximize();
 }
 electron_1.app.on('ready', function () {
     async_1.series([
@@ -51,6 +53,9 @@ electron_1.app.on('ready', function () {
             contacts: db_1.dataSource.getContacts(),
             contactQueue: db_1.dataSource.getQueue().contactQueue
         });
+        if (!mainWindow) {
+            throw new Error('Internal Error: mainWindow is unexpectedly null');
+        }
         console.log('running');
     });
 });

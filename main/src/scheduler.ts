@@ -71,7 +71,8 @@ function refreshQueue(cb: CB): void {
     }
   }
 
-  // Shuffle the list using the Fisher-Yates algorithm
+  // Shuffle the list using the Fisher-Yates algorithm:
+  // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
   const newContactQueue: IContact[] = weights
     .sort((a, b) => b.weight - a.weight)
     .slice(0, MAX_WEEKLY_CONTACTS)
@@ -96,14 +97,19 @@ export function init(cb: CB): void {
 
   function showNotification() {
     // const nextContact = dataSource.getQueue().contactQueue[0];
-    if (process.platform === 'win32') {
-      const notification = new ToastNotification({
-        appId: APP_ID,
-        template: `<toast><visual><binding template="ToastText01"><text id="1">%s</text></binding></visual></toast>`,
-        strings: ['Hi!']
-      });
-      notification.on('activated', () => console.log('Activated!'));
-      notification.show();
+    switch (process.platform) {
+      case 'win32':
+        const notification = new ToastNotification({
+          appId: APP_ID,
+          template: `<toast><visual><binding template="ToastText01"><text id="1">%s</text></binding></visual></toast>`,
+          strings: ['Hi!']
+        });
+
+        notification.on('activated', () => console.log('Activated!'));
+        notification.show();
+        break;
+      default:
+        throw new Error(`Contact Scheduler does not yet support notifications on platform ${process.platform}`);
     }
   }
 
@@ -121,7 +127,7 @@ export function init(cb: CB): void {
     }
     setTimeout(tick, TICK_INTERVAL);
   }
-  tick();
+  setTimeout(tick, 5000);
 
   dataSource.on('queueUpdated', (queue) => {
     // TODO

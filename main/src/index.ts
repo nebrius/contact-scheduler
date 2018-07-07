@@ -57,6 +57,8 @@ function createWindow(args: IAppArguments) {
   } as any);
   mainWindow.loadFile(join(__dirname, '..', 'renderer', 'app.html'));
   mainWindow.on('closed', () => { mainWindow = null; });
+  mainWindow.webContents.openDevTools();
+  mainWindow.maximize();
 }
 
 app.on('ready', () => {
