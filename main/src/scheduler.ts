@@ -62,10 +62,19 @@ function refreshQueue(cb: CB): void {
         break;
     }
   }
+
+  // Shuffle the list using the Fisher-Yates algorithm
   const newContactQueue: IContact[] = weights
     .sort((a, b) => b.weight - a.weight)
     .slice(0, MAX_WEEKLY_CONTACTS)
     .map((weight) => weight.contact);
+  for (let i = newContactQueue.length - 1; i > 0; i--) {
+    const j = Math.round(Math.random() * i);
+    const temp = newContactQueue[i];
+    newContactQueue[i] = newContactQueue[j];
+    newContactQueue[j] = temp;
+  }
+
   console.log(`Scheduling ${newContactQueue.length} contacts out of ${weights.length} possible contacts`);
   setWeeklyQueue(newContactQueue, cb);
 }

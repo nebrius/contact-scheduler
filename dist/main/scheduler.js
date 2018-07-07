@@ -61,10 +61,17 @@ function refreshQueue(cb) {
                 break;
         }
     }
+    // Shuffle the list using the Fisher-Yates algorithm
     var newContactQueue = weights
         .sort(function (a, b) { return b.weight - a.weight; })
         .slice(0, MAX_WEEKLY_CONTACTS)
         .map(function (weight) { return weight.contact; });
+    for (var i = newContactQueue.length - 1; i > 0; i--) {
+        var j = Math.round(Math.random() * i);
+        var temp = newContactQueue[i];
+        newContactQueue[i] = newContactQueue[j];
+        newContactQueue[j] = temp;
+    }
     console.log("Scheduling " + newContactQueue.length + " contacts out of " + weights.length + " possible contacts");
     db_1.setWeeklyQueue(newContactQueue, cb);
 }
