@@ -15,34 +15,9 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = {
+import { combineReducers } from 'redux';
+import { createNotificationReducer } from './notification/notificationReducer';
 
-  mode: 'development',
-  devtool: 'inline-source-map',
-
-  target: 'electron-renderer',
-
-  entry: {
-    app: './src/app.tsx',
-    notification: './src/notification.tsx'
-  },
-
-  output: {
-    filename: '[name].js',
-    path: `${__dirname}/../dist/renderer`
-  },
-
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
-  }
-};
+export const notificationReducers = combineReducers({
+  notification: createNotificationReducer()
+});

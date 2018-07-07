@@ -15,34 +15,19 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = {
+import { connect } from 'react-redux';
+import { IAction } from '../actions/actions';
+import { NotificationRoot, IStateProps, IDispatchProps } from '../components/NotificationRoot';
 
-  mode: 'development',
-  devtool: 'inline-source-map',
+function mapStateToProps(state: {}): IStateProps {
+  return {};
+}
 
-  target: 'electron-renderer',
+function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
+  return {};
+}
 
-  entry: {
-    app: './src/app.tsx',
-    notification: './src/notification.tsx'
-  },
-
-  output: {
-    filename: '[name].js',
-    path: `${__dirname}/../dist/renderer`
-  },
-
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
-  }
-};
+export const NotificationRootContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NotificationRoot);

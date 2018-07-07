@@ -15,12 +15,13 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { join } from 'path';
 import { CB, IContact } from './common/types';
 import { dataSource, setWeeklyQueue } from './db';
 import * as moment from 'moment-timezone';
-import { app, BrowserWindow } from 'electron';
+import { BrowserWindow } from 'electron';
 
-const APP_ID = 'nebrius-contact-scheduler';
+let notificationWindow: BrowserWindow | null;
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -90,41 +91,18 @@ function refreshQueue(cb: CB): void {
 export function init(cb: CB): void {
   const state: 'queued' | 'snoozing' | 'do-not-disturb' = 'queued';
 
-  if (process.platform === 'win32') {
-    app.setAppUserModelId(APP_ID);
-  }
-
   function showNotification() {
     // const nextContact = dataSource.getQueue().contactQueue[0];
-    switch (process.platform) {
-      case 'win32':
-        let win: BrowserWindow | null = new BrowserWindow({
-          width: 400,
-          height: 200,
-          frame: false,
-          alwaysOnTop: true
-        });
-        win.on('closed', () => {
-          win = null;
-        });
-
-        // Load a remote URL
-        win.loadURL('https://github.com');
-
-        // Or load a local HTML file
-        win.loadURL(`file://${__dirname}/app/index.html`);
-        // const notification = new ToastNotification({
-        //   appId: APP_ID,
-        //   template: NOTIFICATION_TEMPLATE,
-        //   strings: ['Hi!']
-        // });
-
-        // notification.on('activated', () => console.log('Activated!'));
-        // notification.show();
-        break;
-      default:
-        throw new Error(`Contact Scheduler does not yet support notifications on platform ${process.platform}`);
-    }
+    notificationWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      frame: false,
+      alwaysOnTop: true
+    });
+    notificationWindow.on('closed', () => {
+      notificationWindow = null;
+    });
+    notificationWindow.loadFile(join(__dirname, '..', 'renderer', 'notification.html'));
   }
 
   function tick() {

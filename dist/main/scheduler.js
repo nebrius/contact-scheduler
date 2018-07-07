@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
+var path_1 = require("path");
 var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
-var APP_ID = 'nebrius-contact-scheduler';
+var notificationWindow;
 var DAY_IN_MS = 1000 * 60 * 60 * 24;
 var MIN_MONTHLY_GAP = DAY_IN_MS * 25;
 var MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
@@ -81,37 +82,18 @@ function refreshQueue(cb) {
 }
 function init(cb) {
     var state = 'queued';
-    if (process.platform === 'win32') {
-        electron_1.app.setAppUserModelId(APP_ID);
-    }
     function showNotification() {
         // const nextContact = dataSource.getQueue().contactQueue[0];
-        switch (process.platform) {
-            case 'win32':
-                var win_1 = new electron_1.BrowserWindow({
-                    width: 400,
-                    height: 200,
-                    frame: false,
-                    alwaysOnTop: true
-                });
-                win_1.on('closed', function () {
-                    win_1 = null;
-                });
-                // Load a remote URL
-                win_1.loadURL('https://github.com');
-                // Or load a local HTML file
-                win_1.loadURL("file://" + __dirname + "/app/index.html");
-                // const notification = new ToastNotification({
-                //   appId: APP_ID,
-                //   template: NOTIFICATION_TEMPLATE,
-                //   strings: ['Hi!']
-                // });
-                // notification.on('activated', () => console.log('Activated!'));
-                // notification.show();
-                break;
-            default:
-                throw new Error("Contact Scheduler does not yet support notifications on platform " + process.platform);
-        }
+        notificationWindow = new electron_1.BrowserWindow({
+            width: 800,
+            height: 600,
+            frame: false,
+            alwaysOnTop: true
+        });
+        notificationWindow.on('closed', function () {
+            notificationWindow = null;
+        });
+        notificationWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'notification.html'));
     }
     function tick() {
         switch (state) {

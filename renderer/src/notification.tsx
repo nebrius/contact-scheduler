@@ -15,34 +15,17 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = {
+import * as React from 'react';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { NotificationRootContainer } from './containers/NotificationRootContainer';
+import { notificationStore } from './stores/notificationStore';
 
-  mode: 'development',
-  devtool: 'inline-source-map',
-
-  target: 'electron-renderer',
-
-  entry: {
-    app: './src/app.tsx',
-    notification: './src/notification.tsx'
-  },
-
-  output: {
-    filename: '[name].js',
-    path: `${__dirname}/../dist/renderer`
-  },
-
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
-  }
-};
+render(
+  (
+    <Provider store={notificationStore}>
+      <NotificationRootContainer />
+    </Provider>
+  ),
+  document.getElementById('root')
+);

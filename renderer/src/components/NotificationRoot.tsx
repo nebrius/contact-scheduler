@@ -15,34 +15,16 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = {
+import * as React from 'react';
 
-  mode: 'development',
-  devtool: 'inline-source-map',
+export interface IStateProps {}
 
-  target: 'electron-renderer',
+export type IDispatchProps = {} // No dispatch props (yet?)
 
-  entry: {
-    app: './src/app.tsx',
-    notification: './src/notification.tsx'
-  },
+export type IProps = IStateProps & IDispatchProps;
 
-  output: {
-    filename: '[name].js',
-    path: `${__dirname}/../dist/renderer`
-  },
-
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
-  }
-};
+export function NotificationRoot(props: IProps): JSX.Element {
+  return (
+    <div>I'm a notification!</div>
+  );
+}
