@@ -35,8 +35,7 @@ export const MessageTypes = {
 
   CloseNotification: 'CloseNotification',
   Respond: 'Respond',
-  PushToBack: 'PushToBack',
-  DoNotDisturb: 'DoNotDisturb'
+  PushToBack: 'PushToBack'
 };
 
 export interface ISaveContactMessage {
@@ -60,9 +59,5 @@ export interface IRespondMessage {
 }
 
 export interface IPushToBackMessage {
-  contact: IContact;
-}
-
-export interface IDoNotDisturbMessage {
   contact: IContact;
 }

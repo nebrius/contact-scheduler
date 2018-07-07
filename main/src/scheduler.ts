@@ -27,6 +27,8 @@ let notificationWindow: BrowserWindow | null;
 const NOTIFICATION_WIDTH = 310;
 const NOTIFICATION_HEIGHT = 150;
 
+const NOTIFICATION_DURATION = 15000;
+
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 const MIN_MONTHLY_GAP = DAY_IN_MS * 25;
@@ -37,6 +39,40 @@ const QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
 const MAX_WEEKLY_CONTACTS = 10;
 
 const TICK_INTERVAL = 1000 * 60 * 15;
+
+export function respond(): void {
+  console.log('respond');
+}
+
+export function pushToBack(): void {
+  console.log('pushToBack');
+}
+
+export function closeNotification(): void {
+  if (notificationWindow) {
+    notificationWindow.close();
+  }
+}
+
+export function init(cb: CB): void {
+  const state: 'queued' | 'snoozing' | 'do-not-disturb' = 'queued';
+  function tick() {
+    switch (state) {
+      case 'queued':
+        showNotification();
+        break;
+      case 'snoozing':
+        showNotification();
+        break;
+      case 'do-not-disturb':
+        console.log('Skipping tick because in do not disturb mode');
+        break;
+    }
+    setTimeout(tick, TICK_INTERVAL);
+  }
+  setTimeout(tick, 5000);
+  refreshQueue(cb);
+}
 
 function refreshQueue(cb: CB): void {
   const queue = dataSource.getQueue();
@@ -92,55 +128,36 @@ function refreshQueue(cb: CB): void {
   setWeeklyQueue(newContactQueue, cb);
 }
 
-export function closeNotification() {
-  if (notificationWindow) {
-    notificationWindow.close();
-  }
-}
-
-export function init(cb: CB): void {
-  const state: 'queued' | 'snoozing' | 'do-not-disturb' = 'queued';
-  function showNotification() {
-    const args: INotificationArguments = {
-      contact: dataSource.getQueue().contactQueue[0]
-    };
-    const { width, height } = screen.getPrimaryDisplay().size;
-    notificationWindow = new BrowserWindow({
-      width: NOTIFICATION_WIDTH,
-      height: NOTIFICATION_HEIGHT,
-      x: width - NOTIFICATION_WIDTH - 20,
-      y: height - NOTIFICATION_HEIGHT - 20,
-      frame: false,
-      alwaysOnTop: true,
-      skipTaskbar : true,
-      webPreferences: {
-        additionalArguments: [ JSON.stringify(args) ]
-      }
-    } as any);
-    notificationWindow.on('closed', () => {
-      notificationWindow = null;
-    });
-    notificationWindow.loadFile(join(__dirname, '..', 'renderer', 'notification.html'));
-  }
-
-  function tick() {
-    switch (state) {
-      case 'queued':
-        showNotification();
-        break;
-      case 'snoozing':
-        showNotification();
-        break;
-      case 'do-not-disturb':
-        console.log('Skipping tick because in do not disturb mode');
-        break;
+function showNotification() {
+  const args: INotificationArguments = {
+    contact: dataSource.getQueue().contactQueue[0]
+  };
+  const { width, height } = screen.getPrimaryDisplay().size;
+  notificationWindow = new BrowserWindow({
+    width: NOTIFICATION_WIDTH,
+    height: NOTIFICATION_HEIGHT,
+    x: width - NOTIFICATION_WIDTH - 20,
+    y: height - NOTIFICATION_HEIGHT - 20,
+    frame: false,
+    alwaysOnTop: true,
+    skipTaskbar : true,
+    show: false,
+    webPreferences: {
+      additionalArguments: [ JSON.stringify(args) ]
     }
-    setTimeout(tick, TICK_INTERVAL);
-  }
-  setTimeout(tick, 5000);
-
-  dataSource.on('queueUpdated', (queue) => {
-    // TODO
+  } as any);
+  notificationWindow.on('closed', () => {
+    notificationWindow = null;
   });
-  refreshQueue(cb);
+  notificationWindow.once('ready-to-show', () => {
+    if (notificationWindow) {
+      notificationWindow.show();
+    }
+    setTimeout(() => {
+      if (notificationWindow) {
+        notificationWindow.close();
+      }
+    }, NOTIFICATION_DURATION);
+  });
+  notificationWindow.loadFile(join(__dirname, '..', 'renderer', 'notification.html'));
 }

@@ -30,7 +30,6 @@ exports.MessageTypes = {
     UpdateCalendars: 'UpdateCalendars',
     CloseNotification: 'CloseNotification',
     Respond: 'Respond',
-    PushToBack: 'PushToBack',
-    DoNotDisturb: 'DoNotDisturb'
+    PushToBack: 'PushToBack'
 };
 //# sourceMappingURL=messages.js.map

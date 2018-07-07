@@ -29,14 +29,18 @@ function createWindow(args) {
     mainWindow = new electron_1.BrowserWindow({
         width: 800,
         height: 600,
+        show: false,
         webPreferences: {
             additionalArguments: [JSON.stringify(args)]
         }
     });
     mainWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'app.html'));
     mainWindow.on('closed', function () { mainWindow = null; });
-    mainWindow.webContents.openDevTools();
-    mainWindow.maximize();
+    mainWindow.once('ready-to-show', function () {
+        if (mainWindow) {
+            mainWindow.show();
+        }
+    });
 }
 electron_1.app.on('ready', function () {
     async_1.series([
@@ -128,15 +132,11 @@ electron_1.ipcMain.on(messages_1.MessageTypes.CloseNotification, function (event
     scheduler_1.closeNotification();
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.Respond, function (event, arg) {
-    var parsedArgs = JSON.parse(arg);
-    console.log('Respond', parsedArgs.contact.name);
-});
-electron_1.ipcMain.on(messages_1.MessageTypes.DoNotDisturb, function (event, arg) {
-    var parsedArgs = JSON.parse(arg);
-    console.log('DoNotDisturb', parsedArgs.contact.name);
+    scheduler_1.closeNotification();
+    scheduler_1.respond();
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.PushToBack, function (event, arg) {
-    var parsedArgs = JSON.parse(arg);
-    console.log('PushToBack', parsedArgs.contact.name);
+    scheduler_1.closeNotification();
+    scheduler_1.pushToBack();
 });
 //# sourceMappingURL=index.js.map

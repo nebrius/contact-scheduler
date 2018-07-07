@@ -74,7 +74,7 @@ label {
   padding: 10px;
 }
 
-.daily-contact-queue-container,
+.contact-queue-container,
 .weekly-calendar-container {
   flex-grow: 1;
   flex-basis: 0;
@@ -85,14 +85,14 @@ label {
   border-right: var(--border);
 }
 
-.daily-contact-queue,
-.daily-contact-queue-empty,
+.contact-queue,
+.contact-queue-empty,
 .weekly-calendar-contents {
   padding: 5px;
   flex-grow: 1;
 }
 
-.daily-contact-queue-empty,
+.contact-queue-empty,
 .weekly-calendar-contents {
   display: flex;
   flex-direction: column;
@@ -100,21 +100,21 @@ label {
   align-items: center;
 }
 
-.daily-contact-queue-empty > h3 {
+.contact-queue-empty > h3 {
   text-align: center;
 }
 
-.daily-contact-queue {
+.contact-queue {
   display: flex;
   flex-direction: column;
 }
 
-.daily-contact-queue-title {
+.contact-queue-title {
   display: flex;
   justify-content: center;
 }
 
-.daily-contact-queue-contents {
+.contact-queue-contents {
   flex-grow: 1;
 }
 

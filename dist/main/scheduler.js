@@ -23,6 +23,7 @@ var electron_1 = require("electron");
 var notificationWindow;
 var NOTIFICATION_WIDTH = 310;
 var NOTIFICATION_HEIGHT = 150;
+var NOTIFICATION_DURATION = 15000;
 var DAY_IN_MS = 1000 * 60 * 60 * 24;
 var MIN_MONTHLY_GAP = DAY_IN_MS * 25;
 var MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
@@ -30,6 +31,40 @@ var MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 var QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
 var MAX_WEEKLY_CONTACTS = 10;
 var TICK_INTERVAL = 1000 * 60 * 15;
+function respond() {
+    console.log('respond');
+}
+exports.respond = respond;
+function pushToBack() {
+    console.log('pushToBack');
+}
+exports.pushToBack = pushToBack;
+function closeNotification() {
+    if (notificationWindow) {
+        notificationWindow.close();
+    }
+}
+exports.closeNotification = closeNotification;
+function init(cb) {
+    var state = 'queued';
+    function tick() {
+        switch (state) {
+            case 'queued':
+                showNotification();
+                break;
+            case 'snoozing':
+                showNotification();
+                break;
+            case 'do-not-disturb':
+                console.log('Skipping tick because in do not disturb mode');
+                break;
+        }
+        setTimeout(tick, TICK_INTERVAL);
+    }
+    setTimeout(tick, 5000);
+    refreshQueue(cb);
+}
+exports.init = init;
 function refreshQueue(cb) {
     var queue = db_1.dataSource.getQueue();
     var lastUpdated = moment(queue.lastUpdated);
@@ -82,55 +117,37 @@ function refreshQueue(cb) {
     console.log("Scheduling " + newContactQueue.length + " contacts out of " + weights.length + " possible contacts");
     db_1.setWeeklyQueue(newContactQueue, cb);
 }
-function closeNotification() {
-    if (notificationWindow) {
-        notificationWindow.close();
-    }
-}
-exports.closeNotification = closeNotification;
-function init(cb) {
-    var state = 'queued';
-    function showNotification() {
-        var args = {
-            contact: db_1.dataSource.getQueue().contactQueue[0]
-        };
-        var _a = electron_1.screen.getPrimaryDisplay().size, width = _a.width, height = _a.height;
-        notificationWindow = new electron_1.BrowserWindow({
-            width: NOTIFICATION_WIDTH,
-            height: NOTIFICATION_HEIGHT,
-            x: width - NOTIFICATION_WIDTH - 20,
-            y: height - NOTIFICATION_HEIGHT - 20,
-            frame: false,
-            alwaysOnTop: true,
-            skipTaskbar: true,
-            webPreferences: {
-                additionalArguments: [JSON.stringify(args)]
-            }
-        });
-        notificationWindow.on('closed', function () {
-            notificationWindow = null;
-        });
-        notificationWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'notification.html'));
-    }
-    function tick() {
-        switch (state) {
-            case 'queued':
-                showNotification();
-                break;
-            case 'snoozing':
-                showNotification();
-                break;
-            case 'do-not-disturb':
-                console.log('Skipping tick because in do not disturb mode');
-                break;
+function showNotification() {
+    var args = {
+        contact: db_1.dataSource.getQueue().contactQueue[0]
+    };
+    var _a = electron_1.screen.getPrimaryDisplay().size, width = _a.width, height = _a.height;
+    notificationWindow = new electron_1.BrowserWindow({
+        width: NOTIFICATION_WIDTH,
+        height: NOTIFICATION_HEIGHT,
+        x: width - NOTIFICATION_WIDTH - 20,
+        y: height - NOTIFICATION_HEIGHT - 20,
+        frame: false,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        show: false,
+        webPreferences: {
+            additionalArguments: [JSON.stringify(args)]
         }
-        setTimeout(tick, TICK_INTERVAL);
-    }
-    setTimeout(tick, 5000);
-    db_1.dataSource.on('queueUpdated', function (queue) {
-        // TODO
     });
-    refreshQueue(cb);
+    notificationWindow.on('closed', function () {
+        notificationWindow = null;
+    });
+    notificationWindow.once('ready-to-show', function () {
+        if (notificationWindow) {
+            notificationWindow.show();
+        }
+        setTimeout(function () {
+            if (notificationWindow) {
+                notificationWindow.close();
+            }
+        }, NOTIFICATION_DURATION);
+    });
+    notificationWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'notification.html'));
 }
-exports.init = init;
 //# sourceMappingURL=scheduler.js.map
