@@ -2,6 +2,11 @@
 
 A system for scheduling times to reach out to folks regularly that takes into account my anxiety and other brain quirks.
 
+Notes for when I create an actual README:
+
+- Need to set up a proper shortcut for notifications to work. See https://github.com/nadavbar/node-win-shortcut
+- Need to run `electron-rebuild` after `npm install`
+
 # License
 
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>

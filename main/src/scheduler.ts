@@ -18,13 +18,21 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { CB, IContact } from './common/types';
 import { dataSource, setWeeklyQueue } from './db';
 import * as moment from 'moment-timezone';
+import { app } from 'electron';
+import { ToastNotification } from 'electron-windows-notifications';
 
-const MAX_WEEKLY_CONTACTS = 10;
+const APP_ID = 'nebrius-contact-scheduler';
+
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
+
 const MIN_MONTHLY_GAP = DAY_IN_MS * 25;
 const MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
 const MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 const QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
+
+const MAX_WEEKLY_CONTACTS = 10;
+
+const TICK_INTERVAL = 1000 * 60 * 15;
 
 function refreshQueue(cb: CB): void {
   const queue = dataSource.getQueue();
@@ -80,14 +88,43 @@ function refreshQueue(cb: CB): void {
 }
 
 export function init(cb: CB): void {
-  dataSource.on('calendarsUpdated', (calendars) => {
-    console.log(calendars);
-  });
-  dataSource.on('contactsUpdated', (contacts) => {
-    console.log(contacts);
-  });
+  const state: 'queued' | 'snoozing' | 'do-not-disturb' = 'queued';
+
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(APP_ID);
+  }
+
+  function showNotification() {
+    // const nextContact = dataSource.getQueue().contactQueue[0];
+    if (process.platform === 'win32') {
+      const notification = new ToastNotification({
+        appId: APP_ID,
+        template: `<toast><visual><binding template="ToastText01"><text id="1">%s</text></binding></visual></toast>`,
+        strings: ['Hi!']
+      });
+      notification.on('activated', () => console.log('Activated!'));
+      notification.show();
+    }
+  }
+
+  function tick() {
+    switch (state) {
+      case 'queued':
+        showNotification();
+        break;
+      case 'snoozing':
+        showNotification();
+        break;
+      case 'do-not-disturb':
+        console.log('Skipping tick because in do not disturb mode');
+        break;
+    }
+    setTimeout(tick, TICK_INTERVAL);
+  }
+  tick();
+
   dataSource.on('queueUpdated', (queue) => {
-    console.log(queue);
+    // TODO
   });
   refreshQueue(cb);
 }
