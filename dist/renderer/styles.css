@@ -260,3 +260,41 @@ label {
   padding: 3px 10px;
   cursor: default;
 }
+
+.notification-container {
+  position: absolute;
+  background-color: #343a40;
+  padding: 5px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: white;
+}
+
+.notification-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.notification-contents-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: 1fr auto;
+  grid-column-gap: 5px;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.notification-contents-container > button {
+  margin: 5px;
+  width: 140px;
+}
+
+.notification-contents-body {
+  grid-column: 1 / 3;
+  text-align: center;
+}

@@ -17,7 +17,10 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { combineReducers } from 'redux';
 import { createNotificationReducer } from './notification/notificationReducer';
+import { INotificationArguments } from '../common/arguments';
+
+const initArgs: INotificationArguments = JSON.parse(process.argv.pop() as string);
 
 export const notificationReducers = combineReducers({
-  notification: createNotificationReducer()
+  notification: createNotificationReducer(initArgs.contact)
 });

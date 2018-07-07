@@ -40,3 +40,9 @@ export interface IContactState {
   contact: IContact;
   isAdd: boolean;
 }
+
+export interface INotificationState {
+  notification: {
+    contact: IContact;
+  };
+}

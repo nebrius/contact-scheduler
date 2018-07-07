@@ -21,6 +21,8 @@ var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
 var notificationWindow;
+var NOTIFICATION_WIDTH = 310;
+var NOTIFICATION_HEIGHT = 150;
 var DAY_IN_MS = 1000 * 60 * 60 * 24;
 var MIN_MONTHLY_GAP = DAY_IN_MS * 25;
 var MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
@@ -80,15 +82,30 @@ function refreshQueue(cb) {
     console.log("Scheduling " + newContactQueue.length + " contacts out of " + weights.length + " possible contacts");
     db_1.setWeeklyQueue(newContactQueue, cb);
 }
+function closeNotification() {
+    if (notificationWindow) {
+        notificationWindow.close();
+    }
+}
+exports.closeNotification = closeNotification;
 function init(cb) {
     var state = 'queued';
     function showNotification() {
-        // const nextContact = dataSource.getQueue().contactQueue[0];
+        var args = {
+            contact: db_1.dataSource.getQueue().contactQueue[0]
+        };
+        var _a = electron_1.screen.getPrimaryDisplay().size, width = _a.width, height = _a.height;
         notificationWindow = new electron_1.BrowserWindow({
-            width: 800,
-            height: 600,
+            width: NOTIFICATION_WIDTH,
+            height: NOTIFICATION_HEIGHT,
+            x: width - NOTIFICATION_WIDTH - 20,
+            y: height - NOTIFICATION_HEIGHT - 20,
             frame: false,
-            alwaysOnTop: true
+            alwaysOnTop: true,
+            skipTaskbar: true,
+            webPreferences: {
+                additionalArguments: [JSON.stringify(args)]
+            }
         });
         notificationWindow.on('closed', function () {
             notificationWindow = null;

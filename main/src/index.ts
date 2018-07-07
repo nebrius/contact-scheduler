@@ -23,7 +23,10 @@ import {
   ISaveContactMessage,
   IDeleteContactMessage,
   ISaveCalendarMessage,
-  IDeleteCalendarMessage
+  IDeleteCalendarMessage,
+  IRespondMessage,
+  IPushToBackMessage,
+  IDoNotDisturbMessage
 } from './common/messages';
 import { CB } from './common/types';
 import {
@@ -41,7 +44,7 @@ import {
   deleteContact,
   dataSource
 } from './db';
-import { init as initScheduler } from './scheduler';
+import { init as initScheduler, closeNotification } from './scheduler';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -152,4 +155,23 @@ ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
 ipcMain.on(MessageTypes.RequestDeleteCalendar, (event: Event, arg: string) => {
   const parsedArgs: IDeleteCalendarMessage = JSON.parse(arg);
   deleteCalendar(parsedArgs.calendar, finalizeCalendarOperation);
+});
+
+ipcMain.on(MessageTypes.CloseNotification, (event: Event, arg: string) => {
+  closeNotification();
+});
+
+ipcMain.on(MessageTypes.Respond, (event: Event, arg: string) => {
+  const parsedArgs: IRespondMessage = JSON.parse(arg);
+  console.log('Respond', parsedArgs.contact.name);
+});
+
+ipcMain.on(MessageTypes.DoNotDisturb, (event: Event, arg: string) => {
+  const parsedArgs: IDoNotDisturbMessage = JSON.parse(arg);
+  console.log('DoNotDisturb', parsedArgs.contact.name);
+});
+
+ipcMain.on(MessageTypes.PushToBack, (event: Event, arg: string) => {
+  const parsedArgs: IPushToBackMessage = JSON.parse(arg);
+  console.log('PushToBack', parsedArgs.contact.name);
 });

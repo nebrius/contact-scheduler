@@ -17,11 +17,15 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { CB, IContact } from './common/types';
+import { INotificationArguments } from './common/arguments';
 import { dataSource, setWeeklyQueue } from './db';
 import * as moment from 'moment-timezone';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 
 let notificationWindow: BrowserWindow | null;
+
+const NOTIFICATION_WIDTH = 310;
+const NOTIFICATION_HEIGHT = 150;
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -88,17 +92,31 @@ function refreshQueue(cb: CB): void {
   setWeeklyQueue(newContactQueue, cb);
 }
 
+export function closeNotification() {
+  if (notificationWindow) {
+    notificationWindow.close();
+  }
+}
+
 export function init(cb: CB): void {
   const state: 'queued' | 'snoozing' | 'do-not-disturb' = 'queued';
-
   function showNotification() {
-    // const nextContact = dataSource.getQueue().contactQueue[0];
+    const args: INotificationArguments = {
+      contact: dataSource.getQueue().contactQueue[0]
+    };
+    const { width, height } = screen.getPrimaryDisplay().size;
     notificationWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: NOTIFICATION_WIDTH,
+      height: NOTIFICATION_HEIGHT,
+      x: width - NOTIFICATION_WIDTH - 20,
+      y: height - NOTIFICATION_HEIGHT - 20,
       frame: false,
-      alwaysOnTop: true
-    });
+      alwaysOnTop: true,
+      skipTaskbar : true,
+      webPreferences: {
+        additionalArguments: [ JSON.stringify(args) ]
+      }
+    } as any);
     notificationWindow.on('closed', () => {
       notificationWindow = null;
     });

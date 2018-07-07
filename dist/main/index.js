@@ -124,4 +124,19 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, function (e
     var parsedArgs = JSON.parse(arg);
     db_1.deleteCalendar(parsedArgs.calendar, finalizeCalendarOperation);
 });
+electron_1.ipcMain.on(messages_1.MessageTypes.CloseNotification, function (event, arg) {
+    scheduler_1.closeNotification();
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.Respond, function (event, arg) {
+    var parsedArgs = JSON.parse(arg);
+    console.log('Respond', parsedArgs.contact.name);
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.DoNotDisturb, function (event, arg) {
+    var parsedArgs = JSON.parse(arg);
+    console.log('DoNotDisturb', parsedArgs.contact.name);
+});
+electron_1.ipcMain.on(messages_1.MessageTypes.PushToBack, function (event, arg) {
+    var parsedArgs = JSON.parse(arg);
+    console.log('PushToBack', parsedArgs.contact.name);
+});
 //# sourceMappingURL=index.js.map

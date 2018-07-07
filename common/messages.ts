@@ -22,13 +22,21 @@ export const MessageTypes = {
   RequestEditCalendar: 'RequestEditCalendar',
   RequestSaveCalendar: 'RequestSaveCalendar',
   RequestDeleteCalendar: 'RequestDeleteCalendar',
+
   RequestAddContact: 'RequestAddContact',
   RequestEditContact: 'RequestEditContact',
   RequestSaveContact: 'RequestSaveContact',
   RequestDeleteContact: 'RequestDeleteContact',
+
   CloseDialog: 'CloseDialog',
+
   UpdateContacts: 'UpdateContacts',
-  UpdateCalendars: 'UpdateCalendars'
+  UpdateCalendars: 'UpdateCalendars',
+
+  CloseNotification: 'CloseNotification',
+  Respond: 'Respond',
+  PushToBack: 'PushToBack',
+  DoNotDisturb: 'DoNotDisturb'
 };
 
 export interface ISaveContactMessage {
@@ -45,4 +53,16 @@ export interface ISaveCalendarMessage {
 
 export interface IDeleteCalendarMessage {
   calendar: ICalendar;
+}
+
+export interface IRespondMessage {
+  contact: IContact;
+}
+
+export interface IPushToBackMessage {
+  contact: IContact;
+}
+
+export interface IDoNotDisturbMessage {
+  contact: IContact;
 }

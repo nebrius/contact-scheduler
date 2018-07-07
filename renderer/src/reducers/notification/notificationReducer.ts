@@ -17,14 +17,15 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { Reducer } from 'redux';
 import { IAction } from '../../actions/actions';
+import { IContact } from '../../common/types';
 
 export interface INotificationState {
-  title: string;
+  contact: IContact;
 }
 
-export function createNotificationReducer(): Reducer<INotificationState> {
+export function createNotificationReducer(contact: IContact): Reducer<INotificationState> {
   const DEFAULT_STATE: INotificationState = {
-    title: 'hi'
+    contact
   };
   return (state: INotificationState | undefined, action: IAction) => {
     if (!state) {

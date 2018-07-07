@@ -15,16 +15,32 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as React from 'react';
+import * as React from "react";
+import { IContact } from "../common/types";
 
-export interface IStateProps {}
+export interface IStateProps {
+  contact: IContact
+}
 
-export type IDispatchProps = {} // No dispatch props (yet?)
+export type IDispatchProps = {
+  close(): void;
+  respond(contact: IContact): void;
+  pushToBack(contact: IContact): void;
+}
 
 export type IProps = IStateProps & IDispatchProps;
 
 export function NotificationRoot(props: IProps): JSX.Element {
   return (
-    <div>I'm a notification!</div>
+    <div className="notification-container">
+      <button className="notification-close btn btn-dark" onClick={props.close}>X</button>
+      <div className="notification-contents-container">
+        <div className="notification-contents-body">Reach out to {props.contact.name}</div>
+        <button className="btn btn-success"
+          onClick={() => props.respond(props.contact)}>Responded</button>
+        <button className="btn btn-secondary"
+          onClick={() => props.pushToBack(props.contact)}>Push to Back</button>
+        </div>
+    </div>
   );
 }
