@@ -19,7 +19,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
-var electron_windows_notifications_1 = require("electron-windows-notifications");
 var APP_ID = 'nebrius-contact-scheduler';
 var DAY_IN_MS = 1000 * 60 * 60 * 24;
 var MIN_MONTHLY_GAP = DAY_IN_MS * 25;
@@ -89,13 +88,26 @@ function init(cb) {
         // const nextContact = dataSource.getQueue().contactQueue[0];
         switch (process.platform) {
             case 'win32':
-                var notification = new electron_windows_notifications_1.ToastNotification({
-                    appId: APP_ID,
-                    template: "<toast><visual><binding template=\"ToastText01\"><text id=\"1\">%s</text></binding></visual></toast>",
-                    strings: ['Hi!']
+                var win_1 = new electron_1.BrowserWindow({
+                    width: 400,
+                    height: 200,
+                    frame: false,
+                    alwaysOnTop: true
                 });
-                notification.on('activated', function () { return console.log('Activated!'); });
-                notification.show();
+                win_1.on('closed', function () {
+                    win_1 = null;
+                });
+                // Load a remote URL
+                win_1.loadURL('https://github.com');
+                // Or load a local HTML file
+                win_1.loadURL("file://" + __dirname + "/app/index.html");
+                // const notification = new ToastNotification({
+                //   appId: APP_ID,
+                //   template: NOTIFICATION_TEMPLATE,
+                //   strings: ['Hi!']
+                // });
+                // notification.on('activated', () => console.log('Activated!'));
+                // notification.show();
                 break;
             default:
                 throw new Error("Contact Scheduler does not yet support notifications on platform " + process.platform);

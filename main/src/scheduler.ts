@@ -18,8 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { CB, IContact } from './common/types';
 import { dataSource, setWeeklyQueue } from './db';
 import * as moment from 'moment-timezone';
-import { app } from 'electron';
-import { ToastNotification } from 'electron-windows-notifications';
+import { app, BrowserWindow } from 'electron';
 
 const APP_ID = 'nebrius-contact-scheduler';
 
@@ -99,14 +98,29 @@ export function init(cb: CB): void {
     // const nextContact = dataSource.getQueue().contactQueue[0];
     switch (process.platform) {
       case 'win32':
-        const notification = new ToastNotification({
-          appId: APP_ID,
-          template: `<toast><visual><binding template="ToastText01"><text id="1">%s</text></binding></visual></toast>`,
-          strings: ['Hi!']
+        let win: BrowserWindow | null = new BrowserWindow({
+          width: 400,
+          height: 200,
+          frame: false,
+          alwaysOnTop: true
+        });
+        win.on('closed', () => {
+          win = null;
         });
 
-        notification.on('activated', () => console.log('Activated!'));
-        notification.show();
+        // Load a remote URL
+        win.loadURL('https://github.com');
+
+        // Or load a local HTML file
+        win.loadURL(`file://${__dirname}/app/index.html`);
+        // const notification = new ToastNotification({
+        //   appId: APP_ID,
+        //   template: NOTIFICATION_TEMPLATE,
+        //   strings: ['Hi!']
+        // });
+
+        // notification.on('activated', () => console.log('Activated!'));
+        // notification.show();
         break;
       default:
         throw new Error(`Contact Scheduler does not yet support notifications on platform ${process.platform}`);
