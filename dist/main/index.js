@@ -49,7 +49,7 @@ electron_1.app.on('ready', function () {
         createWindow({
             calendars: db_1.dataSource.getCalendars(),
             contacts: db_1.dataSource.getContacts(),
-            dailyContactQueue: []
+            contactQueue: db_1.dataSource.getQueue().contactQueue
         });
         console.log('running');
     });
@@ -68,7 +68,7 @@ electron_1.app.on('activate', function () {
         createWindow({
             calendars: db_1.dataSource.getCalendars(),
             contacts: db_1.dataSource.getContacts(),
-            dailyContactQueue: []
+            contactQueue: db_1.dataSource.getQueue().contactQueue
         });
     }
 });

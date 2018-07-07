@@ -26,7 +26,7 @@ export interface IUIState {
 export interface IAppState {
   calendars: ICalendar[];
   contacts: IContact[];
-  dailyContactQueue: IContact[];
+  contactQueue: IContact[];
   uiState: IUIState;
 }
 

@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { combineReducers } from 'redux';
 import { createContactsReducer } from './app/contactsReducer';
-import { createDailyContactQueueReducer } from './app/dailyContactQueueReducer';
+import { createContactQueueReducer } from './app/contactQueueReducer';
 import { createCalendarsReducer } from './app/calendarsReducer';
 import { createUIStateReducer } from './app/uiStateReducer';
 import { IAppArguments } from '../common/arguments';
@@ -26,7 +26,7 @@ const initArgs: IAppArguments = JSON.parse(process.argv.pop() as string);
 
 export const appReducers = combineReducers({
   contacts: createContactsReducer(initArgs.contacts),
-  dailyContactQueue: createDailyContactQueueReducer(initArgs.dailyContactQueue),
+  contactQueue: createContactQueueReducer(initArgs.contactQueue),
   calendars: createCalendarsReducer(initArgs.calendars),
   uiState: createUIStateReducer()
 });

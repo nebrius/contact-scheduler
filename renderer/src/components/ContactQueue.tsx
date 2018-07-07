@@ -26,24 +26,24 @@ export type IDispatchProps = {} // No dispatch props (yet?)
 
 export type IProps = IStateProps & IDispatchProps;
 
-export function DailyContactQueue(props: IProps): JSX.Element {
+export function ContactQueue(props: IProps): JSX.Element {
   let contents: JSX.Element;
   if (props.contactQueue.length) {
     contents = (
-      <div className="daily-contact-queue">
-        <div className="daily-contact-queue-title"><h2>Today's Contacts</h2></div>
+      <div className="contact-queue">
+        <div className="contact-queue-title"><h2>This Week's Contacts</h2></div>
         <div>Queue</div>
       </div>
     );
   } else {
     contents = (
-      <div className="daily-contact-queue-empty">
-        <h3>No one else to contact today</h3>
+      <div className="contact-queue-empty">
+        <h3>No one else to contact this week</h3>
       </div>
     );
   }
   return (
-    <div className="daily-contact-queue-container">
+    <div className="contact-queue-container">
       {contents}
     </div>
   );

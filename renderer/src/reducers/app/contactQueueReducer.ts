@@ -19,8 +19,8 @@ import { Reducer } from 'redux';
 import { IAction } from '../../actions/actions';
 import { IContact } from '../../common/types';
 
-export function createDailyContactQueueReducer(dailyContactQueue: IContact[]): Reducer<IContact[]> {
-  const DEFAULT_STATE: IContact[] = dailyContactQueue;
+export function createContactQueueReducer(contactQueue: IContact[]): Reducer<IContact[]> {
+  const DEFAULT_STATE: IContact[] = contactQueue;
   return (state: IContact[] | undefined, action: IAction) => {
     if (!state) {
       state = DEFAULT_STATE;

@@ -72,7 +72,7 @@ app.on('ready', () => {
     createWindow({
       calendars: dataSource.getCalendars(),
       contacts: dataSource.getContacts(),
-      dailyContactQueue: []
+      contactQueue: dataSource.getQueue().contactQueue
     });
     console.log('running');
   });
@@ -93,7 +93,7 @@ app.on('activate', () => {
     createWindow({
       calendars: dataSource.getCalendars(),
       contacts: dataSource.getContacts(),
-      dailyContactQueue: []
+      contactQueue: dataSource.getQueue().contactQueue
     });
   }
 });
