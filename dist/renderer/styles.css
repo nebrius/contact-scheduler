@@ -252,6 +252,11 @@ label {
 .contact-list-entry,
 .calendar-list-entry {
   width: 100%;
-  padding: 10px;
+  padding: 3px 10px;
   text-align: left;
+}
+
+.contact-queue-entry-container {
+  padding: 3px 10px;
+  cursor: default;
 }

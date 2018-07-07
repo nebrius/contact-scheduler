@@ -31,8 +31,10 @@ export function ContactQueue(props: IProps): JSX.Element {
   if (props.contactQueue.length) {
     contents = (
       <div className="contact-queue">
-        <div className="contact-queue-title"><h2>This Week's Contacts</h2></div>
-        <div>Queue</div>
+        <div className="contact-queue-title"><h3>Queue</h3></div>
+        <div>{props.contactQueue.map((contact) => (
+          <div key={contact.id} className="contact-queue-entry-container">{contact.name}</div>
+        ))}</div>
       </div>
     );
   } else {
