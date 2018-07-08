@@ -17,6 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { series } from 'async';
+import { getDoNotDisturb, getSessionState } from 'electron-notification-state';
 import { CB, IContact } from './common/types';
 import { INotificationArguments } from './common/arguments';
 import { dataSource, setWeeklyQueue, setLastContactedDate } from './db';
@@ -27,10 +28,13 @@ import { handleInternalError } from './util';
 let notificationWindow: BrowserWindow | null;
 let doNotDisturbEnabled = false;
 
+type State = 'queued' | 'snoozing';
+let state: State = 'queued';
+
 const NOTIFICATION_WIDTH = 310;
 const NOTIFICATION_HEIGHT = 150;
 
-const NOTIFICATION_DURATION = 15000;
+const NOTIFICATION_DURATION = 5000;
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -56,6 +60,7 @@ export function respond(cb: CB): void {
     handleInternalError('Respond called with an empty queue');
     setImmediate(cb);
   }
+  setState('queued');
 }
 
 export function pushToBack(cb: CB): void {
@@ -70,6 +75,7 @@ export function pushToBack(cb: CB): void {
 }
 
 export function closeNotification(): void {
+  setState('snoozing');
   if (notificationWindow) {
     notificationWindow.close();
   }
@@ -86,22 +92,32 @@ export function disableDoNotDisturb(): void {
 }
 
 export function init(cb: CB): void {
-  const state: 'queued' | 'snoozing' = 'queued';
-  function tick() {
-    if (!doNotDisturbEnabled) {
-      switch (state) {
-        case 'queued':
-          showNotification();
-          break;
-        case 'snoozing':
-          showNotification();
-          break;
-      }
-    }
-    setTimeout(tick, TICK_INTERVAL);
-  }
   setTimeout(tick, 5000);
   refreshQueue(cb);
+}
+
+function setState(newState: State): void {
+  console.log(`Setting scheduler state to ${newState}`);
+  state = newState;
+}
+
+function tick() {
+  const sessionState = getSessionState();
+  if (doNotDisturbEnabled || getDoNotDisturb() ||
+    sessionState === 'QUNS_BUSY' || sessionState === 'QUNS_PRESENTATION_MODE'
+  ) {
+    console.log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
+  } else {
+    switch (state) {
+      case 'queued':
+        showNotification();
+        break;
+      case 'snoozing':
+        showNotification();
+        break;
+    }
+  }
+  setTimeout(tick, TICK_INTERVAL);
 }
 
 function refreshQueue(cb: CB): void {

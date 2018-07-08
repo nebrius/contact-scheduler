@@ -18,15 +18,17 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var async_1 = require("async");
+var electron_notification_state_1 = require("electron-notification-state");
 var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
 var util_1 = require("./util");
 var notificationWindow;
 var doNotDisturbEnabled = false;
+var state = 'queued';
 var NOTIFICATION_WIDTH = 310;
 var NOTIFICATION_HEIGHT = 150;
-var NOTIFICATION_DURATION = 15000;
+var NOTIFICATION_DURATION = 5000;
 var DAY_IN_MS = 1000 * 60 * 60 * 24;
 var MIN_MONTHLY_GAP = DAY_IN_MS * 25;
 var MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
@@ -48,6 +50,7 @@ function respond(cb) {
         util_1.handleInternalError('Respond called with an empty queue');
         setImmediate(cb);
     }
+    setState('queued');
 }
 exports.respond = respond;
 function pushToBack(cb) {
@@ -63,6 +66,7 @@ function pushToBack(cb) {
 }
 exports.pushToBack = pushToBack;
 function closeNotification() {
+    setState('snoozing');
     if (notificationWindow) {
         notificationWindow.close();
     }
@@ -79,24 +83,32 @@ function disableDoNotDisturb() {
 }
 exports.disableDoNotDisturb = disableDoNotDisturb;
 function init(cb) {
-    var state = 'queued';
-    function tick() {
-        if (!doNotDisturbEnabled) {
-            switch (state) {
-                case 'queued':
-                    showNotification();
-                    break;
-                case 'snoozing':
-                    showNotification();
-                    break;
-            }
-        }
-        setTimeout(tick, TICK_INTERVAL);
-    }
     setTimeout(tick, 5000);
     refreshQueue(cb);
 }
 exports.init = init;
+function setState(newState) {
+    console.log("Setting scheduler state to " + newState);
+    state = newState;
+}
+function tick() {
+    var sessionState = electron_notification_state_1.getSessionState();
+    if (doNotDisturbEnabled || electron_notification_state_1.getDoNotDisturb() ||
+        sessionState === 'QUNS_BUSY' || sessionState === 'QUNS_PRESENTATION_MODE') {
+        console.log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
+    }
+    else {
+        switch (state) {
+            case 'queued':
+                showNotification();
+                break;
+            case 'snoozing':
+                showNotification();
+                break;
+        }
+    }
+    setTimeout(tick, TICK_INTERVAL);
+}
 function refreshQueue(cb) {
     var queue = db_1.dataSource.getQueue();
     var lastUpdated = moment(queue.lastUpdated);
