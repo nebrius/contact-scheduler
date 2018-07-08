@@ -42,7 +42,14 @@ import {
   deleteContact,
   dataSource
 } from './db';
-import { init as initScheduler, closeNotification, respond, pushToBack } from './scheduler';
+import {
+  init as initScheduler,
+  closeNotification,
+  respond,
+  pushToBack,
+  enableDoNotDisturb,
+  disableDoNotDisturb
+} from './scheduler';
 
 const ICON_PATH = join(__dirname, 'icon.png');
 
@@ -90,13 +97,13 @@ function createTray() {
     type: 'checkbox',
     click(menuItem: MenuItem) {
       if (menuItem.checked) {
-        console.log('Enabling Do Not Disturb mode');
+        enableDoNotDisturb();
       } else {
-        console.log('Enabling Do Not Disturb mode');
+        disableDoNotDisturb();
       }
     }
   }]);
-  tray.setToolTip('This is my application.');
+  tray.setToolTip('Contact Scheduler');
   tray.setContextMenu(contextMenu);
   tray.on('click', () => {
     if (mainWindow) {
@@ -126,8 +133,8 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
-  // Normally we'd quit the app here, but since we have
-  // a system tray icon, closing all windows behavior is different
+  // Normally we'd quit the app here, but since we have a system tray icon,
+  // closing all windows behavior is different
 });
 
 app.on('activate', () => {

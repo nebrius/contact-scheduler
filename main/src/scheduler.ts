@@ -25,6 +25,7 @@ import { BrowserWindow, screen } from 'electron';
 import { handleInternalError } from './util';
 
 let notificationWindow: BrowserWindow | null;
+let doNotDisturbEnabled = false;
 
 const NOTIFICATION_WIDTH = 310;
 const NOTIFICATION_HEIGHT = 150;
@@ -74,19 +75,28 @@ export function closeNotification(): void {
   }
 }
 
+export function enableDoNotDisturb(): void {
+  console.log('Enabling Do Not Disturb mode');
+  doNotDisturbEnabled = true;
+}
+
+export function disableDoNotDisturb(): void {
+  console.log('Disabling Do Not Disturb mode');
+  doNotDisturbEnabled = false;
+}
+
 export function init(cb: CB): void {
-  const state: 'queued' | 'snoozing' | 'do-not-disturb' = 'queued';
+  const state: 'queued' | 'snoozing' = 'queued';
   function tick() {
-    switch (state) {
-      case 'queued':
-        showNotification();
-        break;
-      case 'snoozing':
-        showNotification();
-        break;
-      case 'do-not-disturb':
-        console.log('Skipping tick because in do not disturb mode');
-        break;
+    if (!doNotDisturbEnabled) {
+      switch (state) {
+        case 'queued':
+          showNotification();
+          break;
+        case 'snoozing':
+          showNotification();
+          break;
+      }
     }
     setTimeout(tick, TICK_INTERVAL);
   }

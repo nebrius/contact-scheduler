@@ -23,6 +23,7 @@ var moment = require("moment-timezone");
 var electron_1 = require("electron");
 var util_1 = require("./util");
 var notificationWindow;
+var doNotDisturbEnabled = false;
 var NOTIFICATION_WIDTH = 310;
 var NOTIFICATION_HEIGHT = 150;
 var NOTIFICATION_DURATION = 15000;
@@ -67,19 +68,28 @@ function closeNotification() {
     }
 }
 exports.closeNotification = closeNotification;
+function enableDoNotDisturb() {
+    console.log('Enabling Do Not Disturb mode');
+    doNotDisturbEnabled = true;
+}
+exports.enableDoNotDisturb = enableDoNotDisturb;
+function disableDoNotDisturb() {
+    console.log('Disabling Do Not Disturb mode');
+    doNotDisturbEnabled = false;
+}
+exports.disableDoNotDisturb = disableDoNotDisturb;
 function init(cb) {
     var state = 'queued';
     function tick() {
-        switch (state) {
-            case 'queued':
-                showNotification();
-                break;
-            case 'snoozing':
-                showNotification();
-                break;
-            case 'do-not-disturb':
-                console.log('Skipping tick because in do not disturb mode');
-                break;
+        if (!doNotDisturbEnabled) {
+            switch (state) {
+                case 'queued':
+                    showNotification();
+                    break;
+                case 'snoozing':
+                    showNotification();
+                    break;
+            }
         }
         setTimeout(tick, TICK_INTERVAL);
     }

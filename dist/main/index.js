@@ -64,14 +64,14 @@ function createTray() {
             type: 'checkbox',
             click: function (menuItem) {
                 if (menuItem.checked) {
-                    console.log('Enabling Do Not Disturb mode');
+                    scheduler_1.enableDoNotDisturb();
                 }
                 else {
-                    console.log('Enabling Do Not Disturb mode');
+                    scheduler_1.disableDoNotDisturb();
                 }
             }
         }]);
-    tray.setToolTip('This is my application.');
+    tray.setToolTip('Contact Scheduler');
     tray.setContextMenu(contextMenu);
     tray.on('click', function () {
         if (mainWindow) {
@@ -99,8 +99,8 @@ electron_1.app.on('ready', function () {
     });
 });
 electron_1.app.on('window-all-closed', function () {
-    // Normally we'd quit the app here, but since we have
-    // a system tray icon, closing all windows behavior is different
+    // Normally we'd quit the app here, but since we have a system tray icon,
+    // closing all windows behavior is different
 });
 electron_1.app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
