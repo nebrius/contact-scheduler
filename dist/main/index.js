@@ -78,6 +78,14 @@ electron_1.app.on('activate', function () {
         });
     }
 });
+function updateQueueInClient() {
+    if (mainWindow) {
+        var args = {
+            queue: db_1.dataSource.getQueue().contactQueue
+        };
+        mainWindow.webContents.send(messages_1.MessageTypes.UpdateQueue, JSON.stringify(args));
+    }
+}
 function finalizeContactOperation(operationErr) {
     if (operationErr) {
         console.error(operationErr);
@@ -132,11 +140,27 @@ electron_1.ipcMain.on(messages_1.MessageTypes.CloseNotification, function (event
     scheduler_1.closeNotification();
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.Respond, function (event, arg) {
-    scheduler_1.closeNotification();
-    scheduler_1.respond();
+    scheduler_1.respond(function (err) {
+        if (err) {
+            console.error("Could not respond to contact: " + err);
+        }
+        else {
+            console.log('Respond to contact');
+            updateQueueInClient();
+        }
+        scheduler_1.closeNotification();
+    });
 });
 electron_1.ipcMain.on(messages_1.MessageTypes.PushToBack, function (event, arg) {
-    scheduler_1.closeNotification();
-    scheduler_1.pushToBack();
+    scheduler_1.pushToBack(function (err) {
+        if (err) {
+            console.error("Could not push contact to the back of the queue: " + err);
+        }
+        else {
+            console.log('Pushed current contact to the back of the queue');
+            updateQueueInClient();
+        }
+        scheduler_1.closeNotification();
+    });
 });
 //# sourceMappingURL=index.js.map

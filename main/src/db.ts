@@ -22,6 +22,7 @@ import { app } from 'electron';
 import { series, waterfall } from 'async';
 import { verbose, Database } from 'sqlite3';
 import { ICalendar, IContact, CB } from './common/types';
+import { handleInternalError } from './util';
 
 const CALENDARS_TABLE_NAME = 'calendars';
 const CONTACTS_TABLE_NAME = 'contacts';
@@ -173,6 +174,14 @@ export function updateContact(contact: IContact, cb: CB): void {
   ], cb);
 }
 
+export function setLastContactedDate(contact: IContact, lastContactedDate: number, cb: CB): void {
+  waterfall([
+    (next: CB) => db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`,
+      [ lastContactedDate, contact.id ], next),
+    (next: CB) => refreshContacts(next)
+  ], cb);
+}
+
 export function deleteContact(contact: IContact, cb: CB): void {
   waterfall([
     (next: CB) => db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
@@ -192,8 +201,9 @@ function refreshQueue(cb: CB): void {
             return contact;
           }
         }
-        throw new Error(`Internal error: could not locate contact with id ${id}`);
-      });
+        next(handleInternalError(`Could not locate contact with id ${id}`));
+        return null;
+      }).filter((contact: IContact | null) => !!contact);
       queue = {
         contactQueue,
         lastUpdated: result.lastUpdated

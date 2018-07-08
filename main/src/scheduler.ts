@@ -16,11 +16,13 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
+import { series } from 'async';
 import { CB, IContact } from './common/types';
 import { INotificationArguments } from './common/arguments';
-import { dataSource, setWeeklyQueue } from './db';
+import { dataSource, setWeeklyQueue, setLastContactedDate } from './db';
 import * as moment from 'moment-timezone';
 import { BrowserWindow, screen } from 'electron';
+import { handleInternalError } from './util';
 
 let notificationWindow: BrowserWindow | null;
 
@@ -40,12 +42,30 @@ const MAX_WEEKLY_CONTACTS = 10;
 
 const TICK_INTERVAL = 1000 * 60 * 15;
 
-export function respond(): void {
-  console.log('respond');
+export function respond(cb: CB): void {
+  const contactQueue = [ ...dataSource.getQueue().contactQueue ];
+  const currentContact = contactQueue.shift();
+  if (currentContact) {
+    console.log(`Responded to ${currentContact.name}`);
+    series([
+      (next) => setLastContactedDate(currentContact, Date.now(), next),
+      (next) => setWeeklyQueue(contactQueue, next)
+    ], cb);
+  } else {
+    handleInternalError('Respond called with an empty queue');
+    setImmediate(cb);
+  }
 }
 
-export function pushToBack(): void {
-  console.log('pushToBack');
+export function pushToBack(cb: CB): void {
+  const contactQueue = [ ...dataSource.getQueue().contactQueue ];
+  const currentContact = contactQueue.shift();
+  if (currentContact) {
+    contactQueue.push(currentContact);
+    setWeeklyQueue(contactQueue, cb);
+  } else {
+    setImmediate(cb);
+  }
 }
 
 export function closeNotification(): void {

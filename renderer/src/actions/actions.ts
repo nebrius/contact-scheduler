@@ -20,6 +20,7 @@ import { CalendarSource, ICalendar, IContact } from '../common/types';
 export const ACTIONS = {
   UPDATE_CALENDARS: 'UPDATE_CALENDARS',
   UPDATE_CONTACTS: 'UPDATE_CONTACTS',
+  UPDATE_QUEUE: 'UPDATE_QUEUE',
 
   NAVIGATE_TO_HOME: 'NAVIGATE_TO_HOME',
   NAVIGATE_TO_CONTACTS: 'NAVIGATE_TO_CONTACTS',
@@ -51,6 +52,16 @@ export function updateContacts(contacts: IContact[]): IUpdateContactsAction {
   return {
     contacts,
     type: ACTIONS.UPDATE_CONTACTS
+  };
+}
+
+export interface IUpdateQueueAction extends IAction {
+  queue: IContact[];
+}
+export function updateQueue(queue: IContact[]): IUpdateQueueAction {
+  return {
+    queue,
+    type: ACTIONS.UPDATE_QUEUE
   };
 }
 

@@ -40,6 +40,7 @@ var events_1 = require("events");
 var electron_1 = require("electron");
 var async_1 = require("async");
 var sqlite3_1 = require("sqlite3");
+var util_1 = require("./util");
 var CALENDARS_TABLE_NAME = 'calendars';
 var CONTACTS_TABLE_NAME = 'contacts';
 var SCHEDULE_TABLE_NAME = 'schedule';
@@ -152,6 +153,13 @@ function updateContact(contact, cb) {
     ], cb);
 }
 exports.updateContact = updateContact;
+function setLastContactedDate(contact, lastContactedDate, cb) {
+    async_1.waterfall([
+        function (next) { return db.run("UPDATE " + CONTACTS_TABLE_NAME + " SET lastContacted = ? WHERE id = ?", [lastContactedDate, contact.id], next); },
+        function (next) { return refreshContacts(next); }
+    ], cb);
+}
+exports.setLastContactedDate = setLastContactedDate;
 function deleteContact(contact, cb) {
     async_1.waterfall([
         function (next) { return db.run("DELETE FROM " + CONTACTS_TABLE_NAME + " WHERE id = ?", [contact.id], next); },
@@ -171,8 +179,9 @@ function refreshQueue(cb) {
                         return contact;
                     }
                 }
-                throw new Error("Internal error: could not locate contact with id " + id);
-            });
+                next(util_1.handleInternalError("Could not locate contact with id " + id));
+                return null;
+            }).filter(function (contact) { return !!contact; });
             queue = {
                 contactQueue: contactQueue,
                 lastUpdated: result.lastUpdated

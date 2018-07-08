@@ -34,3 +34,7 @@ export interface IUpdateCalendarsArguments {
 export interface IUpdateContactsArguments {
   contacts: IContact[];
 }
+
+export interface IUpdateQueueArguments {
+  queue: IContact[];
+}

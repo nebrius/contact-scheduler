@@ -28,6 +28,7 @@ exports.MessageTypes = {
     CloseDialog: 'CloseDialog',
     UpdateContacts: 'UpdateContacts',
     UpdateCalendars: 'UpdateCalendars',
+    UpdateQueue: 'UpdateQueue',
     CloseNotification: 'CloseNotification',
     Respond: 'Respond',
     PushToBack: 'PushToBack'

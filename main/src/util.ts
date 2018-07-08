@@ -15,21 +15,17 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { ACTIONS, IAction, IUpdateQueueAction } from '../../actions/actions';
-import { IContact } from '../../common/types';
+import { join } from 'path';
+import { readFileSync } from 'fs';
 
-export function createContactQueueReducer(contactQueue: IContact[]): Reducer<IContact[]> {
-  const DEFAULT_STATE: IContact[] = contactQueue;
-  return (state: IContact[] | undefined, action: IAction) => {
-    if (!state) {
-      state = DEFAULT_STATE;
-    }
-    switch (action.type) {
-      case ACTIONS.UPDATE_QUEUE:
-        return (action as IUpdateQueueAction).queue;
-      default:
-        return state;
-    }
-  };
+const bugUrl = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json')).toString()).bugs.url;
+
+export function handleInternalError(message: string): Error {
+  if (process.env.NODE_ENV === 'development') {
+    throw new Error(`Internal Error: ${message}`);
+  } else {
+    const msg = `Internal Error: ${message}. Please report this bug at ${bugUrl}`;
+    console.error(msg);
+    return new Error(msg);
+  }
 }

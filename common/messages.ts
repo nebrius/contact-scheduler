@@ -32,6 +32,7 @@ export const MessageTypes = {
 
   UpdateContacts: 'UpdateContacts',
   UpdateCalendars: 'UpdateCalendars',
+  UpdateQueue: 'UpdateQueue',
 
   CloseNotification: 'CloseNotification',
   Respond: 'Respond',

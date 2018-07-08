@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,22 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { Reducer } from 'redux';
-import { ACTIONS, IAction, IUpdateQueueAction } from '../../actions/actions';
-import { IContact } from '../../common/types';
-
-export function createContactQueueReducer(contactQueue: IContact[]): Reducer<IContact[]> {
-  const DEFAULT_STATE: IContact[] = contactQueue;
-  return (state: IContact[] | undefined, action: IAction) => {
-    if (!state) {
-      state = DEFAULT_STATE;
+Object.defineProperty(exports, "__esModule", { value: true });
+var path_1 = require("path");
+var fs_1 = require("fs");
+var bugUrl = JSON.parse(fs_1.readFileSync(path_1.join(__dirname, '..', '..', 'package.json')).toString()).bugs.url;
+function handleInternalError(message) {
+    if (process.env.NODE_ENV === 'development') {
+        throw new Error("Internal Error: " + message);
     }
-    switch (action.type) {
-      case ACTIONS.UPDATE_QUEUE:
-        return (action as IUpdateQueueAction).queue;
-      default:
-        return state;
+    else {
+        var msg = "Internal Error: " + message + ". Please report this bug at " + bugUrl;
+        console.error(msg);
+        return new Error(msg);
     }
-  };
 }
+exports.handleInternalError = handleInternalError;
+//# sourceMappingURL=util.js.map

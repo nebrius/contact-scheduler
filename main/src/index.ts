@@ -29,7 +29,8 @@ import { CB } from './common/types';
 import {
   IAppArguments,
   IUpdateCalendarsArguments,
-  IUpdateContactsArguments
+  IUpdateContactsArguments,
+  IUpdateQueueArguments
 } from './common/arguments';
 import {
   init as initDB,
@@ -104,6 +105,15 @@ app.on('activate', () => {
   }
 });
 
+function updateQueueInClient() {
+  if (mainWindow) {
+    const args: IUpdateQueueArguments = {
+      queue: dataSource.getQueue().contactQueue
+    };
+    mainWindow.webContents.send(MessageTypes.UpdateQueue, JSON.stringify(args));
+  }
+}
+
 function finalizeContactOperation(operationErr?: Error) {
   if (operationErr) {
     console.error(operationErr);
@@ -163,11 +173,25 @@ ipcMain.on(MessageTypes.CloseNotification, (event: Event, arg: string) => {
 });
 
 ipcMain.on(MessageTypes.Respond, (event: Event, arg: string) => {
-  closeNotification();
-  respond();
+  respond((err) => {
+    if (err) {
+      console.error(`Could not respond to contact: ${err}`);
+    } else {
+      console.log('Respond to contact');
+      updateQueueInClient();
+    }
+    closeNotification();
+  });
 });
 
 ipcMain.on(MessageTypes.PushToBack, (event: Event, arg: string) => {
-  closeNotification();
-  pushToBack();
+  pushToBack((err) => {
+    if (err) {
+      console.error(`Could not push contact to the back of the queue: ${err}`);
+    } else {
+      console.log('Pushed current contact to the back of the queue');
+      updateQueueInClient();
+    }
+    closeNotification();
+  });
 });

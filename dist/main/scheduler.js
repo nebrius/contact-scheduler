@@ -17,9 +17,11 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
+var async_1 = require("async");
 var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
+var util_1 = require("./util");
 var notificationWindow;
 var NOTIFICATION_WIDTH = 310;
 var NOTIFICATION_HEIGHT = 150;
@@ -31,12 +33,32 @@ var MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 var QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
 var MAX_WEEKLY_CONTACTS = 10;
 var TICK_INTERVAL = 1000 * 60 * 15;
-function respond() {
-    console.log('respond');
+function respond(cb) {
+    var contactQueue = db_1.dataSource.getQueue().contactQueue.slice();
+    var currentContact = contactQueue.shift();
+    if (currentContact) {
+        console.log("Responded to " + currentContact.name);
+        async_1.series([
+            function (next) { return db_1.setLastContactedDate(currentContact, Date.now(), next); },
+            function (next) { return db_1.setWeeklyQueue(contactQueue, next); }
+        ], cb);
+    }
+    else {
+        util_1.handleInternalError('Respond called with an empty queue');
+        setImmediate(cb);
+    }
 }
 exports.respond = respond;
-function pushToBack() {
-    console.log('pushToBack');
+function pushToBack(cb) {
+    var contactQueue = db_1.dataSource.getQueue().contactQueue.slice();
+    var currentContact = contactQueue.shift();
+    if (currentContact) {
+        contactQueue.push(currentContact);
+        db_1.setWeeklyQueue(contactQueue, cb);
+    }
+    else {
+        setImmediate(cb);
+    }
 }
 exports.pushToBack = pushToBack;
 function closeNotification() {
