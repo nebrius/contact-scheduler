@@ -17,7 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { series } from 'async';
-import { app, BrowserWindow, ipcMain, Event } from 'electron';
+import { app, BrowserWindow, Tray, Menu, MenuItem, ipcMain, Event } from 'electron';
 import {
   MessageTypes,
   ISaveContactMessage,
@@ -44,15 +44,26 @@ import {
 } from './db';
 import { init as initScheduler, closeNotification, respond, pushToBack } from './scheduler';
 
-// Keep a global reference of the window object, if you don't, the window will
+const ICON_PATH = join(__dirname, 'icon.png');
+
+// Keep a global reference of the window and tray objects, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | null = null;
+let tray: Tray | null = null;
+
+function quitApp() {
+  if (tray) {
+    tray.destroy();
+  }
+  process.exit(0);
+}
 
 function createWindow(args: IAppArguments) {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     show: false,
+    icon: ICON_PATH,
     webPreferences: {
       additionalArguments: [ JSON.stringify(args) ]
     }
@@ -62,6 +73,34 @@ function createWindow(args: IAppArguments) {
   mainWindow.once('ready-to-show', () => {
     if (mainWindow) {
       mainWindow.show();
+    }
+  });
+}
+
+function createTray() {
+  tray = new Tray(ICON_PATH);
+  const contextMenu = Menu.buildFromTemplate([{
+    label: 'Quit',
+    type: 'normal',
+    click() {
+      quitApp();
+    }
+  }, {
+    label: 'Do Not Disturb',
+    type: 'checkbox',
+    click(menuItem: MenuItem) {
+      if (menuItem.checked) {
+        console.log('Enabling Do Not Disturb mode');
+      } else {
+        console.log('Enabling Do Not Disturb mode');
+      }
+    }
+  }]);
+  tray.setToolTip('This is my application.');
+  tray.setContextMenu(contextMenu);
+  tray.on('click', () => {
+    if (mainWindow) {
+      mainWindow.focus();
     }
   });
 }
@@ -81,16 +120,14 @@ app.on('ready', () => {
       contacts: dataSource.getContacts(),
       contactQueue: dataSource.getQueue().contactQueue
     });
+    createTray();
     console.log('running');
   });
 });
 
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  // Normally we'd quit the app here, but since we have
+  // a system tray icon, closing all windows behavior is different
 });
 
 app.on('activate', () => {

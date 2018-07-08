@@ -22,14 +22,23 @@ var electron_1 = require("electron");
 var messages_1 = require("./common/messages");
 var db_1 = require("./db");
 var scheduler_1 = require("./scheduler");
-// Keep a global reference of the window object, if you don't, the window will
+var ICON_PATH = path_1.join(__dirname, 'icon.png');
+// Keep a global reference of the window and tray objects, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
+var tray = null;
+function quitApp() {
+    if (tray) {
+        tray.destroy();
+    }
+    process.exit(0);
+}
 function createWindow(args) {
     mainWindow = new electron_1.BrowserWindow({
         width: 800,
         height: 600,
         show: false,
+        icon: ICON_PATH,
         webPreferences: {
             additionalArguments: [JSON.stringify(args)]
         }
@@ -39,6 +48,34 @@ function createWindow(args) {
     mainWindow.once('ready-to-show', function () {
         if (mainWindow) {
             mainWindow.show();
+        }
+    });
+}
+function createTray() {
+    tray = new electron_1.Tray(ICON_PATH);
+    var contextMenu = electron_1.Menu.buildFromTemplate([{
+            label: 'Quit',
+            type: 'normal',
+            click: function () {
+                quitApp();
+            }
+        }, {
+            label: 'Do Not Disturb',
+            type: 'checkbox',
+            click: function (menuItem) {
+                if (menuItem.checked) {
+                    console.log('Enabling Do Not Disturb mode');
+                }
+                else {
+                    console.log('Enabling Do Not Disturb mode');
+                }
+            }
+        }]);
+    tray.setToolTip('This is my application.');
+    tray.setContextMenu(contextMenu);
+    tray.on('click', function () {
+        if (mainWindow) {
+            mainWindow.focus();
         }
     });
 }
@@ -57,15 +94,13 @@ electron_1.app.on('ready', function () {
             contacts: db_1.dataSource.getContacts(),
             contactQueue: db_1.dataSource.getQueue().contactQueue
         });
+        createTray();
         console.log('running');
     });
 });
 electron_1.app.on('window-all-closed', function () {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-        electron_1.app.quit();
-    }
+    // Normally we'd quit the app here, but since we have
+    // a system tray icon, closing all windows behavior is different
 });
 electron_1.app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
