@@ -22,7 +22,7 @@ import { app } from 'electron';
 import { series, waterfall } from 'async';
 import { verbose, Database } from 'sqlite3';
 import { ICalendar, IContact, CB } from './common/types';
-import { handleInternalError } from './util';
+import { handleInternalError, log } from './util';
 
 const CALENDARS_TABLE_NAME = 'calendars';
 const CONTACTS_TABLE_NAME = 'contacts';
@@ -88,7 +88,7 @@ export const dataSource = new DataSource();
 export function init(cb: CB): void {
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
-  console.log(`Loading database from ${dbPath}`);
+  log(`Loading database from ${dbPath}`);
   waterfall([
     (next: (err: Error | null) => void) => (db = new sqlite3.Database(dbPath, next)),
     (next: CB) => {
@@ -96,7 +96,7 @@ export function init(cb: CB): void {
         next(undefined);
         return;
       }
-      console.log(`New database detected, initializing`);
+      log(`New database detected, initializing`);
       // Need to slice off extra params so can't pass cb or next directly here
       series([
         (nextInit) => db.run(CALENDAR_SCHEMA, (err?: Error) => nextInit(err)),

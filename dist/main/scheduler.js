@@ -23,24 +23,27 @@ var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
 var util_1 = require("./util");
+// TODO: These settings should be made configurable by the user eventually
+var TIME_BUCKET_INTERVAL = 1000 * 60 * 15;
+var NOTIFICATION_DURATION = 5000;
+var MAX_WEEKLY_CONTACTS = 10;
+var START_OF_AVAILABILITY = 10;
+var END_OF_AVAILABILITY = 17;
+var timeBuckets = [];
 var notificationWindow;
 var doNotDisturbEnabled = false;
-var state = 'queued';
 var NOTIFICATION_WIDTH = 310;
 var NOTIFICATION_HEIGHT = 150;
-var NOTIFICATION_DURATION = 5000;
 var DAY_IN_MS = 1000 * 60 * 60 * 24;
 var MIN_MONTHLY_GAP = DAY_IN_MS * 25;
 var MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
 var MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 var QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
-var MAX_WEEKLY_CONTACTS = 10;
-var TICK_INTERVAL = 1000 * 60 * 15;
 function respond(cb) {
     var contactQueue = db_1.dataSource.getQueue().contactQueue.slice();
     var currentContact = contactQueue.shift();
     if (currentContact) {
-        console.log("Responded to " + currentContact.name);
+        util_1.log("Responded to " + currentContact.name);
         async_1.series([
             function (next) { return db_1.setLastContactedDate(currentContact, Date.now(), next); },
             function (next) { return db_1.setWeeklyQueue(contactQueue, next); }
@@ -50,7 +53,7 @@ function respond(cb) {
         util_1.handleInternalError('Respond called with an empty queue');
         setImmediate(cb);
     }
-    setState('queued');
+    // TODO: Mark the next X time buckets as unavailable to even out distance
 }
 exports.respond = respond;
 function pushToBack(cb) {
@@ -66,48 +69,82 @@ function pushToBack(cb) {
 }
 exports.pushToBack = pushToBack;
 function closeNotification() {
-    setState('snoozing');
     if (notificationWindow) {
         notificationWindow.close();
     }
 }
 exports.closeNotification = closeNotification;
 function enableDoNotDisturb() {
-    console.log('Enabling Do Not Disturb mode');
+    util_1.log('Enabling Do Not Disturb mode');
     doNotDisturbEnabled = true;
 }
 exports.enableDoNotDisturb = enableDoNotDisturb;
 function disableDoNotDisturb() {
-    console.log('Disabling Do Not Disturb mode');
+    util_1.log('Disabling Do Not Disturb mode');
     doNotDisturbEnabled = false;
 }
 exports.disableDoNotDisturb = disableDoNotDisturb;
 function init(cb) {
     setTimeout(tick, 5000);
-    refreshQueue(cb);
+    async_1.parallel([
+        refreshQueue,
+        refreshTimeBuckets
+    ], cb);
 }
 exports.init = init;
-function setState(newState) {
-    console.log("Setting scheduler state to " + newState);
-    state = newState;
-}
 function tick() {
+    var now = Date.now();
     var sessionState = electron_notification_state_1.getSessionState();
     if (doNotDisturbEnabled || electron_notification_state_1.getDoNotDisturb() ||
         sessionState === 'QUNS_BUSY' || sessionState === 'QUNS_PRESENTATION_MODE') {
-        console.log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
+        util_1.log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
     }
     else {
-        switch (state) {
-            case 'queued':
-                showNotification();
-                break;
-            case 'snoozing':
-                showNotification();
-                break;
+        // Get rid of expired buckets, if they exist
+        while (timeBuckets.length && timeBuckets[0].start + TIME_BUCKET_INTERVAL < now) {
+            timeBuckets.shift();
+        }
+        if (!timeBuckets.length) {
+            util_1.log('Determining the week\'s schedule...');
+            async_1.parallel([
+                refreshQueue,
+                refreshTimeBuckets
+            ], function () { return util_1.log('Done determing the week\'s schedule'); });
+        }
+        else {
+            // Extra sanity-checking just in case we hit a gap in the time buckets. This *should* never happen
+            if (timeBuckets.length && timeBuckets[0].start < now) {
+                var currentBucket = timeBuckets.shift();
+                if (currentBucket && currentBucket.available) {
+                    showNotification();
+                }
+                else {
+                    util_1.log('Nothing to do this interval because the user is not available');
+                }
+            }
+            else {
+                util_1.handleInternalError('Gap in time buckets detected');
+            }
         }
     }
-    setTimeout(tick, TICK_INTERVAL);
+    setTimeout(tick, TIME_BUCKET_INTERVAL);
+}
+function refreshTimeBuckets(cb) {
+    var endOfWeek = moment().endOf('week');
+    var currentBucket = moment().startOf('hour');
+    timeBuckets = [];
+    while (currentBucket.isBefore(endOfWeek)) {
+        var available = currentBucket.hour() >= START_OF_AVAILABILITY &&
+            currentBucket.hour() <= END_OF_AVAILABILITY &&
+            currentBucket.day() > 0 &&
+            currentBucket.day() < 6;
+        timeBuckets.push({
+            start: currentBucket.toDate().getTime(),
+            available: available
+        });
+        currentBucket.add(TIME_BUCKET_INTERVAL, 'milliseconds');
+    }
+    setImmediate(cb);
 }
 function refreshQueue(cb) {
     var queue = db_1.dataSource.getQueue();
@@ -158,13 +195,14 @@ function refreshQueue(cb) {
         newContactQueue[i] = newContactQueue[j];
         newContactQueue[j] = temp;
     }
-    console.log("Scheduling " + newContactQueue.length + " contacts out of " + weights.length + " possible contacts");
-    db_1.setWeeklyQueue(newContactQueue, cb);
+    util_1.log("Scheduling " + newContactQueue.length + " contacts out of " + weights.length + " possible contacts");
+    refreshTimeBuckets(cb);
 }
 function showNotification() {
     var args = {
         contact: db_1.dataSource.getQueue().contactQueue[0]
     };
+    util_1.log("Showing notification for " + args.contact.name);
     var _a = electron_1.screen.getPrimaryDisplay().size, width = _a.width, height = _a.height;
     notificationWindow = new electron_1.BrowserWindow({
         width: NOTIFICATION_WIDTH,

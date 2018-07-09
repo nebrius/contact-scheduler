@@ -16,25 +16,33 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
-import { series } from 'async';
+import { series, parallel } from 'async';
 import { getDoNotDisturb, getSessionState } from 'electron-notification-state';
 import { CB, IContact } from './common/types';
 import { INotificationArguments } from './common/arguments';
 import { dataSource, setWeeklyQueue, setLastContactedDate } from './db';
 import * as moment from 'moment-timezone';
 import { BrowserWindow, screen } from 'electron';
-import { handleInternalError } from './util';
+import { handleInternalError, log } from './util';
+
+// TODO: These settings should be made configurable by the user eventually
+const TIME_BUCKET_INTERVAL = 1000 * 60 * 15;
+const NOTIFICATION_DURATION = 5000;
+const MAX_WEEKLY_CONTACTS = 10;
+const START_OF_AVAILABILITY = 10;
+const END_OF_AVAILABILITY = 17;
+
+interface ITimeBucket {
+  start: number;
+  available: boolean;
+}
+let timeBuckets: ITimeBucket[] = [];
 
 let notificationWindow: BrowserWindow | null;
 let doNotDisturbEnabled = false;
 
-type State = 'queued' | 'snoozing';
-let state: State = 'queued';
-
 const NOTIFICATION_WIDTH = 310;
 const NOTIFICATION_HEIGHT = 150;
-
-const NOTIFICATION_DURATION = 5000;
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -43,15 +51,11 @@ const MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
 const MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 const QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
 
-const MAX_WEEKLY_CONTACTS = 10;
-
-const TICK_INTERVAL = 1000 * 60 * 15;
-
 export function respond(cb: CB): void {
   const contactQueue = [ ...dataSource.getQueue().contactQueue ];
   const currentContact = contactQueue.shift();
   if (currentContact) {
-    console.log(`Responded to ${currentContact.name}`);
+    log(`Responded to ${currentContact.name}`);
     series([
       (next) => setLastContactedDate(currentContact, Date.now(), next),
       (next) => setWeeklyQueue(contactQueue, next)
@@ -60,7 +64,7 @@ export function respond(cb: CB): void {
     handleInternalError('Respond called with an empty queue');
     setImmediate(cb);
   }
-  setState('queued');
+  // TODO: Mark the next X time buckets as unavailable to even out distance
 }
 
 export function pushToBack(cb: CB): void {
@@ -75,49 +79,81 @@ export function pushToBack(cb: CB): void {
 }
 
 export function closeNotification(): void {
-  setState('snoozing');
   if (notificationWindow) {
     notificationWindow.close();
   }
 }
 
 export function enableDoNotDisturb(): void {
-  console.log('Enabling Do Not Disturb mode');
+  log('Enabling Do Not Disturb mode');
   doNotDisturbEnabled = true;
 }
 
 export function disableDoNotDisturb(): void {
-  console.log('Disabling Do Not Disturb mode');
+  log('Disabling Do Not Disturb mode');
   doNotDisturbEnabled = false;
 }
 
 export function init(cb: CB): void {
   setTimeout(tick, 5000);
-  refreshQueue(cb);
-}
-
-function setState(newState: State): void {
-  console.log(`Setting scheduler state to ${newState}`);
-  state = newState;
+  parallel([
+    refreshQueue,
+    refreshTimeBuckets
+  ], cb);
 }
 
 function tick() {
+  const now = Date.now();
   const sessionState = getSessionState();
   if (doNotDisturbEnabled || getDoNotDisturb() ||
     sessionState === 'QUNS_BUSY' || sessionState === 'QUNS_PRESENTATION_MODE'
   ) {
-    console.log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
+    log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
   } else {
-    switch (state) {
-      case 'queued':
-        showNotification();
-        break;
-      case 'snoozing':
-        showNotification();
-        break;
+    // Get rid of expired buckets, if they exist
+    while (timeBuckets.length && timeBuckets[0].start + TIME_BUCKET_INTERVAL < now) {
+      timeBuckets.shift();
+    }
+    if (!timeBuckets.length) {
+      log('Determining the week\'s schedule...');
+      parallel([
+        refreshQueue,
+        refreshTimeBuckets
+      ], () => log('Done determing the week\'s schedule'));
+    } else {
+      // Extra sanity-checking just in case we hit a gap in the time buckets. This *should* never happen
+      if (timeBuckets.length && timeBuckets[0].start < now) {
+        const currentBucket = timeBuckets.shift();
+        if (currentBucket && currentBucket.available) {
+          showNotification();
+        } else {
+          log('Nothing to do this interval because the user is not available');
+        }
+      } else {
+        handleInternalError('Gap in time buckets detected');
+      }
     }
   }
-  setTimeout(tick, TICK_INTERVAL);
+  setTimeout(tick, TIME_BUCKET_INTERVAL);
+}
+
+function refreshTimeBuckets(cb: CB): void {
+  const endOfWeek = moment().endOf('week');
+  const currentBucket = moment().startOf('hour');
+  timeBuckets = [];
+  while (currentBucket.isBefore(endOfWeek)) {
+    const available =
+      currentBucket.hour() >= START_OF_AVAILABILITY &&
+      currentBucket.hour() <= END_OF_AVAILABILITY &&
+      currentBucket.day() > 0 &&
+      currentBucket.day() < 6;
+    timeBuckets.push({
+      start: currentBucket.toDate().getTime(),
+      available
+    });
+    currentBucket.add(TIME_BUCKET_INTERVAL, 'milliseconds');
+  }
+  setImmediate(cb);
 }
 
 function refreshQueue(cb: CB): void {
@@ -170,14 +206,15 @@ function refreshQueue(cb: CB): void {
     newContactQueue[j] = temp;
   }
 
-  console.log(`Scheduling ${newContactQueue.length} contacts out of ${weights.length} possible contacts`);
-  setWeeklyQueue(newContactQueue, cb);
+  log(`Scheduling ${newContactQueue.length} contacts out of ${weights.length} possible contacts`);
+  refreshTimeBuckets(cb);
 }
 
 function showNotification() {
   const args: INotificationArguments = {
     contact: dataSource.getQueue().contactQueue[0]
   };
+  log(`Showing notification for ${args.contact.name}`);
   const { width, height } = screen.getPrimaryDisplay().size;
   notificationWindow = new BrowserWindow({
     width: NOTIFICATION_WIDTH,

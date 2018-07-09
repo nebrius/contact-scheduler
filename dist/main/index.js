@@ -22,6 +22,7 @@ var electron_1 = require("electron");
 var messages_1 = require("./common/messages");
 var db_1 = require("./db");
 var scheduler_1 = require("./scheduler");
+var util_1 = require("./util");
 var ICON_PATH = path_1.join(__dirname, 'icon.png');
 // Keep a global reference of the window and tray objects, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -85,7 +86,7 @@ electron_1.app.on('ready', function () {
         function (next) { return scheduler_1.init(next); }
     ], function (err) {
         if (err) {
-            console.error(err);
+            util_1.error(err);
             process.exit(-1);
             return;
         }
@@ -95,7 +96,7 @@ electron_1.app.on('ready', function () {
             contactQueue: db_1.dataSource.getQueue().contactQueue
         });
         createTray();
-        console.log('running');
+        util_1.log('running');
     });
 });
 electron_1.app.on('window-all-closed', function () {
@@ -123,7 +124,7 @@ function updateQueueInClient() {
 }
 function finalizeContactOperation(operationErr) {
     if (operationErr) {
-        console.error(operationErr);
+        util_1.error(operationErr);
         return;
     }
     if (mainWindow) {
@@ -148,7 +149,7 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteContact, function (ev
 });
 function finalizeCalendarOperation(operationErr) {
     if (operationErr) {
-        console.error(operationErr);
+        util_1.error(operationErr);
         return;
     }
     if (mainWindow) {
@@ -177,10 +178,10 @@ electron_1.ipcMain.on(messages_1.MessageTypes.CloseNotification, function (event
 electron_1.ipcMain.on(messages_1.MessageTypes.Respond, function (event, arg) {
     scheduler_1.respond(function (err) {
         if (err) {
-            console.error("Could not respond to contact: " + err);
+            util_1.error("Could not respond to contact: " + err);
         }
         else {
-            console.log('Respond to contact');
+            util_1.log('Respond to contact');
             updateQueueInClient();
         }
         scheduler_1.closeNotification();
@@ -189,10 +190,10 @@ electron_1.ipcMain.on(messages_1.MessageTypes.Respond, function (event, arg) {
 electron_1.ipcMain.on(messages_1.MessageTypes.PushToBack, function (event, arg) {
     scheduler_1.pushToBack(function (err) {
         if (err) {
-            console.error("Could not push contact to the back of the queue: " + err);
+            util_1.error("Could not push contact to the back of the queue: " + err);
         }
         else {
-            console.log('Pushed current contact to the back of the queue');
+            util_1.log('Pushed current contact to the back of the queue');
             updateQueueInClient();
         }
         scheduler_1.closeNotification();

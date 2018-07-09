@@ -25,9 +25,17 @@ function handleInternalError(message) {
     }
     else {
         var msg = "Internal Error: " + message + ". Please report this bug at " + bugUrl;
-        console.error(msg);
+        error(msg);
         return new Error(msg);
     }
 }
 exports.handleInternalError = handleInternalError;
+function log(message) {
+    console.log((new Date()).toLocaleString() + ": " + message);
+}
+exports.log = log;
+function error(message) {
+    console.error((new Date()).toLocaleString() + ": " + message);
+}
+exports.error = error;
 //# sourceMappingURL=util.js.map

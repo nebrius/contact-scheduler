@@ -25,7 +25,15 @@ export function handleInternalError(message: string): Error {
     throw new Error(`Internal Error: ${message}`);
   } else {
     const msg = `Internal Error: ${message}. Please report this bug at ${bugUrl}`;
-    console.error(msg);
+    error(msg);
     return new Error(msg);
   }
+}
+
+export function log(message: string): void {
+  console.log(`${(new Date()).toLocaleString()}: ${message}`);
+}
+
+export function error(message: string | Error): void {
+  console.error(`${(new Date()).toLocaleString()}: ${message}`);
 }

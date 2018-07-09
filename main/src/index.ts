@@ -50,6 +50,7 @@ import {
   enableDoNotDisturb,
   disableDoNotDisturb
 } from './scheduler';
+import { log, error } from './util';
 
 const ICON_PATH = join(__dirname, 'icon.png');
 
@@ -118,7 +119,7 @@ app.on('ready', () => {
     (next: CB) => initScheduler(next)
   ], (err) => {
     if (err) {
-      console.error(err);
+      error(err);
       process.exit(-1);
       return;
     }
@@ -128,7 +129,7 @@ app.on('ready', () => {
       contactQueue: dataSource.getQueue().contactQueue
     });
     createTray();
-    console.log('running');
+    log('running');
   });
 });
 
@@ -160,7 +161,7 @@ function updateQueueInClient() {
 
 function finalizeContactOperation(operationErr?: Error) {
   if (operationErr) {
-    console.error(operationErr);
+    error(operationErr);
     return;
   }
   if (mainWindow) {
@@ -187,7 +188,7 @@ ipcMain.on(MessageTypes.RequestDeleteContact, (event: Event, arg: string) => {
 
 function finalizeCalendarOperation(operationErr?: Error) {
   if (operationErr) {
-    console.error(operationErr);
+    error(operationErr);
     return;
   }
   if (mainWindow) {
@@ -219,9 +220,9 @@ ipcMain.on(MessageTypes.CloseNotification, (event: Event, arg: string) => {
 ipcMain.on(MessageTypes.Respond, (event: Event, arg: string) => {
   respond((err) => {
     if (err) {
-      console.error(`Could not respond to contact: ${err}`);
+      error(`Could not respond to contact: ${err}`);
     } else {
-      console.log('Respond to contact');
+      log('Respond to contact');
       updateQueueInClient();
     }
     closeNotification();
@@ -231,9 +232,9 @@ ipcMain.on(MessageTypes.Respond, (event: Event, arg: string) => {
 ipcMain.on(MessageTypes.PushToBack, (event: Event, arg: string) => {
   pushToBack((err) => {
     if (err) {
-      console.error(`Could not push contact to the back of the queue: ${err}`);
+      error(`Could not push contact to the back of the queue: ${err}`);
     } else {
-      console.log('Pushed current contact to the back of the queue');
+      log('Pushed current contact to the back of the queue');
       updateQueueInClient();
     }
     closeNotification();

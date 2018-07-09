@@ -75,7 +75,7 @@ exports.dataSource = new DataSource();
 function init(cb) {
     var isNewDB = !fs_1.existsSync(dbPath);
     var sqlite3 = sqlite3_1.verbose();
-    console.log("Loading database from " + dbPath);
+    util_1.log("Loading database from " + dbPath);
     async_1.waterfall([
         function (next) { return (db = new sqlite3.Database(dbPath, next)); },
         function (next) {
@@ -83,7 +83,7 @@ function init(cb) {
                 next(undefined);
                 return;
             }
-            console.log("New database detected, initializing");
+            util_1.log("New database detected, initializing");
             // Need to slice off extra params so can't pass cb or next directly here
             async_1.series([
                 function (nextInit) { return db.run(CALENDAR_SCHEMA, function (err) { return nextInit(err); }); },
