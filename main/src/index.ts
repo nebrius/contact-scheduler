@@ -66,7 +66,12 @@ function quitApp() {
   process.exit(0);
 }
 
-function createWindow(args: IAppArguments) {
+function createWindow() {
+  const args: IAppArguments = {
+    calendars: dataSource.getCalendars(),
+    contacts: dataSource.getContacts(),
+    contactQueue: dataSource.getQueue().contactQueue
+  };
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -123,11 +128,7 @@ app.on('ready', () => {
       process.exit(-1);
       return;
     }
-    createWindow({
-      calendars: dataSource.getCalendars(),
-      contacts: dataSource.getContacts(),
-      contactQueue: dataSource.getQueue().contactQueue
-    });
+    createWindow();
     createTray();
     log('running');
   });
@@ -142,11 +143,7 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
-    createWindow({
-      calendars: dataSource.getCalendars(),
-      contacts: dataSource.getContacts(),
-      contactQueue: dataSource.getQueue().contactQueue
-    });
+    createWindow();
   }
 });
 

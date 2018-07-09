@@ -34,7 +34,12 @@ function quitApp() {
     }
     process.exit(0);
 }
-function createWindow(args) {
+function createWindow() {
+    var args = {
+        calendars: db_1.dataSource.getCalendars(),
+        contacts: db_1.dataSource.getContacts(),
+        contactQueue: db_1.dataSource.getQueue().contactQueue
+    };
     mainWindow = new electron_1.BrowserWindow({
         width: 800,
         height: 600,
@@ -90,11 +95,7 @@ electron_1.app.on('ready', function () {
             process.exit(-1);
             return;
         }
-        createWindow({
-            calendars: db_1.dataSource.getCalendars(),
-            contacts: db_1.dataSource.getContacts(),
-            contactQueue: db_1.dataSource.getQueue().contactQueue
-        });
+        createWindow();
         createTray();
         util_1.log('running');
     });
@@ -107,11 +108,7 @@ electron_1.app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-        createWindow({
-            calendars: db_1.dataSource.getCalendars(),
-            contacts: db_1.dataSource.getContacts(),
-            contactQueue: db_1.dataSource.getQueue().contactQueue
-        });
+        createWindow();
     }
 });
 function updateQueueInClient() {

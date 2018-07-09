@@ -25,7 +25,7 @@ var electron_1 = require("electron");
 var util_1 = require("./util");
 // TODO: These settings should be made configurable by the user eventually
 var TIME_BUCKET_INTERVAL = 1000 * 60 * 15;
-var NOTIFICATION_DURATION = 5000;
+var NOTIFICATION_DURATION = 15000;
 var MAX_WEEKLY_CONTACTS = 10;
 var START_OF_AVAILABILITY = 10;
 var END_OF_AVAILABILITY = 17;
@@ -53,7 +53,22 @@ function respond(cb) {
         util_1.handleInternalError('Respond called with an empty queue');
         setImmediate(cb);
     }
-    // TODO: Mark the next X time buckets as unavailable to even out distance
+    var availableBuckets = 0;
+    for (var _i = 0, timeBuckets_1 = timeBuckets; _i < timeBuckets_1.length; _i++) {
+        var bucket = timeBuckets_1[_i];
+        if (bucket.available) {
+            availableBuckets++;
+        }
+    }
+    var numBucketsToBlock = Math.floor(availableBuckets / (2 * db_1.dataSource.getQueue().contactQueue.length));
+    var i = 0;
+    while (numBucketsToBlock > 0 && i < timeBuckets.length) {
+        if (timeBuckets[i].available) {
+            timeBuckets[i].available = false;
+            numBucketsToBlock--;
+        }
+        i++;
+    }
 }
 exports.respond = respond;
 function pushToBack(cb) {
@@ -135,7 +150,7 @@ function refreshTimeBuckets(cb) {
     timeBuckets = [];
     while (currentBucket.isBefore(endOfWeek)) {
         var available = currentBucket.hour() >= START_OF_AVAILABILITY &&
-            currentBucket.hour() <= END_OF_AVAILABILITY &&
+            currentBucket.hour() < END_OF_AVAILABILITY &&
             currentBucket.day() > 0 &&
             currentBucket.day() < 6;
         timeBuckets.push({

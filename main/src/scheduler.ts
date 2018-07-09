@@ -27,7 +27,7 @@ import { handleInternalError, log } from './util';
 
 // TODO: These settings should be made configurable by the user eventually
 const TIME_BUCKET_INTERVAL = 1000 * 60 * 15;
-const NOTIFICATION_DURATION = 5000;
+const NOTIFICATION_DURATION = 15000;
 const MAX_WEEKLY_CONTACTS = 10;
 const START_OF_AVAILABILITY = 10;
 const END_OF_AVAILABILITY = 17;
@@ -64,7 +64,21 @@ export function respond(cb: CB): void {
     handleInternalError('Respond called with an empty queue');
     setImmediate(cb);
   }
-  // TODO: Mark the next X time buckets as unavailable to even out distance
+  let availableBuckets = 0;
+  for (const bucket of timeBuckets) {
+    if (bucket.available) {
+      availableBuckets++;
+    }
+  }
+  let numBucketsToBlock = Math.floor(availableBuckets / (2 * dataSource.getQueue().contactQueue.length));
+  let i = 0;
+  while (numBucketsToBlock > 0 && i < timeBuckets.length) {
+    if (timeBuckets[i].available) {
+      timeBuckets[i].available = false;
+      numBucketsToBlock--;
+    }
+    i++;
+  }
 }
 
 export function pushToBack(cb: CB): void {
@@ -144,7 +158,7 @@ function refreshTimeBuckets(cb: CB): void {
   while (currentBucket.isBefore(endOfWeek)) {
     const available =
       currentBucket.hour() >= START_OF_AVAILABILITY &&
-      currentBucket.hour() <= END_OF_AVAILABILITY &&
+      currentBucket.hour() < END_OF_AVAILABILITY &&
       currentBucket.day() > 0 &&
       currentBucket.day() < 6;
     timeBuckets.push({
