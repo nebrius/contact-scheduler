@@ -183,6 +183,7 @@ export function setLastContactedDate(contact: IContact, lastContactedDate: numbe
 }
 
 export function deleteContact(contact: IContact, cb: CB): void {
+  // TODO: delete from queue if they're in there
   waterfall([
     (next: CB) => db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
       [ contact.id ], next),

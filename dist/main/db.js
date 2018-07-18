@@ -161,6 +161,7 @@ function setLastContactedDate(contact, lastContactedDate, cb) {
 }
 exports.setLastContactedDate = setLastContactedDate;
 function deleteContact(contact, cb) {
+    // TODO: delete from queue if they're in there
     async_1.waterfall([
         function (next) { return db.run("DELETE FROM " + CONTACTS_TABLE_NAME + " WHERE id = ?", [contact.id], next); },
         function (next) { return refreshContacts(next); }

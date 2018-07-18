@@ -221,13 +221,18 @@ function refreshQueue(cb: CB): void {
   }
 
   log(`Scheduling ${newContactQueue.length} contacts out of ${weights.length} possible contacts`);
-  refreshTimeBuckets(cb);
+  series([
+    (next) => setWeeklyQueue(newContactQueue, next),
+    (next) => refreshTimeBuckets(next)
+  ], cb);
 }
 
 function showNotification() {
-  const args: INotificationArguments = {
-    contact: dataSource.getQueue().contactQueue[0]
-  };
+  const contact = dataSource.getQueue().contactQueue[0];
+  if (!contact) {
+    return;
+  }
+  const args: INotificationArguments = { contact };
   log(`Showing notification for ${args.contact.name}`);
   const { width, height } = screen.getPrimaryDisplay().size;
   notificationWindow = new BrowserWindow({

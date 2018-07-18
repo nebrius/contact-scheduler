@@ -2,10 +2,17 @@
 
 A system for scheduling times to reach out to folks regularly that takes into account my anxiety and other brain quirks.
 
-Notes for when I create an actual README:
+This app is currently still pre-beta. If you would like to try this app out, you'll need to jump through a few hoops. Run these instructions from the command line, and it _should_ work:
 
-- Need to set up a proper shortcut for notifications to work. See https://github.com/nadavbar/node-win-shortcut
-- Need to run `electron-rebuild` after `npm install`
+```
+git clone https://github.com/nebrius/contact-scheduler.git
+cd contact-scheduler
+npm install
+./node_modules/.bin/electron-rebuild
+npm start
+```
+
+If you're on Windows, you'll need to set up a shortcut for notifications to work: https://github.com/nadavbar/node-win-shortcut. This _should_ work on macOS without any extra steps, but I haven't tested it yet.
 
 # License
 

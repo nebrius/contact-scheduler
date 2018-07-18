@@ -211,12 +211,17 @@ function refreshQueue(cb) {
         newContactQueue[j] = temp;
     }
     util_1.log("Scheduling " + newContactQueue.length + " contacts out of " + weights.length + " possible contacts");
-    refreshTimeBuckets(cb);
+    async_1.series([
+        function (next) { return db_1.setWeeklyQueue(newContactQueue, next); },
+        function (next) { return refreshTimeBuckets(next); }
+    ], cb);
 }
 function showNotification() {
-    var args = {
-        contact: db_1.dataSource.getQueue().contactQueue[0]
-    };
+    var contact = db_1.dataSource.getQueue().contactQueue[0];
+    if (!contact) {
+        return;
+    }
+    var args = { contact: contact };
     util_1.log("Showing notification for " + args.contact.name);
     var _a = electron_1.screen.getPrimaryDisplay().size, width = _a.width, height = _a.height;
     notificationWindow = new electron_1.BrowserWindow({

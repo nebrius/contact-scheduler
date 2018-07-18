@@ -112,8 +112,8 @@ function createTray() {
   tray.setToolTip('Contact Scheduler');
   tray.setContextMenu(contextMenu);
   tray.on('click', () => {
-    if (mainWindow) {
-      mainWindow.focus();
+    if (!mainWindow) {
+      createWindow();
     }
   });
 }
