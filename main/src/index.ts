@@ -156,7 +156,7 @@ function updateQueueInClient() {
   }
 }
 
-function finalizeContactOperation(operationErr?: Error) {
+function finalizeContactOperation(operationErr: Error | null | undefined) {
   if (operationErr) {
     error(operationErr);
     return;
@@ -183,7 +183,7 @@ ipcMain.on(MessageTypes.RequestDeleteContact, (event: Event, arg: string) => {
   deleteContact(parsedArgs.contact, finalizeContactOperation);
 });
 
-function finalizeCalendarOperation(operationErr?: Error) {
+function finalizeCalendarOperation(operationErr: Error | undefined | null) {
   if (operationErr) {
     error(operationErr);
     return;

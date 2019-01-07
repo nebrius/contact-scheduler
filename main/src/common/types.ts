@@ -1,4 +1,5 @@
-Copyright (C) Bryan Hughes <bryan@nebri.us>
+/*
+Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
 Contact Schedular is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,3 +13,22 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+export type CB = (err: Error | null | undefined) => void;
+export type CBWithResult<Result> = (err: Error | undefined, result: Result | undefined) => void;
+
+export type CalendarSource = 'office365' | 'google' | undefined;
+
+export interface ICalendar {
+  id: number;
+  displayName: string;
+  source: CalendarSource;
+}
+
+export interface IContact {
+  id: number;
+  name: string;
+  frequency: 'weekly' | 'monthly' | 'quarterly';
+  lastContacted: number;
+}

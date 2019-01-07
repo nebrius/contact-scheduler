@@ -8,15 +8,33 @@ This app is currently still pre-beta. If you would like to try this app out, you
 git clone https://github.com/nebrius/contact-scheduler.git
 cd contact-scheduler
 npm install
-./node_modules/.bin/electron-rebuild
+cd renderer
+npm install
+cd ../main
+npm install
+cd ..
+npm run electron-rebuild
+npm run build
 npm start
 ```
 
-If you're on Windows, you'll need to set up a shortcut for notifications to work: https://github.com/nadavbar/node-win-shortcut. This _should_ work on macOS without any extra steps, but I haven't tested it yet.
+**If you're on Windows:**
+
+You'll first need to install the VS build tools. Note that you need VS 2015 tools, not VS 2017 tools to build the sqlite3 dependency. Install them with:
+
+```
+npm install --vs2015 -g windows-build-tools
+```
+
+You'll also need to set up a shortcut for notifications to work: https://github.com/nadavbar/node-win-shortcut. Instructions on how to use that module to create the shortcut are coming soon, just as soon as I remember how I did it the first time 😅.
+
+**If you're on Linux or macOS:**
+
+This _should_ work on macOS and Linux without any extra steps, but I haven't tested it yet so YMMV. If you run into any problems, please file an issue.
 
 # License
 
-Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
+Copyright (C) Bryan Hughes <bryan@nebri.us>
 
 Contact Schedular is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

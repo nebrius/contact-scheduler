@@ -99,12 +99,12 @@ export function init(cb: CB): void {
       log(`New database detected, initializing`);
       // Need to slice off extra params so can't pass cb or next directly here
       series([
-        (nextInit) => db.run(CALENDAR_SCHEMA, (err?: Error) => nextInit(err)),
-        (nextInit) => db.run(CONTACT_SCHEMA, (err?: Error) => nextInit(err)),
-        (nextInit) => db.run(SCHEDULE_SCHEMA, (err?: Error) => nextInit(err)),
-        (nextInit) => db.run(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ],
+        (nextInit: CB) => db.run(CALENDAR_SCHEMA, (err?: Error) => nextInit(err)),
+        (nextInit: CB) => db.run(CONTACT_SCHEMA, (err?: Error) => nextInit(err)),
+        (nextInit: CB) => db.run(SCHEDULE_SCHEMA, (err?: Error) => nextInit(err)),
+        (nextInit: CB) => db.run(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ],
           (err?: Error) => nextInit(err))
-      ], (err?: Error) => next(err));
+      ] as any, (err?: Error) => next(err));
     },
     (next: CB) => refreshContacts(next),
     (next: CB) => refreshCalendars(next),
