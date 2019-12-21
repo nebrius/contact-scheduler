@@ -15,10 +15,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var async_1 = require("async");
-var electron_notification_state_1 = require("electron-notification-state");
 var db_1 = require("./db");
 var moment = require("moment-timezone");
 var electron_1 = require("electron");
@@ -40,7 +46,7 @@ var MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
 var MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 var QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
 function respond(cb) {
-    var contactQueue = db_1.dataSource.getQueue().contactQueue.slice();
+    var contactQueue = __spreadArrays(db_1.dataSource.getQueue().contactQueue);
     var currentContact = contactQueue.shift();
     if (currentContact) {
         util_1.log("Responded to " + currentContact.name);
@@ -72,7 +78,7 @@ function respond(cb) {
 }
 exports.respond = respond;
 function pushToBack(cb) {
-    var contactQueue = db_1.dataSource.getQueue().contactQueue.slice();
+    var contactQueue = __spreadArrays(db_1.dataSource.getQueue().contactQueue);
     var currentContact = contactQueue.shift();
     if (currentContact) {
         contactQueue.push(currentContact);
@@ -109,9 +115,8 @@ function init(cb) {
 exports.init = init;
 function tick() {
     var now = Date.now();
-    var sessionState = electron_notification_state_1.getSessionState();
-    if (doNotDisturbEnabled || electron_notification_state_1.getDoNotDisturb() ||
-        sessionState === 'QUNS_BUSY' || sessionState === 'QUNS_PRESENTATION_MODE') {
+    // TODO: add support for system level notification state on all three platforms (but Linux first)
+    if (doNotDisturbEnabled) {
         util_1.log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
     }
     else {
@@ -250,6 +255,6 @@ function showNotification() {
             }
         }, NOTIFICATION_DURATION);
     });
-    notificationWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'notification.html'));
+    notificationWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'dist', 'notification.html'));
 }
 //# sourceMappingURL=scheduler.js.map

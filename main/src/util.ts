@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import { join } from 'path';
 import { readFileSync } from 'fs';
 
-const bugUrl = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json')).toString()).bugs.url;
+const bugUrl = JSON.parse(readFileSync(join(__dirname, '..', 'package.json')).toString()).bugs.url;
 
 export function handleInternalError(message: string): Error {
   if (process.env.NODE_ENV === 'development') {

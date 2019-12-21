@@ -49,7 +49,7 @@ function createWindow() {
             additionalArguments: [JSON.stringify(args)]
         }
     });
-    mainWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'app.html'));
+    mainWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'dist', 'app.html'));
     mainWindow.on('closed', function () { mainWindow = null; });
     mainWindow.once('ready-to-show', function () {
         if (mainWindow) {

@@ -17,7 +17,6 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { series, parallel } from 'async';
-import { getDoNotDisturb, getSessionState } from 'electron-notification-state';
 import { CB, IContact } from './common/types';
 import { INotificationArguments } from './common/arguments';
 import { dataSource, setWeeklyQueue, setLastContactedDate } from './db';
@@ -118,10 +117,8 @@ export function init(cb: CB): void {
 
 function tick() {
   const now = Date.now();
-  const sessionState = getSessionState();
-  if (doNotDisturbEnabled || getDoNotDisturb() ||
-    sessionState === 'QUNS_BUSY' || sessionState === 'QUNS_PRESENTATION_MODE'
-  ) {
+  // TODO: add support for system level notification state on all three platforms (but Linux first)
+  if (doNotDisturbEnabled) {
     log('Skipping notification tick because Do Not Disturb is enabled in the app or OS');
   } else {
     // Get rid of expired buckets, if they exist
@@ -261,5 +258,5 @@ function showNotification() {
       }
     }, NOTIFICATION_DURATION);
   });
-  notificationWindow.loadFile(join(__dirname, '..', 'renderer', 'notification.html'));
+  notificationWindow.loadFile(join(__dirname, '..', 'renderer', 'dist', 'notification.html'));
 }

@@ -81,7 +81,7 @@ function createWindow() {
       additionalArguments: [ JSON.stringify(args) ]
     }
   } as any);
-  mainWindow.loadFile(join(__dirname, '..', 'renderer', 'app.html'));
+  mainWindow.loadFile(join(__dirname, '..', 'renderer', 'dist', 'app.html'));
   mainWindow.on('closed', () => { mainWindow = null; });
   mainWindow.once('ready-to-show', () => {
     if (mainWindow) {

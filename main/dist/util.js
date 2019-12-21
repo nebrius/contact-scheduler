@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var fs_1 = require("fs");
-var bugUrl = JSON.parse(fs_1.readFileSync(path_1.join(__dirname, '..', '..', 'package.json')).toString()).bugs.url;
+var bugUrl = JSON.parse(fs_1.readFileSync(path_1.join(__dirname, '..', 'package.json')).toString()).bugs.url;
 function handleInternalError(message) {
     if (process.env.NODE_ENV === 'development') {
         throw new Error("Internal Error: " + message);
