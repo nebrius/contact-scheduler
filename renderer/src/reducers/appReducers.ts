@@ -22,7 +22,13 @@ import { createCalendarsReducer } from './app/calendarsReducer';
 import { createUIStateReducer } from './app/uiStateReducer';
 import { IAppArguments } from '../common/arguments';
 
-const initArgs: IAppArguments = JSON.parse(process.argv.pop() as string);
+// The application initialization arguments are passed in as base64 encoded JSON,
+// and we want to parse it here
+const rawInitArgs = (new URL(window.location.href)).searchParams.get('initArgs');
+if (typeof rawInitArgs !== 'string') {
+  throw new Error('Internal Error: rawInitArgs is null');
+}
+const initArgs: IAppArguments = JSON.parse(atob(rawInitArgs));
 
 export const appReducers = combineReducers({
   contacts: createContactsReducer(initArgs.contacts),

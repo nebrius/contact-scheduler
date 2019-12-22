@@ -36,19 +36,11 @@ function quitApp() {
     process.exit(0);
 }
 async function createWindow() {
-    const args = {
-        calendars: db_1.dataSource.getCalendars(),
-        contacts: db_1.dataSource.getContacts(),
-        contactQueue: db_1.dataSource.getQueue().contactQueue
-    };
     mainWindow = new electron_1.BrowserWindow({
         width: 800,
         height: 600,
         show: false,
-        icon: ICON_PATH,
-        webPreferences: {
-            additionalArguments: [JSON.stringify(args)]
-        }
+        icon: ICON_PATH
     });
     mainWindow.once('ready-to-show', () => {
         if (mainWindow) {
@@ -58,7 +50,13 @@ async function createWindow() {
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
-    await mainWindow.loadURL(`http://localhost:${config_1.INTERNAL_SERVER_PORT}/index.html`);
+    const args = {
+        calendars: db_1.dataSource.getCalendars(),
+        contacts: db_1.dataSource.getContacts(),
+        contactQueue: db_1.dataSource.getQueue().contactQueue
+    };
+    const serializedArgs = Buffer.from(JSON.stringify(args)).toString('base64');
+    await mainWindow.loadURL(`http://localhost:${config_1.INTERNAL_SERVER_PORT}/index.html?initArgs=${serializedArgs}`);
 }
 function createTray() {
     tray = new electron_1.Tray(ICON_PATH);

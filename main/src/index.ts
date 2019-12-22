@@ -68,19 +68,11 @@ function quitApp() {
 }
 
 async function createWindow() {
-  const args: IAppArguments = {
-    calendars: dataSource.getCalendars(),
-    contacts: dataSource.getContacts(),
-    contactQueue: dataSource.getQueue().contactQueue
-  };
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     show: false,
-    icon: ICON_PATH,
-    webPreferences: {
-      additionalArguments: [ JSON.stringify(args) ]
-    }
+    icon: ICON_PATH
   });
   mainWindow.once('ready-to-show', () => {
     if (mainWindow) {
@@ -90,7 +82,13 @@ async function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-  await mainWindow.loadURL(`http://localhost:${INTERNAL_SERVER_PORT}/index.html`);
+  const args: IAppArguments = {
+    calendars: dataSource.getCalendars(),
+    contacts: dataSource.getContacts(),
+    contactQueue: dataSource.getQueue().contactQueue
+  };
+  const serializedArgs = Buffer.from(JSON.stringify(args)).toString('base64');
+  await mainWindow.loadURL(`http://localhost:${INTERNAL_SERVER_PORT}/index.html?initArgs=${serializedArgs}`);
 }
 
 function createTray() {
