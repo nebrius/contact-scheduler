@@ -15,13 +15,12 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { join } from 'path';
 import { IContact } from './common/types';
 import { INotificationArguments } from './common/arguments';
 import { dataSource, setWeeklyQueue, setLastContactedDate } from './db';
 import * as moment from 'moment-timezone';
 import { BrowserWindow, screen } from 'electron';
-import { createInternalError, log } from './util';
+import { createInternalError, log, INTERNAL_SERVER_PORT } from './util';
 
 // TODO: These settings should be made configurable by the user eventually
 const TIME_BUCKET_INTERVAL = 1000 * 60 * 15;
@@ -246,5 +245,5 @@ function showNotification() {
       }
     }, NOTIFICATION_DURATION);
   });
-  notificationWindow.loadFile(join(__dirname, '..', 'renderer', 'dist', 'notification.html'));
+  notificationWindow.loadURL(`http://localhost:${INTERNAL_SERVER_PORT}/notification.html`);
 }

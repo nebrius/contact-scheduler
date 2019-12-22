@@ -17,6 +17,8 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { app, BrowserWindow, Tray, Menu, MenuItem, ipcMain, Event } from 'electron';
+import handler = require('serve-handler');
+import { createServer } from 'http';
 import {
   MessageTypes,
   ISaveContactMessage,
@@ -48,7 +50,7 @@ import {
   enableDoNotDisturb,
   disableDoNotDisturb
 } from './scheduler';
-import { log, error } from './util';
+import { log, error, INTERNAL_SERVER_PORT } from './util';
 
 const ICON_PATH = join(__dirname, 'icon.png');
 
@@ -78,8 +80,8 @@ function createWindow() {
     webPreferences: {
       additionalArguments: [ JSON.stringify(args) ]
     }
-  } as any);
-  mainWindow.loadFile(join(__dirname, '..', 'renderer', 'dist', 'app.html'));
+  });
+  mainWindow.loadURL(`http://localhost:${INTERNAL_SERVER_PORT}/app.html`);
   mainWindow.on('closed', () => { mainWindow = null; });
   mainWindow.once('ready-to-show', () => {
     if (mainWindow) {
@@ -116,12 +118,16 @@ function createTray() {
   });
 }
 
-app.on('ready', async () => {
-  await initDB();
-  await initScheduler();
-  createWindow();
-  createTray();
-  log('running');
+app.on('ready', () => {
+  createServer((request, response) => handler(request, response, {
+    public: join(__dirname, '..', '..', 'renderer', 'dist')
+  })).listen(INTERNAL_SERVER_PORT, async () => {
+    await initDB();
+    await initScheduler();
+    createWindow();
+    createTray();
+    log('running');
+  });
 });
 
 app.on('window-all-closed', () => {

@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = require("path");
 const db_1 = require("./db");
 const moment = require("moment-timezone");
 const electron_1 = require("electron");
@@ -233,6 +232,6 @@ function showNotification() {
             }
         }, NOTIFICATION_DURATION);
     });
-    notificationWindow.loadFile(path_1.join(__dirname, '..', 'renderer', 'dist', 'notification.html'));
+    notificationWindow.loadURL(`http://localhost:${util_1.INTERNAL_SERVER_PORT}/notification.html`);
 }
 //# sourceMappingURL=scheduler.js.map

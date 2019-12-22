@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.INTERNAL_SERVER_PORT = 6938;
 function createInternalError(message) {
     return new Error(`Internal Error: ${message}`);
 }
