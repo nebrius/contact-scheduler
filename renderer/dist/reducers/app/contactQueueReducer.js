@@ -14,27 +14,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { ICalendar, IContact } from './types';
-
-export interface IAppArguments {
-  calendars: ICalendar[];
-  contacts: IContact[];
-  contactQueue: IContact[];
+import { ACTIONS } from '../../actions/actions';
+export function createContactQueueReducer(contactQueue) {
+    const DEFAULT_STATE = contactQueue;
+    return (state, action) => {
+        if (!state) {
+            state = DEFAULT_STATE;
+        }
+        switch (action.type) {
+            case ACTIONS.UPDATE_QUEUE:
+                return action.queue;
+            default:
+                return state;
+        }
+    };
 }
-
-export interface INotificationArguments {
-  contact: IContact;
-}
-
-export interface IUpdateCalendarsArguments {
-  calendars: ICalendar[];
-}
-
-export interface IUpdateContactsArguments {
-  contacts: IContact[];
-}
-
-export interface IUpdateQueueArguments {
-  queue: IContact[];
-}
+//# sourceMappingURL=contactQueueReducer.js.map

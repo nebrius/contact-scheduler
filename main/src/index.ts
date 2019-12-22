@@ -17,8 +17,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { app, BrowserWindow, Tray, Menu, MenuItem, ipcMain, Event } from 'electron';
-import handler = require('serve-handler');
-import { createServer } from 'http';
+import { createInfrastructureServer, addStaticAssetRoute } from '@nebrius/electron-infrastructure-main';
 import {
   MessageTypes,
   ISaveContactMessage,
@@ -50,7 +49,8 @@ import {
   enableDoNotDisturb,
   disableDoNotDisturb
 } from './scheduler';
-import { log, error, INTERNAL_SERVER_PORT } from './util';
+import { log, error } from './util';
+import { INTERNAL_SERVER_PORT } from './common/config';
 
 const ICON_PATH = join(__dirname, 'icon.png');
 
@@ -118,16 +118,14 @@ function createTray() {
   });
 }
 
-app.on('ready', () => {
-  createServer((request, response) => handler(request, response, {
-    public: join(__dirname, '..', '..', 'renderer', 'dist')
-  })).listen(INTERNAL_SERVER_PORT, async () => {
-    await initDB();
-    await initScheduler();
-    createWindow();
-    createTray();
-    log('running');
-  });
+app.on('ready', async () => {
+  await createInfrastructureServer(INTERNAL_SERVER_PORT);
+  addStaticAssetRoute('/', join(__dirname, '..', '..', 'renderer', 'dist'));
+  await initDB();
+  await initScheduler();
+  createWindow();
+  createTray();
+  log('running');
 });
 
 app.on('window-all-closed', () => {

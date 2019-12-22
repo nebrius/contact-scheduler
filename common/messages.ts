@@ -16,6 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { ICalendar, IContact } from './types';
+import { IMessage } from '@nebrius/electron-infrastructure-renderer';
 
 export const MessageTypes = {
   RequestAddCalendar: 'RequestAddCalendar',
@@ -39,26 +40,42 @@ export const MessageTypes = {
   PushToBack: 'PushToBack'
 };
 
-export interface ISaveContactMessage {
+export interface ISaveContactMessage extends IMessage {
   contact: IContact;
 }
 
-export interface IDeleteContactMessage {
+export interface IDeleteContactMessage extends IMessage {
   contact: IContact;
 }
 
-export interface ISaveCalendarMessage {
+export interface ISaveCalendarMessage extends IMessage {
   calendar: ICalendar;
 }
 
-export interface IDeleteCalendarMessage {
+export interface IDeleteCalendarMessage extends IMessage {
   calendar: ICalendar;
 }
 
-export interface IRespondMessage {
+export interface IRespondMessage extends IMessage {
   contact: IContact;
 }
 
-export interface IPushToBackMessage {
+export interface IPushToBackMessage extends IMessage {
   contact: IContact;
+}
+
+export interface INotificationMessage extends IMessage {
+  contact: IContact;
+}
+
+export interface IUpdateCalendarsMessage extends IMessage {
+  calendars: ICalendar[];
+}
+
+export interface IUpdateContactsMessage extends IMessage {
+  contacts: IContact[];
+}
+
+export interface IUpdateQueueMessage extends IMessage {
+  queue: IContact[];
 }

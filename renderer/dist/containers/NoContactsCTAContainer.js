@@ -14,27 +14,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { ICalendar, IContact } from './types';
-
-export interface IAppArguments {
-  calendars: ICalendar[];
-  contacts: IContact[];
-  contactQueue: IContact[];
+import { connect } from 'react-redux';
+import { navigateToContacts } from '../actions/actions';
+import { NoContactsCTA } from '../components/NoContactsCTA';
+function mapStateToProps(state) {
+    return {};
 }
-
-export interface INotificationArguments {
-  contact: IContact;
+function mapDispatchToProps(dispatch) {
+    return {
+        requestAddContact: () => {
+            dispatch(navigateToContacts());
+        }
+    };
 }
-
-export interface IUpdateCalendarsArguments {
-  calendars: ICalendar[];
-}
-
-export interface IUpdateContactsArguments {
-  contacts: IContact[];
-}
-
-export interface IUpdateQueueArguments {
-  queue: IContact[];
-}
+export const NoContactsCTAContainer = connect(mapStateToProps, mapDispatchToProps)(NoContactsCTA);
+//# sourceMappingURL=NoContactsCTAContainer.js.map

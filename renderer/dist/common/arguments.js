@@ -14,18 +14,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-export type CalendarSource = 'office365' | 'google' | undefined;
-
-export interface ICalendar {
-  id: number;
-  displayName: string;
-  source: CalendarSource;
-}
-
-export interface IContact {
-  id: number;
-  name: string;
-  frequency: 'weekly' | 'monthly' | 'quarterly';
-  lastContacted: number;
-}
+//# sourceMappingURL=arguments.js.map

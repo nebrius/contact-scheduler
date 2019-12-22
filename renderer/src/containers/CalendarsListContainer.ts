@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
+import { sendMessage } from '@nebrius/electron-infrastructure-renderer';
 import { IAppState } from '../util/types';
 import { IAction } from '../actions/actions';
 import { CalendarList, IStateProps, IDispatchProps } from '../components/CalendarList';
@@ -32,12 +32,18 @@ function mapStateToProps(state: IAppState): IStateProps {
 function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
   return {
     saveCalendar(calendar: ICalendar) {
-      const args: ISaveCalendarMessage = { calendar };
-      ipcRenderer.send(MessageTypes.RequestSaveCalendar, JSON.stringify(args));
+      const message: ISaveCalendarMessage = {
+        messageType: MessageTypes.RequestSaveCalendar,
+        calendar
+      };
+      sendMessage(message);
     },
     deleteCalendar(calendar: ICalendar) {
-      const args: IDeleteCalendarMessage = { calendar };
-      ipcRenderer.send(MessageTypes.RequestDeleteCalendar, JSON.stringify(args));
+      const message: IDeleteCalendarMessage = {
+        messageType: MessageTypes.RequestDeleteCalendar,
+        calendar
+      };
+      sendMessage(message);
     }
   };
 }

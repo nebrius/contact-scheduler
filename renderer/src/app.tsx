@@ -18,14 +18,19 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
+import { connectToInfrastructureServer } from '@nebrius/electron-infrastructure-renderer';
 import { AppRootContainer } from './containers/AppRootContainer';
 import { appStore } from './stores/appStore';
+import { INTERNAL_SERVER_PORT } from './common/config';
 
-render(
-  (
-    <Provider store={appStore}>
-      <AppRootContainer />
-    </Provider>
-  ),
-  document.getElementById('root')
-);
+(async () => {
+  await connectToInfrastructureServer(INTERNAL_SERVER_PORT);
+  render(
+    (
+      <Provider store={appStore}>
+        <AppRootContainer />
+      </Provider>
+    ),
+    document.getElementById('root')
+  );
+})();

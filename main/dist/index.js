@@ -18,8 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = require("path");
 const electron_1 = require("electron");
-const handler = require("serve-handler");
-const http_1 = require("http");
+const electron_infrastructure_main_1 = require("@nebrius/electron-infrastructure-main");
 const messages_1 = require("./common/messages");
 const db_1 = require("./db");
 const scheduler_1 = require("./scheduler");
@@ -86,16 +85,14 @@ function createTray() {
         }
     });
 }
-electron_1.app.on('ready', () => {
-    http_1.createServer((request, response) => handler(request, response, {
-        public: path_1.join(__dirname, '..', '..', 'renderer', 'dist')
-    })).listen(util_1.INTERNAL_SERVER_PORT, async () => {
-        await db_1.init();
-        await scheduler_1.init();
-        createWindow();
-        createTray();
-        util_1.log('running');
-    });
+electron_1.app.on('ready', async () => {
+    await electron_infrastructure_main_1.createInfrastructureServer(util_1.INTERNAL_SERVER_PORT);
+    electron_infrastructure_main_1.addStaticAssetRoute('/', path_1.join(__dirname, '..', '..', 'renderer', 'dist'));
+    await db_1.init();
+    await scheduler_1.init();
+    createWindow();
+    createTray();
+    util_1.log('running');
 });
 electron_1.app.on('window-all-closed', () => {
     // Normally we'd quit the app here, but since we have a system tray icon,

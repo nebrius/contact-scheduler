@@ -16,25 +16,29 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { createStore } from 'redux';
-import { ipcRenderer } from 'electron';
+import { addMessageListener } from '@nebrius/electron-infrastructure-renderer';
 import { appReducers } from '../reducers/appReducers';
 import { MessageTypes } from '../common/messages';
-import { IUpdateCalendarsArguments, IUpdateContactsArguments, IUpdateQueueArguments } from '../common/arguments';
+import { IUpdateCalendarsMessage, IUpdateContactsMessage, IUpdateQueueMessage } from '../common/messages';
 import { updateCalendars, updateContacts, updateQueue } from '../actions/actions';
 
 export const appStore = createStore(appReducers);
 
-ipcRenderer.on(MessageTypes.UpdateCalendars, (event: Event, arg: string) => {
-  const parsedArgs: IUpdateCalendarsArguments = JSON.parse(arg);
-  appStore.dispatch(updateCalendars(parsedArgs.calendars));
-});
+addMessageListener((message) => {
+  switch (message.messageType) {
+    case MessageTypes.UpdateCalendars:
+      const calendars = (message as IUpdateCalendarsMessage).calendars;
+      appStore.dispatch(updateCalendars(calendars));
+      break;
 
-ipcRenderer.on(MessageTypes.UpdateContacts, (event: Event, arg: string) => {
-  const parsedArgs: IUpdateContactsArguments = JSON.parse(arg);
-  appStore.dispatch(updateContacts(parsedArgs.contacts));
-});
+    case MessageTypes.UpdateContacts:
+      const contacts = (message as IUpdateContactsMessage).contacts;
+      appStore.dispatch(updateContacts(contacts));
+      break;
 
-ipcRenderer.on(MessageTypes.UpdateQueue, (event: Event, arg: string) => {
-  const parsedArgs: IUpdateQueueArguments = JSON.parse(arg);
-  appStore.dispatch(updateQueue(parsedArgs.queue));
+    case MessageTypes.UpdateQueue:
+      const queue = (message as IUpdateQueueMessage).queue;
+      appStore.dispatch(updateQueue(queue));
+      break;
+  }
 });

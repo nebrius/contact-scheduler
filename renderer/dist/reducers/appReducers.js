@@ -14,21 +14,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-export type CB = (err: Error | undefined) => void;
-export type CBWithResult<Result> = (err: Error | undefined, result: Result | undefined) => void;
-
-export type CalendarSource = 'office365' | 'google' | undefined;
-
-export interface ICalendar {
-  id: number;
-  displayName: string;
-  source: CalendarSource;
-}
-
-export interface IContact {
-  id: number;
-  name: string;
-  frequency: 'weekly' | 'monthly' | 'quarterly';
-  lastContacted: number;
-}
+import { combineReducers } from 'redux';
+import { createContactsReducer } from './app/contactsReducer';
+import { createContactQueueReducer } from './app/contactQueueReducer';
+import { createCalendarsReducer } from './app/calendarsReducer';
+import { createUIStateReducer } from './app/uiStateReducer';
+const initArgs = JSON.parse(process.argv.pop());
+export const appReducers = combineReducers({
+    contacts: createContactsReducer(initArgs.contacts),
+    contactQueue: createContactQueueReducer(initArgs.contactQueue),
+    calendars: createCalendarsReducer(initArgs.calendars),
+    uiState: createUIStateReducer()
+});
+//# sourceMappingURL=appReducers.js.map
