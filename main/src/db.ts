@@ -27,8 +27,6 @@ const CALENDARS_TABLE_NAME = 'calendars';
 const CONTACTS_TABLE_NAME = 'contacts';
 const SCHEDULE_TABLE_NAME = 'schedule';
 
-console.log(app);
-const dbPath = join(app.getPath('userData'), 'contact-scheduler-db.sqlite3');
 let db: Database;
 
 const CALENDAR_SCHEMA =
@@ -131,18 +129,21 @@ async function dbGet(query: string, parameters: string[]): Promise<any> {
 export const dataSource = new DataSource();
 
 export async function init(): Promise<void> {
+  const dbPath = join(app.getPath('userData'), 'contact-scheduler-db.sqlite3');
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
   log(`Loading database from ${dbPath}`);
 
   // Can't use promisify here cause it barfs on constructors, aparently
-  db = await new Promise((resolve, reject) => new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-      reject(err);
-    } else {
-      resolve();
-    }
-  }));
+  await new Promise((resolve, reject) => {
+    db = new sqlite3.Database(dbPath, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
   if (isNewDB) {
     log(`New database detected, initializing`);
     await dbRun(CALENDAR_SCHEMA);

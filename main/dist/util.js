@@ -17,15 +17,15 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 function createInternalError(message) {
-    return new Error("Internal Error: " + message);
+    return new Error(`Internal Error: ${message}`);
 }
 exports.createInternalError = createInternalError;
 function log(message) {
-    console.log((new Date()).toLocaleString() + ": " + message);
+    console.log(`${(new Date()).toLocaleString()}: ${message}`);
 }
 exports.log = log;
 function error(message) {
-    console.error((new Date()).toLocaleString() + ": " + message);
+    console.error(`${(new Date()).toLocaleString()}: ${message}`);
 }
 exports.error = error;
 //# sourceMappingURL=util.js.map
