@@ -127,20 +127,20 @@ function finalizeContactOperation() {
         electron_infrastructure_main_1.sendMessageToWindows(messages_1.WindowTypes.Main, message);
     }
 }
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, async (event, arg) => {
-    const parsedArgs = JSON.parse(arg);
-    if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-        await db_1.createContact(parsedArgs.contact);
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.RequestSaveContact, async (message) => {
+    const data = message;
+    if (typeof data.contact.id !== 'number' || isNaN(data.contact.id)) {
+        await db_1.createContact(data.contact);
         finalizeContactOperation();
     }
     else {
-        await db_1.updateContact(parsedArgs.contact);
+        await db_1.updateContact(data.contact);
         finalizeContactOperation();
     }
 });
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteContact, async (event, arg) => {
-    const parsedArgs = JSON.parse(arg);
-    await db_1.deleteContact(parsedArgs.contact);
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.RequestDeleteContact, async (message) => {
+    const data = message;
+    await db_1.deleteContact(data.contact);
     finalizeContactOperation();
 });
 function finalizeCalendarOperation() {
@@ -152,26 +152,26 @@ function finalizeCalendarOperation() {
         electron_infrastructure_main_1.sendMessageToWindows(messages_1.WindowTypes.Main, message);
     }
 }
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, async (event, arg) => {
-    const parsedArgs = JSON.parse(arg);
-    if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
-        await db_1.createCalendar(parsedArgs.calendar);
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.RequestSaveCalendar, async (message) => {
+    const data = message;
+    if (typeof data.calendar.id !== 'number' || isNaN(data.calendar.id)) {
+        await db_1.createCalendar(data.calendar);
         finalizeCalendarOperation();
     }
     else {
-        await db_1.updateCalendar(parsedArgs.calendar);
+        await db_1.updateCalendar(data.calendar);
         finalizeCalendarOperation();
     }
 });
-electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteCalendar, async (event, arg) => {
-    const parsedArgs = JSON.parse(arg);
-    await db_1.deleteCalendar(parsedArgs.calendar);
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.RequestDeleteCalendar, async (message) => {
+    const data = message;
+    await db_1.deleteCalendar(data.calendar);
     finalizeCalendarOperation();
 });
-electron_1.ipcMain.on(messages_1.MessageTypes.CloseNotification, (event, arg) => {
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.CloseNotification, (message) => {
     scheduler_1.closeNotification();
 });
-electron_1.ipcMain.on(messages_1.MessageTypes.Respond, async (event, arg) => {
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.Respond, async (message) => {
     try {
         await scheduler_1.respond();
         util_1.log('Respond to contact');
@@ -182,7 +182,7 @@ electron_1.ipcMain.on(messages_1.MessageTypes.Respond, async (event, arg) => {
     }
     scheduler_1.closeNotification();
 });
-electron_1.ipcMain.on(messages_1.MessageTypes.PushToBack, async (event, arg) => {
+electron_infrastructure_main_1.addMessageListener(messages_1.MessageTypes.PushToBack, async (message) => {
     try {
         await scheduler_1.pushToBack();
         util_1.log('Pushed current contact to the back of the queue');

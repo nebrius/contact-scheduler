@@ -16,8 +16,14 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
-import { app, BrowserWindow, Tray, Menu, MenuItem, ipcMain, Event } from 'electron';
-import { createInfrastructureServer, addStaticAssetRoute, addRoute, sendMessageToWindows } from '@nebrius/electron-infrastructure-main';
+import { app, BrowserWindow, Tray, Menu, MenuItem } from 'electron';
+import {
+  createInfrastructureServer,
+  addStaticAssetRoute,
+  addRoute,
+  sendMessageToWindows,
+  addMessageListener
+} from '@nebrius/electron-infrastructure-main';
 import {
   WindowTypes,
   MessageTypes,
@@ -165,20 +171,20 @@ function finalizeContactOperation() {
   }
 }
 
-ipcMain.on(MessageTypes.RequestSaveContact, async (event: Event, arg: string) => {
-  const parsedArgs: ISaveContactMessage = JSON.parse(arg);
-  if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-    await createContact(parsedArgs.contact);
+addMessageListener(MessageTypes.RequestSaveContact, async (message) => {
+  const data = message as ISaveContactMessage;
+  if (typeof data.contact.id !== 'number' || isNaN(data.contact.id)) {
+    await createContact(data.contact);
     finalizeContactOperation();
   } else {
-    await updateContact(parsedArgs.contact);
+    await updateContact(data.contact);
     finalizeContactOperation();
   }
 });
 
-ipcMain.on(MessageTypes.RequestDeleteContact, async (event: Event, arg: string) => {
-  const parsedArgs: IDeleteContactMessage = JSON.parse(arg);
-  await deleteContact(parsedArgs.contact);
+addMessageListener(MessageTypes.RequestDeleteContact, async (message) => {
+  const data = message as IDeleteContactMessage;
+  await deleteContact(data.contact);
   finalizeContactOperation();
 });
 
@@ -192,28 +198,28 @@ function finalizeCalendarOperation() {
   }
 }
 
-ipcMain.on(MessageTypes.RequestSaveCalendar, async (event: Event, arg: string) => {
-  const parsedArgs: ISaveCalendarMessage = JSON.parse(arg);
-  if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
-    await createCalendar(parsedArgs.calendar);
+addMessageListener(MessageTypes.RequestSaveCalendar, async (message) => {
+  const data = message as ISaveCalendarMessage;
+  if (typeof data.calendar.id !== 'number' || isNaN(data.calendar.id)) {
+    await createCalendar(data.calendar);
     finalizeCalendarOperation();
   } else {
-    await updateCalendar(parsedArgs.calendar);
+    await updateCalendar(data.calendar);
     finalizeCalendarOperation();
   }
 });
 
-ipcMain.on(MessageTypes.RequestDeleteCalendar, async (event: Event, arg: string) => {
-  const parsedArgs: IDeleteCalendarMessage = JSON.parse(arg);
-  await deleteCalendar(parsedArgs.calendar);
+addMessageListener(MessageTypes.RequestDeleteCalendar, async (message) => {
+  const data = message as IDeleteCalendarMessage;
+  await deleteCalendar(data.calendar);
   finalizeCalendarOperation();
 });
 
-ipcMain.on(MessageTypes.CloseNotification, (event: Event, arg: string) => {
+addMessageListener(MessageTypes.CloseNotification, (message) => {
   closeNotification();
 });
 
-ipcMain.on(MessageTypes.Respond, async (event: Event, arg: string) => {
+addMessageListener(MessageTypes.Respond, async (message) => {
   try {
     await respond();
     log('Respond to contact');
@@ -224,7 +230,7 @@ ipcMain.on(MessageTypes.Respond, async (event: Event, arg: string) => {
   closeNotification();
 });
 
-ipcMain.on(MessageTypes.PushToBack, async (event: Event, arg: string) => {
+addMessageListener(MessageTypes.PushToBack, async (message) => {
   try {
     await pushToBack();
     log('Pushed current contact to the back of the queue');
