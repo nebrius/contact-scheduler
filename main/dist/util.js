@@ -16,20 +16,10 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = require("path");
-var fs_1 = require("fs");
-var bugUrl = JSON.parse(fs_1.readFileSync(path_1.join(__dirname, '..', 'package.json')).toString()).bugs.url;
-function handleInternalError(message) {
-    if (process.env.NODE_ENV === 'development') {
-        throw new Error("Internal Error: " + message);
-    }
-    else {
-        var msg = "Internal Error: " + message + ". Please report this bug at " + bugUrl;
-        error(msg);
-        return new Error(msg);
-    }
+function createInternalError(message) {
+    return new Error("Internal Error: " + message);
 }
-exports.handleInternalError = handleInternalError;
+exports.createInternalError = createInternalError;
 function log(message) {
     console.log((new Date()).toLocaleString() + ": " + message);
 }

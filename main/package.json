@@ -21,17 +21,15 @@
   },
   "homepage": "https://github.com/nebrius/contact-scheduler#readme",
   "devDependencies": {
-    "@types/async": "^3.0.3",
     "@types/moment-timezone": "^0.5.12",
-    "@types/node": "^10.17.11",
+    "@types/node": "^12.12.21",
     "@types/sqlite3": "^3.1.6",
     "cpy-cli": "^3.0.0",
     "electron-rebuild": "^1.8.8",
     "tslint": "^5.20.1",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.4"
   },
   "dependencies": {
-    "async": "^3.1.0",
     "electron": "^7.1.7",
     "moment-timezone": "^0.5.27",
     "sqlite3": "^4.1.1"

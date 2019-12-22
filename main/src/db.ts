@@ -19,15 +19,15 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { EventEmitter } from 'events';
 import { app } from 'electron';
-import { series, waterfall } from 'async';
 import { verbose, Database } from 'sqlite3';
-import { ICalendar, IContact, CB } from './common/types';
-import { handleInternalError, log } from './util';
+import { ICalendar, IContact } from './common/types';
+import { createInternalError, log } from './util';
 
 const CALENDARS_TABLE_NAME = 'calendars';
 const CONTACTS_TABLE_NAME = 'contacts';
 const SCHEDULE_TABLE_NAME = 'schedule';
 
+console.log(app);
 const dbPath = join(app.getPath('userData'), 'contact-scheduler-db.sqlite3');
 let db: Database;
 
@@ -83,142 +83,155 @@ class DataSource extends EventEmitter {
   }
 }
 
+async function dbRun(query: string, parameters?: Array<string | number | undefined>): Promise<void> {
+  if (!db) {
+    throw createInternalError(`dbRun called before database initialized`);
+  }
+  return new Promise((resolve, reject) => {
+    db.run(query, parameters || [], (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+async function dbAll(query: string, parameters: string[]): Promise<any[]> {
+  if (!db) {
+    throw createInternalError(`dbRun called before database initialized`);
+  }
+  return new Promise((resolve, reject) => {
+    db.all(query, parameters, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+async function dbGet(query: string, parameters: string[]): Promise<any> {
+  if (!db) {
+    throw createInternalError(`dbRun called before database initialized`);
+  }
+  return new Promise((resolve, reject) => {
+    db.get(query, parameters, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
 export const dataSource = new DataSource();
 
-export function init(cb: CB): void {
+export async function init(): Promise<void> {
   const isNewDB = !existsSync(dbPath);
   const sqlite3 = verbose();
   log(`Loading database from ${dbPath}`);
-  waterfall([
-    (next: (err: Error | null) => void) => (db = new sqlite3.Database(dbPath, next)),
-    (next: CB) => {
-      if (!isNewDB) {
-        next(undefined);
-        return;
-      }
-      log(`New database detected, initializing`);
-      // Need to slice off extra params so can't pass cb or next directly here
-      series([
-        (nextInit: CB) => db.run(CALENDAR_SCHEMA, (err?: Error) => nextInit(err)),
-        (nextInit: CB) => db.run(CONTACT_SCHEMA, (err?: Error) => nextInit(err)),
-        (nextInit: CB) => db.run(SCHEDULE_SCHEMA, (err?: Error) => nextInit(err)),
-        (nextInit: CB) => db.run(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ],
-          (err?: Error) => nextInit(err))
-      ] as any, (err?: Error) => next(err));
-    },
-    (next: CB) => refreshContacts(next),
-    (next: CB) => refreshCalendars(next),
-    (next: CB) => refreshQueue(next)
-  ], cb);
-}
 
-function refreshCalendars(cb: CB): void {
-  waterfall([
-    (next: CB) =>  db.all(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, [], next),
-    (newCalendars: ICalendar[], next: CB) => {
-      calendars = newCalendars;
-      dataSource.emit('calendarsUpdated', calendars);
-      next(undefined);
+  // Can't use promisify here cause it barfs on constructors, aparently
+  db = await new Promise((resolve, reject) => new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve();
     }
-  ], cb);
+  }));
+  if (isNewDB) {
+    log(`New database detected, initializing`);
+    await dbRun(CALENDAR_SCHEMA);
+    await dbRun(CONTACT_SCHEMA);
+    await dbRun(SCHEDULE_SCHEMA),
+    await dbRun(`INSERT INTO ${SCHEDULE_TABLE_NAME}(queue, lastUpdated) VALUES(?, 0)`, [ '[]' ]);
+  }
+  await refreshContacts();
+  await refreshCalendars();
+  await refreshQueue();
 }
 
-export function createCalendar(calendar: ICalendar, cb: CB): void {
-  waterfall([
-    (next: CB) => db.run(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
-      [ calendar.displayName, calendar.source ], next),
-    (next: CB) => refreshCalendars(next)
-  ], cb);
+// Calendar methods
+
+async function refreshCalendars(): Promise<void> {
+  calendars = await dbAll(`SELECT * FROM ${CALENDARS_TABLE_NAME}`, []);
+  dataSource.emit('calendarsUpdated', calendars);
 }
 
-export function updateCalendar(calendar: ICalendar, cb: CB): void {
-  waterfall([
-    (next: CB) => db.run(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
-      [ calendar.displayName, calendar.source, calendar.id ], next),
-    (next: CB) => refreshCalendars(next)
-  ], cb);
+export async function createCalendar(calendar: ICalendar): Promise<void> {
+  dbRun(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
+    [ calendar.displayName, calendar.source ]);
+  await refreshCalendars();
 }
 
-export function deleteCalendar(calendar: ICalendar, cb: CB): void {
-  waterfall([
-    (next: CB) => db.run(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`,
-      [ calendar.id ], next),
-    (next: CB) => refreshCalendars(next)
-  ], cb);
+export async function updateCalendar(calendar: ICalendar): Promise<void> {
+  dbRun(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
+    [ calendar.displayName, calendar.source, calendar.id ]);
+  await refreshCalendars();
 }
 
-function refreshContacts(cb: CB): void {
-  waterfall([
-    (next: CB) => db.all(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, [], next),
-    (newContacts: IContact[], next: CB) => {
-      contacts = newContacts;
-      dataSource.emit('contactsUpdated', contacts);
-      next(undefined);
-    }
-  ], cb);
+export async function deleteCalendar(calendar: ICalendar): Promise<void> {
+  dbRun(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`, [ calendar.id ]);
+  await refreshCalendars();
 }
 
-export function createContact(contact: IContact, cb: CB): void {
-  waterfall([
-    (next: CB) => db.run(`INSERT INTO ${CONTACTS_TABLE_NAME}(name, frequency, lastContacted) VALUES(?, ?, 0)`,
-      [ contact.name, contact.frequency ], next),
-    (next: CB) => refreshContacts(next)
-  ], cb);
+// Contact methods
+
+async function refreshContacts(): Promise<void> {
+  contacts = await dbAll(`SELECT * FROM ${CONTACTS_TABLE_NAME}`, []);
+  dataSource.emit('contactsUpdated', contacts);
 }
 
-export function updateContact(contact: IContact, cb: CB): void {
-  waterfall([
-    (next: CB) => db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
-      [ contact.name, contact.frequency, contact.id ], next),
-    (next: CB) => refreshContacts(next)
-  ], cb);
+export async function createContact(contact: IContact): Promise<void> {
+  await dbRun(`INSERT INTO ${CONTACTS_TABLE_NAME}(name, frequency, lastContacted) VALUES(?, ?, 0)`,
+    [ contact.name, contact.frequency ]);
+  await refreshContacts();
 }
 
-export function setLastContactedDate(contact: IContact, lastContactedDate: number, cb: CB): void {
-  waterfall([
-    (next: CB) => db.run(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`,
-      [ lastContactedDate, contact.id ], next),
-    (next: CB) => refreshContacts(next)
-  ], cb);
+export async function updateContact(contact: IContact): Promise<void> {
+  dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
+    [ contact.name, contact.frequency, contact.id ]);
+  await refreshContacts();
 }
 
-export function deleteContact(contact: IContact, cb: CB): void {
+export async function setLastContactedDate(contact: IContact, lastContactedDate: number): Promise<void> {
+  dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`,
+    [ lastContactedDate, contact.id ]);
+  await refreshContacts();
+}
+
+export async function deleteContact(contact: IContact): Promise<void> {
   // TODO: delete from queue if they're in there
-  waterfall([
-    (next: CB) => db.run(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`,
-      [ contact.id ], next),
-    (next: CB) => refreshContacts(next)
-  ], cb);
+  dbRun(`DELETE FROM ${CONTACTS_TABLE_NAME} WHERE id = ?`, [ contact.id ]);
+  await refreshContacts();
 }
 
-function refreshQueue(cb: CB): void {
-  waterfall([
-    (next: CB) => db.get(`SELECT * FROM ${SCHEDULE_TABLE_NAME}`, [], next),
-    (result: IRawQueue, next: CB) => {
-      const ids = JSON.parse(result.queue);
-      const contactQueue: IContact[] = ids.map((id: number) => {
-        for (const contact of contacts) {
-          if (contact.id === id) {
-            return contact;
-          }
-        }
-        next(handleInternalError(`Could not locate contact with id ${id}`));
-        return null;
-      }).filter((contact: IContact | null) => !!contact);
-      queue = {
-        contactQueue,
-        lastUpdated: result.lastUpdated
-      };
-      dataSource.emit('queueUpdated', queue);
-      next(undefined);
+// Queue methods
+
+async function refreshQueue(): Promise<void> {
+  const result: IRawQueue = await dbGet(`SELECT * FROM ${SCHEDULE_TABLE_NAME}`, []);
+  const ids = JSON.parse(result.queue);
+  const contactQueue: IContact[] = ids.map((id: number) => {
+    for (const contact of contacts) {
+      if (contact.id === id) {
+        return contact;
+      }
     }
-  ], cb);
+    throw createInternalError(`Could not locate contact with id ${id}`);
+  }).filter((contact: IContact | null) => !!contact);
+  queue = {
+    contactQueue,
+    lastUpdated: result.lastUpdated
+  };
+  dataSource.emit('queueUpdated', queue);
 }
 
-export function setWeeklyQueue(contactQueue: IContact[], cb: CB): void {
+export async function setWeeklyQueue(contactQueue: IContact[]): Promise<void> {
   const ids = JSON.stringify(contactQueue.map((contact) => contact.id));
-  waterfall([
-    (next: CB) => db.run(`UPDATE ${SCHEDULE_TABLE_NAME} SET queue = ?, lastUpdated = ?`, [ ids, Date.now() ], next),
-    (next: CB) => refreshQueue(next)
-  ], cb);
+  await dbRun(`UPDATE ${SCHEDULE_TABLE_NAME} SET queue = ?, lastUpdated = ?`, [ ids, Date.now() ]);
+  await refreshQueue();
 }

@@ -15,19 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { join } from 'path';
-import { readFileSync } from 'fs';
-
-const bugUrl = JSON.parse(readFileSync(join(__dirname, '..', 'package.json')).toString()).bugs.url;
-
-export function handleInternalError(message: string): Error {
-  if (process.env.NODE_ENV === 'development') {
-    throw new Error(`Internal Error: ${message}`);
-  } else {
-    const msg = `Internal Error: ${message}. Please report this bug at ${bugUrl}`;
-    error(msg);
-    return new Error(msg);
-  }
+export function createInternalError(message: string): Error {
+  return new Error(`Internal Error: ${message}`);
 }
 
 export function log(message: string): void {

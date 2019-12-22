@@ -16,13 +16,12 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
-import { series, parallel } from 'async';
-import { CB, IContact } from './common/types';
+import { IContact } from './common/types';
 import { INotificationArguments } from './common/arguments';
 import { dataSource, setWeeklyQueue, setLastContactedDate } from './db';
 import * as moment from 'moment-timezone';
 import { BrowserWindow, screen } from 'electron';
-import { handleInternalError, log } from './util';
+import { createInternalError, log } from './util';
 
 // TODO: These settings should be made configurable by the user eventually
 const TIME_BUCKET_INTERVAL = 1000 * 60 * 15;
@@ -50,18 +49,15 @@ const MONTHLY_GAP_SCALING_FACTOR = 0.1 / DAY_IN_MS;
 const MIN_QUARTERLY_GAP = DAY_IN_MS * 80;
 const QUARTERLY_GAP_SCALING_FACTOR = 0.05 / DAY_IN_MS;
 
-export function respond(cb: CB): void {
+export async function respond(): Promise<void> {
   const contactQueue = [ ...dataSource.getQueue().contactQueue ];
   const currentContact = contactQueue.shift();
   if (currentContact) {
     log(`Responded to ${currentContact.name}`);
-    series([
-      (next) => setLastContactedDate(currentContact, Date.now(), next),
-      (next) => setWeeklyQueue(contactQueue, next)
-    ], cb);
+    await setLastContactedDate(currentContact, Date.now());
+    await setWeeklyQueue(contactQueue);
   } else {
-    handleInternalError('Respond called with an empty queue');
-    setImmediate(cb);
+    throw createInternalError('Respond called with an empty queue');
   }
   let availableBuckets = 0;
   for (const bucket of timeBuckets) {
@@ -80,14 +76,12 @@ export function respond(cb: CB): void {
   }
 }
 
-export function pushToBack(cb: CB): void {
+export async function pushToBack(): Promise<void> {
   const contactQueue = [ ...dataSource.getQueue().contactQueue ];
   const currentContact = contactQueue.shift();
   if (currentContact) {
     contactQueue.push(currentContact);
-    setWeeklyQueue(contactQueue, cb);
-  } else {
-    setImmediate(cb);
+    await setWeeklyQueue(contactQueue);
   }
 }
 
@@ -107,15 +101,13 @@ export function disableDoNotDisturb(): void {
   doNotDisturbEnabled = false;
 }
 
-export function init(cb: CB): void {
+export async function init(): Promise<void> {
   setTimeout(tick, 5000);
-  parallel([
-    refreshQueue,
-    refreshTimeBuckets
-  ], cb);
+  await refreshQueue();
+  await refreshTimeBuckets();
 }
 
-function tick() {
+async function tick() {
   const now = Date.now();
   // TODO: add support for system level notification state on all three platforms (but Linux first)
   if (doNotDisturbEnabled) {
@@ -127,10 +119,9 @@ function tick() {
     }
     if (!timeBuckets.length) {
       log('Determining the week\'s schedule...');
-      parallel([
-        refreshQueue,
-        refreshTimeBuckets
-      ], () => log('Done determing the week\'s schedule'));
+      await refreshQueue();
+      await refreshTimeBuckets();
+      log('Done determing the week\'s schedule');
     } else {
       // Extra sanity-checking just in case we hit a gap in the time buckets. This *should* never happen
       if (timeBuckets.length && timeBuckets[0].start < now) {
@@ -141,14 +132,14 @@ function tick() {
           log('Nothing to do this interval because the user is not available');
         }
       } else {
-        handleInternalError('Gap in time buckets detected');
+        throw createInternalError('Gap in time buckets detected');
       }
     }
   }
   setTimeout(tick, TIME_BUCKET_INTERVAL);
 }
 
-function refreshTimeBuckets(cb: CB): void {
+async function refreshTimeBuckets(): Promise<void> {
   const endOfWeek = moment().endOf('week');
   const currentBucket = moment().startOf('hour');
   timeBuckets = [];
@@ -164,15 +155,14 @@ function refreshTimeBuckets(cb: CB): void {
     });
     currentBucket.add(TIME_BUCKET_INTERVAL, 'milliseconds');
   }
-  setImmediate(cb);
+  return Promise.resolve();
 }
 
-function refreshQueue(cb: CB): void {
+async function refreshQueue(): Promise<void> {
   const queue = dataSource.getQueue();
   const lastUpdated = moment(queue.lastUpdated);
   if (lastUpdated.isAfter(moment().startOf('week'))) {
-    setImmediate(cb);
-    return;
+    return Promise.resolve();
   }
   const contacts = dataSource.getContacts();
   const weights: Array<{ contact: IContact; weight: number; }> = [];
@@ -218,10 +208,8 @@ function refreshQueue(cb: CB): void {
   }
 
   log(`Scheduling ${newContactQueue.length} contacts out of ${weights.length} possible contacts`);
-  series([
-    (next) => setWeeklyQueue(newContactQueue, next),
-    (next) => refreshTimeBuckets(next)
-  ], cb);
+  await setWeeklyQueue(newContactQueue);
+  await refreshTimeBuckets();
 }
 
 function showNotification() {

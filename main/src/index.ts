@@ -16,7 +16,6 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { join } from 'path';
-import { series } from 'async';
 import { app, BrowserWindow, Tray, Menu, MenuItem, ipcMain, Event } from 'electron';
 import {
   MessageTypes,
@@ -25,7 +24,6 @@ import {
   ISaveCalendarMessage,
   IDeleteCalendarMessage
 } from './common/messages';
-import { CB } from './common/types';
 import {
   IAppArguments,
   IUpdateCalendarsArguments,
@@ -118,20 +116,12 @@ function createTray() {
   });
 }
 
-app.on('ready', () => {
-  series([
-    (next: CB) => initDB(next),
-    (next: CB) => initScheduler(next)
-  ], (err) => {
-    if (err) {
-      error(err);
-      process.exit(-1);
-      return;
-    }
-    createWindow();
-    createTray();
-    log('running');
-  });
+app.on('ready', async () => {
+  await initDB();
+  await initScheduler();
+  createWindow();
+  createTray();
+  log('running');
 });
 
 app.on('window-all-closed', () => {
@@ -156,11 +146,7 @@ function updateQueueInClient() {
   }
 }
 
-function finalizeContactOperation(operationErr: Error | null | undefined) {
-  if (operationErr) {
-    error(operationErr);
-    return;
-  }
+function finalizeContactOperation() {
   if (mainWindow) {
     const args: IUpdateContactsArguments = {
       contacts: dataSource.getContacts()
@@ -169,25 +155,24 @@ function finalizeContactOperation(operationErr: Error | null | undefined) {
   }
 }
 
-ipcMain.on(MessageTypes.RequestSaveContact, (event: Event, arg: string) => {
+ipcMain.on(MessageTypes.RequestSaveContact, async (event: Event, arg: string) => {
   const parsedArgs: ISaveContactMessage = JSON.parse(arg);
   if (typeof parsedArgs.contact.id !== 'number' || isNaN(parsedArgs.contact.id)) {
-    createContact(parsedArgs.contact, finalizeContactOperation);
+    await createContact(parsedArgs.contact);
+    finalizeContactOperation();
   } else {
-    updateContact(parsedArgs.contact, finalizeContactOperation);
+    await updateContact(parsedArgs.contact);
+    finalizeContactOperation();
   }
 });
 
-ipcMain.on(MessageTypes.RequestDeleteContact, (event: Event, arg: string) => {
+ipcMain.on(MessageTypes.RequestDeleteContact, async (event: Event, arg: string) => {
   const parsedArgs: IDeleteContactMessage = JSON.parse(arg);
-  deleteContact(parsedArgs.contact, finalizeContactOperation);
+  await deleteContact(parsedArgs.contact);
+  finalizeContactOperation();
 });
 
-function finalizeCalendarOperation(operationErr: Error | undefined | null) {
-  if (operationErr) {
-    error(operationErr);
-    return;
-  }
+function finalizeCalendarOperation() {
   if (mainWindow) {
     const args: IUpdateCalendarsArguments = {
       calendars: dataSource.getCalendars()
@@ -196,44 +181,45 @@ function finalizeCalendarOperation(operationErr: Error | undefined | null) {
   }
 }
 
-ipcMain.on(MessageTypes.RequestSaveCalendar, (event: Event, arg: string) => {
+ipcMain.on(MessageTypes.RequestSaveCalendar, async (event: Event, arg: string) => {
   const parsedArgs: ISaveCalendarMessage = JSON.parse(arg);
   if (typeof parsedArgs.calendar.id !== 'number' || isNaN(parsedArgs.calendar.id)) {
-    createCalendar(parsedArgs.calendar, finalizeCalendarOperation);
+    await createCalendar(parsedArgs.calendar);
+    finalizeCalendarOperation();
   } else {
-    updateCalendar(parsedArgs.calendar, finalizeCalendarOperation);
+    await updateCalendar(parsedArgs.calendar);
+    finalizeCalendarOperation();
   }
 });
 
-ipcMain.on(MessageTypes.RequestDeleteCalendar, (event: Event, arg: string) => {
+ipcMain.on(MessageTypes.RequestDeleteCalendar, async (event: Event, arg: string) => {
   const parsedArgs: IDeleteCalendarMessage = JSON.parse(arg);
-  deleteCalendar(parsedArgs.calendar, finalizeCalendarOperation);
+  await deleteCalendar(parsedArgs.calendar);
+  finalizeCalendarOperation();
 });
 
 ipcMain.on(MessageTypes.CloseNotification, (event: Event, arg: string) => {
   closeNotification();
 });
 
-ipcMain.on(MessageTypes.Respond, (event: Event, arg: string) => {
-  respond((err) => {
-    if (err) {
-      error(`Could not respond to contact: ${err}`);
-    } else {
-      log('Respond to contact');
-      updateQueueInClient();
-    }
-    closeNotification();
-  });
+ipcMain.on(MessageTypes.Respond, async (event: Event, arg: string) => {
+  try {
+    await respond();
+    log('Respond to contact');
+    updateQueueInClient();
+  } catch (err) {
+    error(`Could not respond to contact: ${err}`);
+  }
+  closeNotification();
 });
 
-ipcMain.on(MessageTypes.PushToBack, (event: Event, arg: string) => {
-  pushToBack((err) => {
-    if (err) {
+ipcMain.on(MessageTypes.PushToBack, async (event: Event, arg: string) => {
+  try {
+    await pushToBack();
+    log('Pushed current contact to the back of the queue');
+    updateQueueInClient();
+  } catch (err) {
       error(`Could not push contact to the back of the queue: ${err}`);
-    } else {
-      log('Pushed current contact to the back of the queue');
-      updateQueueInClient();
-    }
-    closeNotification();
-  });
+  }
+  closeNotification();
 });
