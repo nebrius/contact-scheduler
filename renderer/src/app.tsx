@@ -22,9 +22,10 @@ import { connectToInfrastructureServer } from '@nebrius/electron-infrastructure-
 import { AppRootContainer } from './containers/AppRootContainer';
 import { appStore } from './stores/appStore';
 import { INTERNAL_SERVER_PORT } from './common/config';
+import { WindowTypes } from './common/messages';
 
 (async () => {
-  await connectToInfrastructureServer(INTERNAL_SERVER_PORT);
+  await connectToInfrastructureServer(WindowTypes.Main, INTERNAL_SERVER_PORT);
   render(
     (
       <Provider store={appStore}>

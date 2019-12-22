@@ -16,29 +16,37 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { ICalendar, IContact } from './types';
-import { IMessage } from '@nebrius/electron-infrastructure-renderer';
 
-export const MessageTypes = {
-  RequestAddCalendar: 'RequestAddCalendar',
-  RequestEditCalendar: 'RequestEditCalendar',
-  RequestSaveCalendar: 'RequestSaveCalendar',
-  RequestDeleteCalendar: 'RequestDeleteCalendar',
+export enum WindowTypes {
+  Main = 'Main',
+  Notifications = 'Notifications'
+}
 
-  RequestAddContact: 'RequestAddContact',
-  RequestEditContact: 'RequestEditContact',
-  RequestSaveContact: 'RequestSaveContact',
-  RequestDeleteContact: 'RequestDeleteContact',
+export enum MessageTypes {
+  RequestAddCalendar = 'RequestAddCalendar',
+  RequestEditCalendar = 'RequestEditCalendar',
+  RequestSaveCalendar = 'RequestSaveCalendar',
+  RequestDeleteCalendar = 'RequestDeleteCalendar',
 
-  CloseDialog: 'CloseDialog',
+  RequestAddContact = 'RequestAddContact',
+  RequestEditContact = 'RequestEditContact',
+  RequestSaveContact = 'RequestSaveContact',
+  RequestDeleteContact = 'RequestDeleteContact',
 
-  UpdateContacts: 'UpdateContacts',
-  UpdateCalendars: 'UpdateCalendars',
-  UpdateQueue: 'UpdateQueue',
+  CloseDialog = 'CloseDialog',
 
-  CloseNotification: 'CloseNotification',
-  Respond: 'Respond',
-  PushToBack: 'PushToBack'
-};
+  UpdateContacts = 'UpdateContacts',
+  UpdateCalendars = 'UpdateCalendars',
+  UpdateQueue = 'UpdateQueue',
+
+  CloseNotification = 'CloseNotification',
+  Respond = 'Respond',
+  PushToBack = 'PushToBack'
+}
+
+export interface IMessage {
+  messageType: string;
+}
 
 export interface ISaveContactMessage extends IMessage {
   contact: IContact;

@@ -16,21 +16,27 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageTypes = {
-    RequestAddCalendar: 'RequestAddCalendar',
-    RequestEditCalendar: 'RequestEditCalendar',
-    RequestSaveCalendar: 'RequestSaveCalendar',
-    RequestDeleteCalendar: 'RequestDeleteCalendar',
-    RequestAddContact: 'RequestAddContact',
-    RequestEditContact: 'RequestEditContact',
-    RequestSaveContact: 'RequestSaveContact',
-    RequestDeleteContact: 'RequestDeleteContact',
-    CloseDialog: 'CloseDialog',
-    UpdateContacts: 'UpdateContacts',
-    UpdateCalendars: 'UpdateCalendars',
-    UpdateQueue: 'UpdateQueue',
-    CloseNotification: 'CloseNotification',
-    Respond: 'Respond',
-    PushToBack: 'PushToBack'
-};
+var WindowTypes;
+(function (WindowTypes) {
+    WindowTypes["Main"] = "Main";
+    WindowTypes["Notifications"] = "Notifications";
+})(WindowTypes = exports.WindowTypes || (exports.WindowTypes = {}));
+var MessageTypes;
+(function (MessageTypes) {
+    MessageTypes["RequestAddCalendar"] = "RequestAddCalendar";
+    MessageTypes["RequestEditCalendar"] = "RequestEditCalendar";
+    MessageTypes["RequestSaveCalendar"] = "RequestSaveCalendar";
+    MessageTypes["RequestDeleteCalendar"] = "RequestDeleteCalendar";
+    MessageTypes["RequestAddContact"] = "RequestAddContact";
+    MessageTypes["RequestEditContact"] = "RequestEditContact";
+    MessageTypes["RequestSaveContact"] = "RequestSaveContact";
+    MessageTypes["RequestDeleteContact"] = "RequestDeleteContact";
+    MessageTypes["CloseDialog"] = "CloseDialog";
+    MessageTypes["UpdateContacts"] = "UpdateContacts";
+    MessageTypes["UpdateCalendars"] = "UpdateCalendars";
+    MessageTypes["UpdateQueue"] = "UpdateQueue";
+    MessageTypes["CloseNotification"] = "CloseNotification";
+    MessageTypes["Respond"] = "Respond";
+    MessageTypes["PushToBack"] = "PushToBack";
+})(MessageTypes = exports.MessageTypes || (exports.MessageTypes = {}));
 //# sourceMappingURL=messages.js.map

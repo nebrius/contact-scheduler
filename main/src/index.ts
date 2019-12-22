@@ -17,19 +17,20 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { join } from 'path';
 import { app, BrowserWindow, Tray, Menu, MenuItem, ipcMain, Event } from 'electron';
-import { createInfrastructureServer, addStaticAssetRoute } from '@nebrius/electron-infrastructure-main';
+import { createInfrastructureServer, addStaticAssetRoute, addRoute, sendMessageToWindows } from '@nebrius/electron-infrastructure-main';
 import {
+  WindowTypes,
   MessageTypes,
   ISaveContactMessage,
   IDeleteContactMessage,
   ISaveCalendarMessage,
-  IDeleteCalendarMessage
+  IDeleteCalendarMessage,
+  IUpdateCalendarsMessage,
+  IUpdateContactsMessage,
+  IUpdateQueueMessage
 } from './common/messages';
 import {
   IAppArguments,
-  IUpdateCalendarsArguments,
-  IUpdateContactsArguments,
-  IUpdateQueueArguments
 } from './common/arguments';
 import {
   init as initDB,
@@ -66,7 +67,7 @@ function quitApp() {
   process.exit(0);
 }
 
-function createWindow() {
+async function createWindow() {
   const args: IAppArguments = {
     calendars: dataSource.getCalendars(),
     contacts: dataSource.getContacts(),
@@ -81,13 +82,15 @@ function createWindow() {
       additionalArguments: [ JSON.stringify(args) ]
     }
   });
-  mainWindow.loadURL(`http://localhost:${INTERNAL_SERVER_PORT}/app.html`);
-  mainWindow.on('closed', () => { mainWindow = null; });
   mainWindow.once('ready-to-show', () => {
     if (mainWindow) {
       mainWindow.show();
     }
   });
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+  await mainWindow.loadURL(`http://localhost:${INTERNAL_SERVER_PORT}/index.html`);
 }
 
 function createTray() {
@@ -121,10 +124,13 @@ function createTray() {
 app.on('ready', async () => {
   await createInfrastructureServer(INTERNAL_SERVER_PORT);
   addStaticAssetRoute('/', join(__dirname, '..', '..', 'renderer', 'dist'));
+  addRoute('/', (req, res) => {
+    res.send();
+  });
   await initDB();
   await initScheduler();
-  createWindow();
   createTray();
+  await createWindow();
   log('running');
 });
 
@@ -143,19 +149,21 @@ app.on('activate', () => {
 
 function updateQueueInClient() {
   if (mainWindow) {
-    const args: IUpdateQueueArguments = {
+    const message: IUpdateQueueMessage = {
+      messageType: MessageTypes.UpdateQueue,
       queue: dataSource.getQueue().contactQueue
     };
-    mainWindow.webContents.send(MessageTypes.UpdateQueue, JSON.stringify(args));
+    sendMessageToWindows(WindowTypes.Main, message);
   }
 }
 
 function finalizeContactOperation() {
   if (mainWindow) {
-    const args: IUpdateContactsArguments = {
+    const message: IUpdateContactsMessage = {
+      messageType: MessageTypes.UpdateContacts,
       contacts: dataSource.getContacts()
     };
-    mainWindow.webContents.send(MessageTypes.UpdateContacts, JSON.stringify(args));
+    sendMessageToWindows(WindowTypes.Main, message);
   }
 }
 
@@ -178,10 +186,11 @@ ipcMain.on(MessageTypes.RequestDeleteContact, async (event: Event, arg: string) 
 
 function finalizeCalendarOperation() {
   if (mainWindow) {
-    const args: IUpdateCalendarsArguments = {
+    const message: IUpdateCalendarsMessage = {
+      messageType: MessageTypes.UpdateCalendars,
       calendars: dataSource.getCalendars()
     };
-    mainWindow.webContents.send(MessageTypes.UpdateCalendars, JSON.stringify(args));
+    sendMessageToWindows(WindowTypes.Main, message);
   }
 }
 

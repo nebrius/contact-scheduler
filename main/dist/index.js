@@ -23,6 +23,7 @@ const messages_1 = require("./common/messages");
 const db_1 = require("./db");
 const scheduler_1 = require("./scheduler");
 const util_1 = require("./util");
+const config_1 = require("./common/config");
 const ICON_PATH = path_1.join(__dirname, 'icon.png');
 // Keep a global reference of the window and tray objects, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -34,7 +35,7 @@ function quitApp() {
     }
     process.exit(0);
 }
-function createWindow() {
+async function createWindow() {
     const args = {
         calendars: db_1.dataSource.getCalendars(),
         contacts: db_1.dataSource.getContacts(),
@@ -49,13 +50,15 @@ function createWindow() {
             additionalArguments: [JSON.stringify(args)]
         }
     });
-    mainWindow.loadURL(`http://localhost:${util_1.INTERNAL_SERVER_PORT}/app.html`);
-    mainWindow.on('closed', () => { mainWindow = null; });
     mainWindow.once('ready-to-show', () => {
         if (mainWindow) {
             mainWindow.show();
         }
     });
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
+    await mainWindow.loadURL(`http://localhost:${config_1.INTERNAL_SERVER_PORT}/index.html`);
 }
 function createTray() {
     tray = new electron_1.Tray(ICON_PATH);
@@ -86,12 +89,15 @@ function createTray() {
     });
 }
 electron_1.app.on('ready', async () => {
-    await electron_infrastructure_main_1.createInfrastructureServer(util_1.INTERNAL_SERVER_PORT);
+    await electron_infrastructure_main_1.createInfrastructureServer(config_1.INTERNAL_SERVER_PORT);
     electron_infrastructure_main_1.addStaticAssetRoute('/', path_1.join(__dirname, '..', '..', 'renderer', 'dist'));
+    electron_infrastructure_main_1.addRoute('/', (req, res) => {
+        res.send();
+    });
     await db_1.init();
     await scheduler_1.init();
-    createWindow();
     createTray();
+    await createWindow();
     util_1.log('running');
 });
 electron_1.app.on('window-all-closed', () => {
@@ -107,18 +113,20 @@ electron_1.app.on('activate', () => {
 });
 function updateQueueInClient() {
     if (mainWindow) {
-        const args = {
+        const message = {
+            messageType: messages_1.MessageTypes.UpdateQueue,
             queue: db_1.dataSource.getQueue().contactQueue
         };
-        mainWindow.webContents.send(messages_1.MessageTypes.UpdateQueue, JSON.stringify(args));
+        electron_infrastructure_main_1.sendMessageToWindows(messages_1.WindowTypes.Main, message);
     }
 }
 function finalizeContactOperation() {
     if (mainWindow) {
-        const args = {
+        const message = {
+            messageType: messages_1.MessageTypes.UpdateContacts,
             contacts: db_1.dataSource.getContacts()
         };
-        mainWindow.webContents.send(messages_1.MessageTypes.UpdateContacts, JSON.stringify(args));
+        electron_infrastructure_main_1.sendMessageToWindows(messages_1.WindowTypes.Main, message);
     }
 }
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveContact, async (event, arg) => {
@@ -139,10 +147,11 @@ electron_1.ipcMain.on(messages_1.MessageTypes.RequestDeleteContact, async (event
 });
 function finalizeCalendarOperation() {
     if (mainWindow) {
-        const args = {
+        const message = {
+            messageType: messages_1.MessageTypes.UpdateCalendars,
             calendars: db_1.dataSource.getCalendars()
         };
-        mainWindow.webContents.send(messages_1.MessageTypes.UpdateCalendars, JSON.stringify(args));
+        electron_infrastructure_main_1.sendMessageToWindows(messages_1.WindowTypes.Main, message);
     }
 }
 electron_1.ipcMain.on(messages_1.MessageTypes.RequestSaveCalendar, async (event, arg) => {
