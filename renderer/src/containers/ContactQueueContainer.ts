@@ -15,22 +15,15 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { connect } from 'react-redux';
-import { IAppState } from '../util/types';
-import { IAction } from '../actions/actions';
+import { createContainer } from 'redux-wiring';
+import { STATE_TYPES } from '../util/types';
 import { ContactQueue, IStateProps, IDispatchProps } from '../components/ContactQueue';
 
-function mapStateToProps(state: IAppState): IStateProps {
-  return {
-    contactQueue: state.contactQueue
-  };
-}
-
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {};
-}
-
-export const ContactQueueContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ContactQueue);
+export const ContactQueueContainer = createContainer(
+  (state): IStateProps => {
+    return {
+      contactQueue: state.getState(STATE_TYPES.CONTACT_QUEUE)
+    };
+  },
+  (dispatch): IDispatchProps => ({}),
+  ContactQueue);

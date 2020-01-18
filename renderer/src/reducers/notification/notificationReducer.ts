@@ -15,22 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction } from '../../actions/actions';
-import { IContact } from '../../common/types';
+import { createReducer } from 'redux-wiring';
+import { STATE_TYPES } from '../../util/types';
+import { getNotificationInitArgs } from '../../util/initArgs';
 
-export interface INotificationState {
-  contact: IContact;
-}
-
-export function createNotificationReducer(contact: IContact): Reducer<INotificationState> {
-  const DEFAULT_STATE: INotificationState = {
-    contact
-  };
-  return (state: INotificationState | undefined, action: IAction) => {
-    if (!state) {
-      state = DEFAULT_STATE;
-    }
-    return state;
-  };
-}
+createReducer(STATE_TYPES.NOTIFICATIONS, getNotificationInitArgs().contact);

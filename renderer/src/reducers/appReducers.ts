@@ -15,24 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { combineReducers } from 'redux';
-import { createContactsReducer } from './app/contactsReducer';
-import { createContactQueueReducer } from './app/contactQueueReducer';
-import { createCalendarsReducer } from './app/calendarsReducer';
-import { createUIStateReducer } from './app/uiStateReducer';
-import { IAppArguments } from '../common/arguments';
-
-// The application initialization arguments are passed in as base64 encoded JSON,
-// and we want to parse it here
-const rawInitArgs = (new URL(window.location.href)).searchParams.get('initArgs');
-if (typeof rawInitArgs !== 'string') {
-  throw new Error('Internal Error: rawInitArgs is null');
-}
-const initArgs: IAppArguments = JSON.parse(atob(rawInitArgs));
-
-export const appReducers = combineReducers({
-  contacts: createContactsReducer(initArgs.contacts),
-  contactQueue: createContactQueueReducer(initArgs.contactQueue),
-  calendars: createCalendarsReducer(initArgs.calendars),
-  uiState: createUIStateReducer()
-});
+import './app/contactsReducer';
+import './app/contactQueueReducer';
+import './app/calendarsReducer';
+import './app/uiStateReducer';
+import '../common/arguments';

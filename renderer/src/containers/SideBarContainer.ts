@@ -15,32 +15,27 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { connect } from 'react-redux';
-import { IAppState } from '../util/types';
-import { IAction, navigateToHome, navigateToContacts, navigateToCalendars } from '../actions/actions';
+import { createContainer } from 'redux-wiring';
+import { STATE_TYPES, ACTION_TYPES } from '../util/types';
 import { SideBar, IStateProps, IDispatchProps } from '../components/SideBar';
 
-function mapStateToProps(state: IAppState): IStateProps {
-  return {
-    activeTab: state.uiState.tab
-  };
-}
-
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {
-    navigateToHome() {
-      dispatch(navigateToHome());
-    },
-    navigateToContacts() {
-      dispatch(navigateToContacts());
-    },
-    navigateToCalendars() {
-      dispatch(navigateToCalendars());
-    }
-  };
-}
-
-export const SideBarContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SideBar);
+export const SideBarContainer = createContainer(
+  (state): IStateProps => {
+    return {
+      activeTab: state.getState(STATE_TYPES.UI_STATE).tab
+    };
+  },
+  (dispatch): IDispatchProps => {
+    return {
+      navigateToHome() {
+        dispatch(ACTION_TYPES.NAVIGATE_TO_HOME);
+      },
+      navigateToContacts() {
+        dispatch(ACTION_TYPES.NAVIGATE_TO_CONTACTS);
+      },
+      navigateToCalendars() {
+        dispatch(ACTION_TYPES.NAVIGATE_TO_CALENDARS);
+      }
+    };
+  },
+  SideBar);

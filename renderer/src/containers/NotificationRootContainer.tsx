@@ -15,45 +15,40 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { connect } from 'react-redux';
+import { createContainer } from 'redux-wiring';
 import { sendMessage } from '@nebrius/electron-infrastructure-renderer';
-import { IAction } from '../actions/actions';
 import { NotificationRoot, IStateProps, IDispatchProps } from '../components/NotificationRoot';
 import { IContact } from '../common/types';
-import { INotificationState } from '../util/types'
+import { STATE_TYPES } from '../util/types'
 import { MessageTypes, IRespondMessage, IPushToBackMessage } from '../common/messages';
 
-function mapStateToProps(state: INotificationState): IStateProps {
-  return {
-    contact: state.notification.contact
-  };
-}
-
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {
-    close() {
-      sendMessage({
-        messageType: MessageTypes.CloseNotification
-      });
-    },
-    respond(contact: IContact) {
-      const message: IRespondMessage = {
-        messageType: MessageTypes.Respond,
-        contact
-      };
-      sendMessage(message);
-    },
-    pushToBack(contact: IContact) {
-      const message: IPushToBackMessage = {
-        messageType: MessageTypes.PushToBack,
-        contact
-      };
-      sendMessage(message);
-    }
-  };
-}
-
-export const NotificationRootContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NotificationRoot);
+export const NotificationRootContainer = createContainer(
+  (state): IStateProps => {
+    return {
+      contact: state.getState(STATE_TYPES.NOTIFICATIONS).contact
+    };
+  },
+  (dispatch): IDispatchProps => {
+    return {
+      close() {
+        sendMessage({
+          messageType: MessageTypes.CloseNotification
+        });
+      },
+      respond(contact: IContact) {
+        const message: IRespondMessage = {
+          messageType: MessageTypes.Respond,
+          contact
+        };
+        sendMessage(message);
+      },
+      pushToBack(contact: IContact) {
+        const message: IPushToBackMessage = {
+          messageType: MessageTypes.PushToBack,
+          contact
+        };
+        sendMessage(message);
+      }
+    };
+  },
+  NotificationRoot);

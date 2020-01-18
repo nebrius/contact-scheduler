@@ -15,40 +15,35 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { connect } from 'react-redux';
+import { createContainer } from 'redux-wiring';
 import { sendMessage } from '@nebrius/electron-infrastructure-renderer';
-import { IAppState } from '../util/types';
-import { IAction } from '../actions/actions';
+import { STATE_TYPES } from '../util/types';
 import { CalendarList, IStateProps, IDispatchProps } from '../components/CalendarList';
 import { ICalendar } from '../common/types';
 import { MessageTypes, ISaveCalendarMessage, IDeleteCalendarMessage } from '../common/messages';
 
-function mapStateToProps(state: IAppState): IStateProps {
-  return {
-    calendars: state.calendars
-  };
-}
-
-function mapDispatchToProps(dispatch: (action: IAction) => any): IDispatchProps {
-  return {
-    saveCalendar(calendar: ICalendar) {
-      const message: ISaveCalendarMessage = {
-        messageType: MessageTypes.RequestSaveCalendar,
-        calendar
-      };
-      sendMessage(message);
-    },
-    deleteCalendar(calendar: ICalendar) {
-      const message: IDeleteCalendarMessage = {
-        messageType: MessageTypes.RequestDeleteCalendar,
-        calendar
-      };
-      sendMessage(message);
-    }
-  };
-}
-
-export const CalendarsListContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CalendarList);
+export const CalendarsListContainer = createContainer(
+  (state): IStateProps => {
+    return {
+      calendars: state.getState(STATE_TYPES.CALENDARS)
+    };
+  },
+  (dispatch): IDispatchProps => {
+    return {
+      saveCalendar(calendar: ICalendar) {
+        const message: ISaveCalendarMessage = {
+          messageType: MessageTypes.RequestSaveCalendar,
+          calendar
+        };
+        sendMessage(message);
+      },
+      deleteCalendar(calendar: ICalendar) {
+        const message: IDeleteCalendarMessage = {
+          messageType: MessageTypes.RequestDeleteCalendar,
+          calendar
+        };
+        sendMessage(message);
+      }
+    };
+  },
+  CalendarList);
