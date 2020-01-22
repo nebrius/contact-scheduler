@@ -23,21 +23,12 @@ const initData: IUIState = {
   tab: 'home'
 };
 createReducer(STATE_TYPES.UI_STATE, initData)
-  .registerActionHandler(ACTION_TYPES.NAVIGATE_TO_HOME, (state: IUIState) => {
-    return {
-      ...state,
-      tab: 'home'
-    };
+  .handle(ACTION_TYPES.NAVIGATE_TO_HOME, (state: IUIState) => {
+    state.tab = 'home';
   })
-  .registerActionHandler(ACTION_TYPES.NAVIGATE_TO_CONTACTS, (state: IUIState) => {
-    return {
-      ...state,
-      tab: 'contacts'
-    };
+  .handle(ACTION_TYPES.NAVIGATE_TO_CONTACTS, (state: IUIState) => {
+    state.tab = 'contacts';
   })
-  .registerActionHandler(ACTION_TYPES.NAVIGATE_TO_CALENDARS, (state: IUIState) => {
-    return {
-      ...state,
-      tab: 'calendars'
-    };
+  .handle(ACTION_TYPES.NAVIGATE_TO_CALENDARS, (state: IUIState) => {
+    state.tab = 'calendars';
   });

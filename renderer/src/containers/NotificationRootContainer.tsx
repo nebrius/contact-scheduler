@@ -25,7 +25,7 @@ import { MessageTypes, IRespondMessage, IPushToBackMessage } from '../common/mes
 export const NotificationRootContainer = createContainer(
   (state): IStateProps => {
     return {
-      contact: state.getState(STATE_TYPES.NOTIFICATIONS).contact
+      contact: state.getType(STATE_TYPES.NOTIFICATIONS).contact
     };
   },
   (dispatch): IDispatchProps => {

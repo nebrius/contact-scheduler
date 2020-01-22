@@ -21,7 +21,5 @@ import { STATE_TYPES, ACTION_TYPES } from '../../util/types';
 import { getAppInitArgs } from '../../util/initArgs';
 
 createReducer(STATE_TYPES.CALENDARS, getAppInitArgs().calendars)
-  .registerActionHandler(ACTION_TYPES.UPDATE_CALENDARS,
-    (state: ICalendar[], updatedCalendars: ICalendar[]): ICalendar[] => {
-      return [ ...updatedCalendars ];
-    });
+  .handle(ACTION_TYPES.UPDATE_CALENDARS,
+    (state: ICalendar[], updatedCalendars: ICalendar[]): ICalendar[] => updatedCalendars);

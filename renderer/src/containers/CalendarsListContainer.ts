@@ -25,7 +25,7 @@ import { MessageTypes, ISaveCalendarMessage, IDeleteCalendarMessage } from '../c
 export const CalendarsListContainer = createContainer(
   (state): IStateProps => {
     return {
-      calendars: state.getState(STATE_TYPES.CALENDARS)
+      calendars: state.getType(STATE_TYPES.CALENDARS)
     };
   },
   (dispatch): IDispatchProps => {

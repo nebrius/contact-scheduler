@@ -22,7 +22,7 @@ import { SideBar, IStateProps, IDispatchProps } from '../components/SideBar';
 export const SideBarContainer = createContainer(
   (state): IStateProps => {
     return {
-      activeTab: state.getState(STATE_TYPES.UI_STATE).tab
+      activeTab: state.getType(STATE_TYPES.UI_STATE).tab
     };
   },
   (dispatch): IDispatchProps => {

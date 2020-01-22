@@ -21,6 +21,5 @@ import { STATE_TYPES, ACTION_TYPES } from '../../util/types';
 import { getAppInitArgs } from '../../util/initArgs';
 
 createReducer(STATE_TYPES.CONTACTS, getAppInitArgs().contacts)
-  .registerActionHandler(ACTION_TYPES.UPDATE_CONTACTS, (state: IContact[], updatedContacts: IContact[]): IContact[] => {
-    return [ ...updatedContacts ];
-  });
+  .handle(ACTION_TYPES.UPDATE_CONTACTS,
+    (state: IContact[], updatedContacts: IContact[]): IContact[] => updatedContacts);

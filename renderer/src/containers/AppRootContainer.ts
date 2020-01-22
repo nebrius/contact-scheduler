@@ -22,8 +22,8 @@ import { AppRoot, IStateProps, IDispatchProps } from '../components/AppRoot';
 export const AppRootContainer = createContainer(
   (state): IStateProps => {
     return {
-      hasContacts: !!(state.getState(STATE_TYPES.CONTACTS).length),
-      tab: state.getState(STATE_TYPES.UI_STATE).tab
+      hasContacts: !!(state.getType(STATE_TYPES.CONTACTS).length),
+      tab: state.getType(STATE_TYPES.UI_STATE).tab
     };
   },
   (dispatch): IDispatchProps => ({}),

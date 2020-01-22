@@ -25,7 +25,7 @@ import { MessageTypes, ISaveContactMessage, IDeleteContactMessage } from '../com
 export const ContactsListContainer = createContainer(
   (state): IStateProps => {
     return {
-      contacts: state.getState(STATE_TYPES.CONTACTS)
+      contacts: state.getType(STATE_TYPES.CONTACTS)
     };
   },
   (dispatch): IDispatchProps => {

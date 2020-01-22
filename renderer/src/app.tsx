@@ -27,7 +27,7 @@ import {
   IUpdateQueueMessage
 } from './common/messages';
 import { ACTION_TYPES } from './util/types';
-import { globalDispatch, createRoot } from 'redux-wiring';
+import { dispatch, createRoot } from 'redux-wiring';
 import './reducers/appReducers';
 
 (async () => {
@@ -36,17 +36,17 @@ import './reducers/appReducers';
     switch (message.messageType) {
       case MessageTypes.UpdateCalendars:
         const calendars = (message as IUpdateCalendarsMessage).calendars;
-        globalDispatch(ACTION_TYPES.UPDATE_CALENDARS, calendars);
+        dispatch(ACTION_TYPES.UPDATE_CALENDARS, calendars);
         break;
 
       case MessageTypes.UpdateContacts:
         const contacts = (message as IUpdateContactsMessage).contacts;
-        globalDispatch(ACTION_TYPES.UPDATE_CONTACTS, contacts);
+        dispatch(ACTION_TYPES.UPDATE_CONTACTS, contacts);
         break;
 
       case MessageTypes.UpdateQueue:
         const queue = (message as IUpdateQueueMessage).queue;
-        globalDispatch(ACTION_TYPES.UPDATE_QUEUE, queue);
+        dispatch(ACTION_TYPES.UPDATE_QUEUE, queue);
         break;
     }
   });

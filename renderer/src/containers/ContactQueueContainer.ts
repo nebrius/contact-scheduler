@@ -22,7 +22,7 @@ import { ContactQueue, IStateProps, IDispatchProps } from '../components/Contact
 export const ContactQueueContainer = createContainer(
   (state): IStateProps => {
     return {
-      contactQueue: state.getState(STATE_TYPES.CONTACT_QUEUE)
+      contactQueue: state.getType(STATE_TYPES.CONTACT_QUEUE)
     };
   },
   (dispatch): IDispatchProps => ({}),
