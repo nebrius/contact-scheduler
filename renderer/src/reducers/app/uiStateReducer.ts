@@ -15,36 +15,20 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction, ACTIONS } from '../../actions/actions';
+import { createReducer } from 'reduxology';
 import { IUIState } from '../../util/types';
+import { STATE_TYPES, ACTION_TYPES } from '../../util/types';
 
-export function createUIStateReducer(): Reducer<IUIState> {
-  const DEFAULT_STATE: IUIState = {
-    tab: 'home'
-  };
-  return (state: IUIState | undefined, action: IAction) => {
-    if (!state) {
-      state = DEFAULT_STATE;
-    }
-    switch (action.type) {
-      case ACTIONS.NAVIGATE_TO_HOME:
-        return {
-          ...state,
-          tab: 'home'
-        };
-      case ACTIONS.NAVIGATE_TO_CONTACTS:
-        return {
-          ...state,
-          tab: 'contacts'
-        };
-      case ACTIONS.NAVIGATE_TO_CALENDARS:
-        return {
-          ...state,
-          tab: 'calendars'
-        };
-      default:
-        return state;
-    }
-  };
-}
+const initData: IUIState = {
+  tab: 'home'
+};
+createReducer(STATE_TYPES.UI_STATE, initData)
+  .handle(ACTION_TYPES.NAVIGATE_TO_HOME, (state: IUIState) => {
+    state.tab = 'home';
+  })
+  .handle(ACTION_TYPES.NAVIGATE_TO_CONTACTS, (state: IUIState) => {
+    state.tab = 'contacts';
+  })
+  .handle(ACTION_TYPES.NAVIGATE_TO_CALENDARS, (state: IUIState) => {
+    state.tab = 'calendars';
+  });

@@ -15,17 +15,23 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-export type CalendarSource = 'office365' | 'google' | undefined;
+import { IAppArguments, INotificationArguments } from '../common/arguments';
 
-export interface ICalendar {
-  id: number;
-  displayName: string;
-  source: CalendarSource;
+// The application initialization arguments are passed in as base64 encoded JSON
+// We parse them here for the app to use
+
+function parseArgs(): any {
+  const rawInitArgs = (new URL(window.location.href)).searchParams.get('initArgs');
+  if (typeof rawInitArgs !== 'string') {
+    throw new Error('Internal Error: rawInitArgs is null');
+  }
+  return JSON.parse(atob(rawInitArgs));
 }
 
-export interface IContact {
-  id: number;
-  name: string;
-  frequency: 'weekly' | 'monthly' | 'quarterly';
-  lastContacted: number;
+export function getAppInitArgs(): IAppArguments {
+  return parseArgs();
+}
+
+export function getNotificationInitArgs(): INotificationArguments {
+  return parseArgs();
 }

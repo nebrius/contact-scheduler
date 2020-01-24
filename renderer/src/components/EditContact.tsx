@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { IContact } from '../common/types';
 
-import equals = require('deep-equal');
+import equals = require('fast-deep-equal');
 
 export interface IStateProps {
   contact: IContact;

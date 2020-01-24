@@ -15,12 +15,4 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { combineReducers } from 'redux';
-import { createNotificationReducer } from './notification/notificationReducer';
-import { INotificationArguments } from '../common/arguments';
-
-const initArgs: INotificationArguments = JSON.parse(process.argv.pop() as string);
-
-export const notificationReducers = combineReducers({
-  notification: createNotificationReducer(initArgs.contact)
-});
+import './notification/notificationReducer';

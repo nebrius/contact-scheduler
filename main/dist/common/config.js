@@ -1,3 +1,4 @@
+"use strict";
 /*
 Copyright (C) 2018 Bryan Hughes <bryan@nebri.us>
 
@@ -14,7 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-declare module 'node-win-shortcut' {
-  export function createShortcut(execPath: string, appName: string, appId: string): void;
-}
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.INTERNAL_SERVER_PORT = 6938;
+//# sourceMappingURL=config.js.map

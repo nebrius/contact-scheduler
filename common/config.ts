@@ -15,17 +15,4 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-declare module 'electron-notification-state' {
-  export function getDoNotDisturb(): boolean;
-  export function getSessionState():
-    '' |
-    'SESSION_SCREEN_IS_LOCKED' |
-    'SESSION_ON_CONSOLE_KEY' |
-    'QUNS_NOT_PRESENT' |
-    'QUNS_BUSY' |
-    'QUNS_RUNNING_D3D_FULL_SCREEN' |
-    'QUNS_PRESENTATION_MODE' |
-    'QUNS_ACCEPTS_NOTIFICATIONS' |
-    'QUNS_QUIET_TIME' |
-    'QUNS_APP';
-}
+export const INTERNAL_SERVER_PORT = 6938;

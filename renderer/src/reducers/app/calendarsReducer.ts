@@ -15,21 +15,11 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Reducer } from 'redux';
-import { IAction, IUpdateCalendarsAction, ACTIONS } from '../../actions/actions';
+import { createReducer } from 'reduxology';
 import { ICalendar } from '../../common/types';
+import { STATE_TYPES, ACTION_TYPES } from '../../util/types';
+import { getAppInitArgs } from '../../util/initArgs';
 
-export function createCalendarsReducer(calendars: ICalendar[]): Reducer<ICalendar[]> {
-  const DEFAULT_STATE: ICalendar[] = calendars;
-  return (state: ICalendar[] | undefined, action: IAction) => {
-    if (!state) {
-      state = DEFAULT_STATE;
-    }
-    switch (action.type) {
-      case ACTIONS.UPDATE_CALENDARS:
-        return [ ...(action as IUpdateCalendarsAction).calendars ];
-      default:
-        return state;
-    }
-  };
-}
+createReducer(STATE_TYPES.CALENDARS, getAppInitArgs().calendars)
+  .handle(ACTION_TYPES.UPDATE_CALENDARS,
+    (state: ICalendar[], updatedCalendars: ICalendar[]): ICalendar[] => updatedCalendars);

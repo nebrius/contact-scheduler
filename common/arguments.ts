@@ -26,15 +26,3 @@ export interface IAppArguments {
 export interface INotificationArguments {
   contact: IContact;
 }
-
-export interface IUpdateCalendarsArguments {
-  calendars: ICalendar[];
-}
-
-export interface IUpdateContactsArguments {
-  contacts: IContact[];
-}
-
-export interface IUpdateQueueArguments {
-  queue: IContact[];
-}

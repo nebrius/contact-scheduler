@@ -18,7 +18,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 import * as React from 'react';
 import { ICalendar, CalendarSource } from '../common/types';
 
-import equals = require('deep-equal');
+import equals = require('fast-deep-equal');
 
 export interface IStateProps {
   calendar: ICalendar;

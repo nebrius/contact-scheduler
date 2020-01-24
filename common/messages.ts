@@ -17,48 +17,73 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 
 import { ICalendar, IContact } from './types';
 
-export const MessageTypes = {
-  RequestAddCalendar: 'RequestAddCalendar',
-  RequestEditCalendar: 'RequestEditCalendar',
-  RequestSaveCalendar: 'RequestSaveCalendar',
-  RequestDeleteCalendar: 'RequestDeleteCalendar',
+export enum WindowTypes {
+  Main = 'Main',
+  Notifications = 'Notifications'
+}
 
-  RequestAddContact: 'RequestAddContact',
-  RequestEditContact: 'RequestEditContact',
-  RequestSaveContact: 'RequestSaveContact',
-  RequestDeleteContact: 'RequestDeleteContact',
+export enum MessageTypes {
+  RequestAddCalendar = 'RequestAddCalendar',
+  RequestEditCalendar = 'RequestEditCalendar',
+  RequestSaveCalendar = 'RequestSaveCalendar',
+  RequestDeleteCalendar = 'RequestDeleteCalendar',
 
-  CloseDialog: 'CloseDialog',
+  RequestAddContact = 'RequestAddContact',
+  RequestEditContact = 'RequestEditContact',
+  RequestSaveContact = 'RequestSaveContact',
+  RequestDeleteContact = 'RequestDeleteContact',
 
-  UpdateContacts: 'UpdateContacts',
-  UpdateCalendars: 'UpdateCalendars',
-  UpdateQueue: 'UpdateQueue',
+  CloseDialog = 'CloseDialog',
 
-  CloseNotification: 'CloseNotification',
-  Respond: 'Respond',
-  PushToBack: 'PushToBack'
-};
+  UpdateContacts = 'UpdateContacts',
+  UpdateCalendars = 'UpdateCalendars',
+  UpdateQueue = 'UpdateQueue',
 
-export interface ISaveContactMessage {
+  CloseNotification = 'CloseNotification',
+  Respond = 'Respond',
+  PushToBack = 'PushToBack'
+}
+
+export interface IMessage {
+  messageType: string;
+}
+
+export interface ISaveContactMessage extends IMessage {
   contact: IContact;
 }
 
-export interface IDeleteContactMessage {
+export interface IDeleteContactMessage extends IMessage {
   contact: IContact;
 }
 
-export interface ISaveCalendarMessage {
+export interface ISaveCalendarMessage extends IMessage {
   calendar: ICalendar;
 }
 
-export interface IDeleteCalendarMessage {
+export interface IDeleteCalendarMessage extends IMessage {
   calendar: ICalendar;
 }
 
-export interface IRespondMessage {
+export interface IRespondMessage extends IMessage {
   contact: IContact;
 }
 
-export interface IPushToBackMessage {
+export interface IPushToBackMessage extends IMessage {
   contact: IContact;
+}
+
+export interface INotificationMessage extends IMessage {
+  contact: IContact;
+}
+
+export interface IUpdateCalendarsMessage extends IMessage {
+  calendars: ICalendar[];
+}
+
+export interface IUpdateContactsMessage extends IMessage {
+  contacts: IContact[];
+}
+
+export interface IUpdateQueueMessage extends IMessage {
+  queue: IContact[];
 }

@@ -164,19 +164,19 @@ async function refreshCalendars(): Promise<void> {
 }
 
 export async function createCalendar(calendar: ICalendar): Promise<void> {
-  dbRun(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
+  await dbRun(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`,
     [ calendar.displayName, calendar.source ]);
   await refreshCalendars();
 }
 
 export async function updateCalendar(calendar: ICalendar): Promise<void> {
-  dbRun(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
+  await dbRun(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`,
     [ calendar.displayName, calendar.source, calendar.id ]);
   await refreshCalendars();
 }
 
 export async function deleteCalendar(calendar: ICalendar): Promise<void> {
-  dbRun(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`, [ calendar.id ]);
+  await dbRun(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`, [ calendar.id ]);
   await refreshCalendars();
 }
 
@@ -194,13 +194,13 @@ export async function createContact(contact: IContact): Promise<void> {
 }
 
 export async function updateContact(contact: IContact): Promise<void> {
-  dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
+  await dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`,
     [ contact.name, contact.frequency, contact.id ]);
   await refreshContacts();
 }
 
 export async function setLastContactedDate(contact: IContact, lastContactedDate: number): Promise<void> {
-  dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`,
+  await dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`,
     [ lastContactedDate, contact.id ]);
   await refreshContacts();
 }

@@ -139,17 +139,17 @@ async function refreshCalendars() {
     exports.dataSource.emit('calendarsUpdated', calendars);
 }
 async function createCalendar(calendar) {
-    dbRun(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`, [calendar.displayName, calendar.source]);
+    await dbRun(`INSERT INTO ${CALENDARS_TABLE_NAME}(displayName, source) VALUES(?, ?)`, [calendar.displayName, calendar.source]);
     await refreshCalendars();
 }
 exports.createCalendar = createCalendar;
 async function updateCalendar(calendar) {
-    dbRun(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`, [calendar.displayName, calendar.source, calendar.id]);
+    await dbRun(`UPDATE ${CALENDARS_TABLE_NAME} SET displayName = ?, source = ? WHERE id = ?`, [calendar.displayName, calendar.source, calendar.id]);
     await refreshCalendars();
 }
 exports.updateCalendar = updateCalendar;
 async function deleteCalendar(calendar) {
-    dbRun(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`, [calendar.id]);
+    await dbRun(`DELETE FROM ${CALENDARS_TABLE_NAME} WHERE id = ?`, [calendar.id]);
     await refreshCalendars();
 }
 exports.deleteCalendar = deleteCalendar;
@@ -164,12 +164,12 @@ async function createContact(contact) {
 }
 exports.createContact = createContact;
 async function updateContact(contact) {
-    dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`, [contact.name, contact.frequency, contact.id]);
+    await dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET name = ?, frequency = ? WHERE id = ?`, [contact.name, contact.frequency, contact.id]);
     await refreshContacts();
 }
 exports.updateContact = updateContact;
 async function setLastContactedDate(contact, lastContactedDate) {
-    dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`, [lastContactedDate, contact.id]);
+    await dbRun(`UPDATE ${CONTACTS_TABLE_NAME} SET lastContacted = ? WHERE id = ?`, [lastContactedDate, contact.id]);
     await refreshContacts();
 }
 exports.setLastContactedDate = setLastContactedDate;
