@@ -34,6 +34,7 @@
     "@nebrius/electron-infrastructure-renderer": "^1.0.0",
     "classnames": "^2.2.6",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "reduxology": "^1.0.0-beta1"
   }
 }

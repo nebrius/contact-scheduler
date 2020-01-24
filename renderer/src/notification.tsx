@@ -16,7 +16,7 @@ along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { render } from 'react-dom';
-import { createRoot } from 'redux-wiring';
+import { createRoot } from 'reduxology';
 import { connectToInfrastructureServer } from '@nebrius/electron-infrastructure-renderer';
 import { NotificationRootContainer } from './containers/NotificationRootContainer';
 import { INTERNAL_SERVER_PORT } from './common/config';

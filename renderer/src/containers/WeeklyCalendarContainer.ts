@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { createContainer } from 'redux-wiring';
+import { createContainer } from 'reduxology';
 import { ACTION_TYPES } from '../util/types';
 import { WeeklyCalendar, IStateProps, IDispatchProps } from '../components/WeeklyCalendar';
 

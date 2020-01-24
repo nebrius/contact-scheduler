@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { createContainer } from 'redux-wiring';
+import { createContainer } from 'reduxology';
 import { sendMessage } from '@nebrius/electron-infrastructure-renderer';
 import { NotificationRoot, IStateProps, IDispatchProps } from '../components/NotificationRoot';
 import { IContact } from '../common/types';
@@ -25,7 +25,7 @@ import { MessageTypes, IRespondMessage, IPushToBackMessage } from '../common/mes
 export const NotificationRootContainer = createContainer(
   (state): IStateProps => {
     return {
-      contact: state.getType(STATE_TYPES.NOTIFICATIONS).contact
+      contact: state.getSlice(STATE_TYPES.NOTIFICATIONS).contact
     };
   },
   (dispatch): IDispatchProps => {

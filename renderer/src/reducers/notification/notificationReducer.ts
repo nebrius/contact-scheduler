@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { createReducer } from 'redux-wiring';
+import { createReducer } from 'reduxology';
 import { STATE_TYPES } from '../../util/types';
 import { getNotificationInitArgs } from '../../util/initArgs';
 

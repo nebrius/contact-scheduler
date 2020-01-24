@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { createContainer } from 'redux-wiring';
+import { createContainer } from 'reduxology';
 import { sendMessage } from '@nebrius/electron-infrastructure-renderer';
 import { STATE_TYPES } from '../util/types';
 import { CalendarList, IStateProps, IDispatchProps } from '../components/CalendarList';
@@ -25,7 +25,7 @@ import { MessageTypes, ISaveCalendarMessage, IDeleteCalendarMessage } from '../c
 export const CalendarsListContainer = createContainer(
   (state): IStateProps => {
     return {
-      calendars: state.getType(STATE_TYPES.CALENDARS)
+      calendars: state.getSlice(STATE_TYPES.CALENDARS)
     };
   },
   (dispatch): IDispatchProps => {

@@ -27,7 +27,7 @@ import {
   IUpdateQueueMessage
 } from './common/messages';
 import { ACTION_TYPES } from './util/types';
-import { dispatch, createRoot } from 'redux-wiring';
+import { dispatch, createRoot } from 'reduxology';
 import './reducers/appReducers';
 
 (async () => {

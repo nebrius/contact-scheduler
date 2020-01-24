@@ -15,14 +15,14 @@ You should have received a copy of the GNU General Public License
 along with Contact Schedular.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { createContainer } from 'redux-wiring';
+import { createContainer } from 'reduxology';
 import { STATE_TYPES, ACTION_TYPES } from '../util/types';
 import { SideBar, IStateProps, IDispatchProps } from '../components/SideBar';
 
 export const SideBarContainer = createContainer(
   (state): IStateProps => {
     return {
-      activeTab: state.getType(STATE_TYPES.UI_STATE).tab
+      activeTab: state.getSlice(STATE_TYPES.UI_STATE).tab
     };
   },
   (dispatch): IDispatchProps => {
