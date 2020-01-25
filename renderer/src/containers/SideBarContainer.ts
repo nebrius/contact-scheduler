@@ -20,9 +20,9 @@ import { STATE_TYPES, ACTION_TYPES } from '../util/types';
 import { SideBar, IStateProps, IDispatchProps } from '../components/SideBar';
 
 export const SideBarContainer = createContainer(
-  (state): IStateProps => {
+  (getSlice): IStateProps => {
     return {
-      activeTab: state.getSlice(STATE_TYPES.UI_STATE).tab
+      activeTab: getSlice(STATE_TYPES.UI_STATE).tab
     };
   },
   (dispatch): IDispatchProps => {

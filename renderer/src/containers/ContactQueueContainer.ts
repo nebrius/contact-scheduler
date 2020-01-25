@@ -20,9 +20,9 @@ import { STATE_TYPES } from '../util/types';
 import { ContactQueue, IStateProps, IDispatchProps } from '../components/ContactQueue';
 
 export const ContactQueueContainer = createContainer(
-  (state): IStateProps => {
+  (getSlice): IStateProps => {
     return {
-      contactQueue: state.getSlice(STATE_TYPES.CONTACT_QUEUE)
+      contactQueue: getSlice(STATE_TYPES.CONTACT_QUEUE)
     };
   },
   (dispatch): IDispatchProps => ({}),

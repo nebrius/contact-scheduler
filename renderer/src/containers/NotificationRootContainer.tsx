@@ -23,9 +23,9 @@ import { STATE_TYPES } from '../util/types'
 import { MessageTypes, IRespondMessage, IPushToBackMessage } from '../common/messages';
 
 export const NotificationRootContainer = createContainer(
-  (state): IStateProps => {
+  (getSlice): IStateProps => {
     return {
-      contact: state.getSlice(STATE_TYPES.NOTIFICATIONS).contact
+      contact: getSlice(STATE_TYPES.NOTIFICATIONS).contact
     };
   },
   (dispatch): IDispatchProps => {

@@ -20,10 +20,10 @@ import { STATE_TYPES } from '../util/types';
 import { AppRoot, IStateProps, IDispatchProps } from '../components/AppRoot';
 
 export const AppRootContainer = createContainer(
-  (state): IStateProps => {
+  (getSlice): IStateProps => {
     return {
-      hasContacts: !!(state.getSlice(STATE_TYPES.CONTACTS).length),
-      tab: state.getSlice(STATE_TYPES.UI_STATE).tab
+      hasContacts: !!(getSlice(STATE_TYPES.CONTACTS).length),
+      tab: getSlice(STATE_TYPES.UI_STATE).tab
     };
   },
   (dispatch): IDispatchProps => ({}),
