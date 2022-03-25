@@ -33,7 +33,7 @@
   "dependencies": {
     "@nebrius/electron-infrastructure-main": "^1.0.0",
     "@types/serve-handler": "^6.1.0",
-    "electron": "^9.4.0",
+    "electron": "^13.6.6",
     "moment-timezone": "^0.5.27",
     "serve-handler": "^6.1.2",
     "sqlite3": "^4.1.1"
